@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="description" content="Billiard, Pool Game with HTML5 and Javascript" />
+<title>BILLIARD Game (American and French) with HTML5 and javascript</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<style>
+	body {
+		font-family: Monospace;
+		background-color: #000;
+		margin: 0px;
+		overflow: hidden;
+		padding:0;
+		position:relative;
+		height:100%;
+		color:#fff;
+	}
+</style>
+</head>
+<body>
+<script src="build/NEngine.js"></script>
+<script src="build/billiard.min.js"></script>
+<img src='images/logo.png' />
+<div id='controls' style='position:absolute;top:200px;z-index:10'>
+<select id='type'>
+<option value="1" selected>American Pool</option>
+<option value="2">French Billiard</option>
+</select>
+<br />
+<input type='button' id='newbt' value="New Game" onclick="newgame();"/>
+<br />
+<br />
+<p style="width:100px;color:#fff">
+<ol style="width:100px;color:#fff">
+<li>Rotate Stick with mouse to direct hit.</li>
+<li>Press 'Q' key to lock stick and move mouse
+to give strike force.</li>
+<li>Release 'Q' key to strike ball.</li>
+</ol>
+<a href="http://nikos-web-development.netai.net/">Nikos M.</a>
+</p>
+</div>
+<div id='foo' style="position:relative;width:700px;margin:0 auto;">
+<canvas id='cnv'  width=700 height=500>
+</canvas>
+</div>
+<script>
+var billiard=new BILLIARD.Main(document.getElementById('cnv'),1,'images/billiardtable1.png','images/billiardtable2.png','images/white.png','images/black.png','images/yellow.png','images/red.png','images/taco.png');
+function newgame()
+{
+var types=document.getElementById('type');
+billiard.init(parseInt(types.options[types.selectedIndex].value));
+}
+</script>
+</body>
+</html>

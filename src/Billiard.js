@@ -1,0 +1,2 @@
+// BILLIARD Object
+var BILLIARD=BILLIARD || {};
