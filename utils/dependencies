@@ -1,0 +1,13 @@
+@DEPENDENCIES
+# Billiard.js
+Billiard.js
+SimplePoint.js
+CollisionResult.js
+TriangleData.js
+Ball.js
+Taco.js
+BilliardMain.js
+@MINIFY
+--language_in=ECMASCRIPT5_STRICT
+@OUT
+Billiard.min.js

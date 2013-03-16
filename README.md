@@ -6,7 +6,8 @@ A pure javascript billiard game
 
 ![Billiard.js](/images/billiard.jpg)
 
-
+##Live Example
+http://foo123.github.com/examples/billiard.js/
 
 *Contributor* Nikos M.  
 *URL* [Nikos Web Development](http://nikos-web-development.netai.net/ "Nikos Web Development")  
