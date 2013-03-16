@@ -4,7 +4,7 @@ Billiard.js
 A pure javascript billiard game
 
 
-![Billiard.js](/images/billiard.jpg)
+[![Billiard.js](/images/billiard.jpg)](http://foo123.github.com/examples/billiard.js/)
 
 ##Live Example
 http://foo123.github.com/examples/billiard.js/
