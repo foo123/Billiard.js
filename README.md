@@ -1,15 +1,16 @@
 Billiard.js
 ===========
 
-A pure javascript billiard game
+__A pure javascript billiard game__
 
 
 [![Billiard.js](/images/billiard.jpg)](http://foo123.github.com/examples/billiard.js/)
 
-##Live Example
-http://foo123.github.com/examples/billiard.js/
+###Live Example
+* [Billiard.js](http://foo123.github.com/examples/billiard.js/)
 
-##Todo
+###TODO
+* add sound
 * make 3D billiard game (using Three.js)
 
 *Contributor* Nikos M.  
