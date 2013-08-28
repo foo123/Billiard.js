@@ -11,8 +11,7 @@ __A pure javascript billiard game__
 
 ###TODO
 * add sound
-* make 3D billiard game (using Three.js)
+* make 3D billiard game (eg. Three.js)
 
-*Contributor* Nikos M.  
 *URL* [Nikos Web Development](http://nikos-web-development.netai.net/ "Nikos Web Development")  
 *URL* [WorkingClassCode](http://workingclasscode.uphero.com/ "Working Class Code")  
