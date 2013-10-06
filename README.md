@@ -1,6 +1,9 @@
 Billiard.js
 ===========
 
+## Further development on this project has stopped!!
+
+
 __A pure javascript billiard game__
 
 
