@@ -1,0 +1,52 @@
+
+@SRC =[]
+
+    # NEngine dependency (modified, original by Neraliu)
+    ./src/NEngine-0.1/NEngine.js
+    #./src/NEngine-0.1/utils/Clock.js
+    #./src/NEngine-0.1/utils/Keyboard.js
+    ./src/NEngine-0.1/geom/Angle.js
+    ./src/NEngine-0.1/geom/Point.js
+    ./src/NEngine-0.1/geom/Matrix2D.js
+    ./src/NEngine-0.1/events/Event.js
+    ./src/NEngine-0.1/events/KeyboardEvent.js
+    ./src/NEngine-0.1/events/MouseEvent.js
+    ./src/NEngine-0.1/display/DisplayObject.js
+    ./src/NEngine-0.1/display/InteractiveObject.js
+    ./src/NEngine-0.1/display/DisplayObjectContainer.js
+    ./src/NEngine-0.1/display/Sprite.js
+    ./src/NEngine-0.1/display/Stage.js
+    ./src/NEngine-0.1/display/Color.js
+    ./src/NEngine-0.1/display/Graphics.js
+    ./src/NEngine-0.1/display/Shape.js
+    ./src/NEngine-0.1/display/Bitmap.js
+    ./src/NEngine-0.1/display/Rectangle.js
+    ./src/NEngine-0.1/display/Circle.js
+    ./src/NEngine-0.1/display/StaticText.js
+    ./src/NEngine-0.1/controls/Button.js
+    ./src/NEngine-0.1/controls/ImageButton.js
+    ./src/NEngine-0.1/controls/Loader.js
+    ./src/NEngine-0.1/controls/TextField.js
+    ./src/NEngine-0.1/transitions/Tween.js
+    ./src/NEngine-0.1/display/custom/NumberRectangle.js
+    ./src/NEngine-0.1/display/custom/NumberBitmap.js
+
+@
+
+
+# Minify the Package
+@MINIFY ={}
+    
+    # Options for Node UglifyJS Compiler (if used), (default minify options, mangle and compress)
+    "UGLIFY" =[]
+        -m -c
+    @
+    
+    # Options for Java Closure Compiler (if used), (default minify options)
+    "CLOSURE" =[]
+        --language_in=ECMASCRIPT5_STRICT
+    @
+@
+
+@OUT =
+../build/NEngine.min.js

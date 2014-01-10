@@ -1,0 +1,36 @@
+###################################################
+#
+#   The buildtools repository is at:
+#   https://github.com/foo123/scripts/buildtools
+#
+###################################################
+
+@SRC = []
+
+    ./src/Billiard.js
+    ./src/SimplePoint.js
+    ./src/CollisionResult.js
+    ./src/TriangleData.js
+    ./src/Ball.js
+    ./src/Taco.js
+    ./src/BilliardMain.js
+
+@
+
+# Minify the Package
+@MINIFY ={}
+    
+    # Options for Node UglifyJS Compiler (if used), (default minify options, mangle and compress)
+    "UGLIFY" =[]
+        -m -c
+    @
+    
+    # Options for Java Closure Compiler (if used), (default minify options)
+    "CLOSURE" =[]
+        --language_in=ECMASCRIPT5_STRICT
+    @
+@
+
+
+@OUT = 
+./build/Billiard.min.js
