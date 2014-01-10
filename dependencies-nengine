@@ -1,3 +1,9 @@
+###################################################
+#
+#   The buildtools repository is at:
+#   https://github.com/foo123/scripts/buildtools
+#
+###################################################
 
 @SRC =[]
 
@@ -49,4 +55,4 @@
 @
 
 @OUT =
-../build/NEngine.min.js
+./build/NEngine.min.js
