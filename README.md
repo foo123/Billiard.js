@@ -21,7 +21,7 @@ This small demo project draws from various flash biliiard games (like graphic im
 However the primary sources are:
 
 * **[AS3 Billiard by Alejantro](http://www.yoambulante.com/en/labs/elastic_collision.php)** (the similarity is obvious)
-* **Neraliu's NEngine.js** (not online at this time unfortunately), which provided a *Scene graph API* very similar to **Flash**
+* **[Neraliu's](https://github.com/neraliu) NEngine.js** (not online at this time unfortunately), which provided a *Scene graph API* very similar to **Flash**
 
 *Cheers*
 
