@@ -27,6 +27,8 @@ However the primary sources are:
 
 
 ###TODO
+* add ability to perform **draws** , **follows** and **sides** besides *normal* hits
+* add ability for multiplayer game or player/computer game
 * add sound
 * make 3D billiard game (eg. Three.js)
 
