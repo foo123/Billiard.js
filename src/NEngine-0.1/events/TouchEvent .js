@@ -1,9 +1,7 @@
 /**
-* InteractiveObject.js by Nera Liu. Feb 5, 2011
+* TouchEvent.js by Nikos M.. 2026
 * Visit blog.neraliu.com/nengine for documentation, updates and more free code.
 *
-*
-* Copyright (c) 2011 Nera Liu
 *
 * Permission is hereby granted, free of charge, to any person
 * obtaining a copy of this software and associated documentation
@@ -27,29 +25,36 @@
 * OTHER DEALINGS IN THE SOFTWARE.
 **/
 
-/**
-* The InteractiveObject class is the abstract base class for all display objects with which the user can interact, using the mouse, keyboard, or other user input device.
-**/
-
 (function(NEngine) {
 
   /**
-  * InteractiveObject's constructor.
+  * TouchEvent's constructor.
   **/
-  function InteractiveObject() {
+  function TouchEvent(e) {
+    this._e = e;
+    this.pageX  = e.changedTouches[0].pageX;
+    this.pageY  = e.changedTouches[0].pageY;
   }
 
-  InteractiveObject.inheritsFrom(NEngine.DisplayObject);
+  /**
+  * The event object
+  * @type HTML event
+  **/
+  TouchEvent.prototype._e = null;
 
   /**
-  * Specifies whether this object receives mouse, or other user input, messages.
-  * @type Boolean
+  * @type Number
   **/
-  InteractiveObject.prototype.mouseEnabled = true;
+  TouchEvent.prototype.pageX = 0;
 
   /**
-  * Exposing the InteractiveObject to the NEngine global object.
+  * @type Number
   **/
-  NEngine.InteractiveObject = InteractiveObject;
+  TouchEvent.prototype.pageY = 0;
+
+  /**
+  * Exposing the TouchEvent to the NEngine global object.
+  **/
+  NEngine.TouchEvent = TouchEvent;
 
 }(NEngine));

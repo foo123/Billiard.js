@@ -1,20 +1,22 @@
-(function(BILLIARD){
-    BILLIARD.SimplePoint=function(param1, param2)
-    {
-        this.x=0;
-        this.y=0;
-        if (typeof param1=='undefined')
-            param1=0;
-        if (typeof param2=='undefined')
-            param2=0;
-        this.update(param1, param2);
-
-    };// end function
-
-    BILLIARD.SimplePoint.prototype.update=function(param1, param2)
-    {
-        this.x = BILLIARD.Ball.correctFloatingPointError(param1);
-        this.y = BILLIARD.Ball.correctFloatingPointError(param2);
-        return;
-    };// end function
+(function(BILLIARD) {
+"use strict";
+BILLIARD.SimplePoint = function(x, y) {
+    var self = this;
+    if (null == x) x = 0;
+    if (null == y) y = 0;
+    self.x = 0;
+    self.y = 0;
+    self.update(x, y);
+};
+BILLIARD.SimplePoint.prototype = {
+    constructor: BILLIARD.SimplePoint,
+    x: 0,
+    y: 0,
+    update: function(x, y) {
+        var self = this;
+        self.x = BILLIARD.Ball.correctFloatingPointError(x);
+        self.y = BILLIARD.Ball.correctFloatingPointError(y);
+        return self;
+    }
+};
 })(BILLIARD);

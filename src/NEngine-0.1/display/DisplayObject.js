@@ -4,7 +4,7 @@
 *
 *
 * Copyright (c) 2011 Nera Liu
-* 
+*
 * Permission is hereby granted, free of charge, to any person
 * obtaining a copy of this software and associated documentation
 * files (the "Software"), to deal in the Software without
@@ -13,10 +13,10 @@
 * copies of the Software, and to permit persons to whom the
 * Software is furnished to do so, subject to the following
 * conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be
 * included in all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -62,25 +62,25 @@
   **/
   DisplayObject.prototype.name = null;
 
-  /** 
-  * Indicates the global x coordinate of the DisplayObject instance relative to the local coordinates of the parent DisplayObjectContainer. 
+  /**
+  * Indicates the global x coordinate of the DisplayObject instance relative to the local coordinates of the parent DisplayObjectContainer.
   * @type Number
   **/
   DisplayObject.prototype.x = 0;
 
-  /** 
+  /**
   * Indicates the global y coordinate of the DisplayObject instance relative to the local coordinates of the parent DisplayObjectContainer.
   * @type Number
   **/
   DisplayObject.prototype.y = 0;
 
-  /** 
+  /**
   * Indicates the width of the display object, in pixels.
   * @type Number
   **/
   DisplayObject.prototype.width = 0;
 
-  /** 
+  /**
   * Indicates the height of the display object, in pixels.
   * @type Number
   **/
@@ -147,6 +147,12 @@
   DisplayObject.prototype.mouseY = 0;
 
   /**
+  * [read-only] Indicates the local touch points, in pixels.
+  * @type Array
+  **/
+  DisplayObject.prototype.touches = null;
+
+  /**
   * the visibility flag of the DisplayObject
   * @type Boolean
   **/
@@ -209,7 +215,7 @@
 
   /**
   * The ignoreCache flag of the DisplayObject.
-  * @type Boolean 
+  * @type Boolean
   **/
   DisplayObject.prototype.ignoreCache = false;
 
@@ -265,6 +271,24 @@
   DisplayObject.prototype.onMouseOut = null;
 
   /**
+  * onTouchStart handler of the DisplayObject.
+  * @type Function
+  **/
+  DisplayObject.prototype.onTouchStart = null;
+
+  /**
+  * onTouchEnd handler of the DisplayObject.
+  * @type Function
+  **/
+  DisplayObject.prototype.onTouchEnd = null;
+
+  /**
+  * onTouchMove handler of the DisplayObject.
+  * @type Function
+  **/
+  DisplayObject.prototype.onTouchMove = null;
+
+  /**
   * onKeyDown handler of the DisplayObject.
   * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
   * @type Function
@@ -290,7 +314,7 @@
   * @method DisplayObject.__draw(ctx, ignoreCache)
   **/
   DisplayObject.prototype.__draw = function(ctx, ignoreCache) {
-	if (ignoreCache || !this.cacheCanvas) { return false; }
+    if (ignoreCache || !this.cacheCanvas) { return false; }
     ctx.drawImage(this.cacheCanvas, this.x-this.regX, this.y-this.regY);
     return true;
   }
@@ -316,6 +340,7 @@
     o._mtx = this._mtx;
     o.mouseX = this.mouseX;
     o.mouseY = this.mouseY;
+    o.touches = this.touches;
     o.visible = this.visible;
     // o.isFocus = this.isFocus;
     // o.isBounds = this.isBounds;
@@ -382,13 +407,13 @@
   * @method DisplayObject.applyStyle(ctx)
   **/
   DisplayObject.prototype.applyStyle = function(ctx) {
-    if (this.fillStyle != null) { 
+    if (this.fillStyle != null) {
       this.__fillStyle = ctx.fillStyle;
-      ctx.fillStyle = this.fillStyle.toRGB(); 
+      ctx.fillStyle = this.fillStyle.toRGB();
     }
-    if (this.strokeStyle != null) { 
+    if (this.strokeStyle != null) {
       this.__strokeStyle = ctx.strokeStyle;
-      ctx.strokeStyle = this.strokeStyle.toRGB(); 
+      ctx.strokeStyle = this.strokeStyle.toRGB();
     }
   }
 
@@ -397,10 +422,10 @@
   * @method DisplayObject.resetStyle(ctx)
   **/
   DisplayObject.prototype.resetStyle = function(ctx) {
-    if (this.__fillStyle != null) { 
+    if (this.__fillStyle != null) {
       ctx.fillStyle = this.__fillStyle;
     }
-    if (this.__strokeStyle != null) { 
+    if (this.__strokeStyle != null) {
       ctx.strokeStyle = this.__strokeStyle;
     }
   }
@@ -409,7 +434,7 @@
   * Converts the point object from the Stage (global) coordinates to the display object's (local) coordinates.
   * @method DisplayObject.globalToLocal(x,y)
   **/
-  DisplayObject.prototype.globalToLocal = function(globalX, globalY) { 
+  DisplayObject.prototype.globalToLocal = function(globalX, globalY) {
     return new Point(globalX-this.x, gloablY-this.y);
   }
 
@@ -432,7 +457,7 @@
     this.cacheCanvas.width  = this.width;
     this.cacheCanvas.height = this.height;
     cache_ctx.setTransform(1, 0, 0, 1, -this.x, -this.y);
-    cache_ctx.clearRect(0, 0, this.width+1, this.height+1); 
+    cache_ctx.clearRect(0, 0, this.width+1, this.height+1);
     this.draw(cache_ctx, true);
   }
 
@@ -472,7 +497,7 @@
   * Test whether the mouseX/Y is in bound of the DisplayObject.
   * @method DisplayObject.hitTest(x, y)
   **/
-  DisplayObject.prototype.hitTest = function(x, y) { 
+  DisplayObject.prototype.hitTest = function(x, y) {
     var ctx = DisplayObject._hitTestContext;
     var canvas = DisplayObject._hitTestCanvas;
 
@@ -516,6 +541,7 @@
     var inBounds = (globalX >= this.x && globalY >= this.y && globalX < (this.x + this.width) && globalY < (this.y + this.height));
     return inBounds;
   }
+  DisplayObject.prototype.skipBounds = false;
 
   /**
   * Exposing the DisplayObject to the window global object.

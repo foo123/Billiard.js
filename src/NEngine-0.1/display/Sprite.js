@@ -4,7 +4,7 @@
 *
 *
 * Copyright (c) 2011 Nera Liu
-* 
+*
 * Permission is hereby granted, free of charge, to any person
 * obtaining a copy of this software and associated documentation
 * files (the "Software"), to deal in the Software without
@@ -13,10 +13,10 @@
 * copies of the Software, and to permit persons to whom the
 * Software is furnished to do so, subject to the following
 * conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be
 * included in all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -37,14 +37,18 @@
   * Sprite's constructor.
   **/
   function Sprite(canvas) {
-    this.__displayobject_init("Sprite");
-    this.__displayobjectcont_init();
-    this.__stage_init(canvas);
-    /*
-    NEngine.Clock.setInterval(NEngine.env.interval);
-    NEngine.Clock.addListeners(this);
-    NEngine.Clock.start();
-    */
+    if (canvas)
+    {
+        this.__displayobject_init("Sprite");
+        this.__displayobjectcont_init();
+        this.__stage_init(canvas);
+        if (NEngine.Clock)
+        {
+            NEngine.Clock.setInterval(NEngine.env.interval);
+            NEngine.Clock.addListeners(this);
+            NEngine.Clock.start();
+        }
+    }
   }
 
   Sprite.inheritsFrom(NEngine.DisplayObjectContainer);
@@ -89,37 +93,15 @@
     this.graphics = new NEngine.Graphics(this.canvas);
 
     var s = this;
-    if (window.addEventListener) {
-      window.addEventListener('mousemove', function(e) { s._handleOnMouseMove(e); }, false);
-      window.addEventListener('mouseup', function(e) { s._handleOnMouseUp(e); }, false);
-      window.addEventListener('mousedown', function(e) { s._handleOnMouseDown(e); }, false);
-      window.addEventListener('mouseover', function(e) { s._handleOnMouseOver(e); }, false);
-      window.addEventListener('mouseout', function(e) { s._handleOnMouseOut(e); }, false);
-      window.addEventListener('click', function(e) { s._handleOnClick(e); }, false);
-      window.addEventListener('keydown', function(e) { s._handleOnKeyDown(e); }, false);
-      window.addEventListener('keyup', function(e) { s._handleOnKeyUp(e); }, false);
-      window.addEventListener('keypress', function(e) { s._handleOnKeyPress(e); }, false);
-    } else if (document.addEventListener) {
-      document.addEventListener('mousemove', function(e) { s._handleOnMouseMove(e); }, false);
-      document.addEventListener('mouseup', function(e) { s._handleOnMouseUp(e); }, false);
-      document.addEventListener('mousedown', function(e) { s._handleOnMouseDown(e); }, false);
-      document.addEventListener('mouseover', function(e) { s._handleOnMouseOver(e); }, false);
-      document.addEventListener('mouseout', function(e) { s._handleOnMouseOut(e); }, false);
-      document.addEventListener('click', function(e) { s._handleOnClick(e); }, false);
-      document.addEventListener('keydown', function(e) { s._handleOnKeyDown(e); }, false);
-      document.addEventListener('keyup', function(e) { s._handleOnKeyUp(e); }, false);
-      document.addEventListener('keypress', function(e) { s._handleOnKeyPress(e); }, false);
-    } else if (window.attachEvent) {
-      window.attachEvent('mousemove', function(e) { s._handleOnMouseMove(e); });
-      window.attachEvent('mouseup', function(e) { s._handleOnMouseUp(e); });
-      window.attachEvent('mousedown', function(e) { s._handleOnMouseDown(e); });
-      window.attachEvent('mouseover', function(e) { s._handleOnMouseOver(e); });
-      window.attachEvent('mouseout', function(e) { s._handleOnMouseOut(e); });
-      window.attachEvent('click', function(e) { s._handleOnClick(e); });
-      window.attachEvent('keydown', function(e) { s._handleOnKeyDown(e); });
-      window.attachEvent('keyup', function(e) { s._handleOnKeyUp(e); });
-      window.attachEvent('keypress', function(e) { s._handleOnKeyPress(e); });
-    }
+    NEngine.addEvent(window, 'mousemove', function(e) { s._handleOnMouseMove(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mouseup', function(e) { s._handleOnMouseUp(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mousedown', function(e) { s._handleOnMouseDown(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mouseover', function(e) { s._handleOnMouseOver(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mouseout', function(e) { s._handleOnMouseOut(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'click', function(e) { s._handleOnClick(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keydown', function(e) { s._handleOnKeyDown(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keyup', function(e) { s._handleOnKeyUp(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keypress', function(e) { s._handleOnKeyPress(e); }, {passive:false, capture:false});
     this.draw();
   }
 

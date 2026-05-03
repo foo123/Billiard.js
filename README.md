@@ -1,7 +1,7 @@
 Billiard.js
 ===========
 
-**A billiard game in pure JavaScript**
+**A billiard game in pure JavaScript** for Desktop and Mobile
 
 
 [![Billiard.js](/images/billiard.jpg)](http://foo123.github.io/examples/billiard.js/)
@@ -12,14 +12,9 @@ Billiard.js
 
 ### Credits
 
-*Since the original blog post about this project is closed, mention here some sources from which this was inspired and came to be*
+This small project draws from various billiard games in Flash, especially [AS3 Billiard by Alejantro](http://www.yoambulante.com/en/labs/elastic_collision.php).
 
-This small demo project draws from various flash biliiard games (like graphic images etc.., I cheated a little :) )
-
-However the primary sources are:
-
-* **[AS3 Billiard by Alejantro](http://www.yoambulante.com/en/labs/elastic_collision.php)** (the similarity is obvious)
-* **[Neraliu's](https://github.com/neraliu) NEngine.js** (not online at this time unfortunately), which provided a *Scene graph API* very similar to **Flash**
+A modified version of [Nera Liu's](https://github.com/neraliu) `NEngine.js` (not available online at this time) is used which provides a *Scene Graph API* similar to Flash, based on HTML Canvas.
 
 ### Todo
 * add ability to perform *draws* , *follows* and *sides*, besides *normal* hits

@@ -1,68 +1,4547 @@
-var NEngine={version:{name:"alpha 0.1",number:0.1},env:{name:"",type:"",debug:1,interval:34}};NEngine.env.BROWSER="browser";NEngine.env.MOBILE="mobile";NEngine.env.CONSOLE="console";NEngine.utils={_next_ID:0};NEngine.utils.getUID=function(){return++this._next_ID};NEngine.utils.assertSame=function(d,a){return d==a?!0:!1};
-NEngine.utils.log=function(){if(NEngine.env.debug)switch(NEngine.env.type){case NEngine.env.BROWSER:try{"undefined"!==typeof console&&console&&console.log&&console.log.apply(NEngine,arguments)}catch(d){console.log(Array.prototype.join.apply(arguments,[","]))}}};NEngine.utils.getTimestamp=function(){return Math.round((new Date).getTime()/1E3)};NEngine.utils.getTimestampInMS=function(){return Math.round((new Date).getTime())};NEngine.init=function(){NEngine.env.type=NEngine.env.BROWSER;NEngine.utils.log("NEngine.init - done")}();
-Function.prototype.inheritsFrom=function(d){d.constructor==Function?(this.prototype=new d,this.prototype.constructor=this,this.prototype.parent=d.prototype):(this.prototype=d,this.prototype.constructor=this,this.prototype.parent=d);return this};(function(d){function a(){throw"Clock cannot be instantiated.";}a._intervalID=0;a._interval=0;a._startTime=0;a._lastTickTime=0;a._tick=0;a._paused=!1;a._listeners=[];a._diff=0;a.addListeners=function(c){a.pause();a._listeners.push(c);a.start()};a.removeListeners=function(c){for(var b=0;b<a._listeners.length;b++)if(a._listeners[b]==c)return a.pause(),c=a._listeners[b],a._listeners.splice(b,1),a.start(),c;return null};a.setInterval=function(c){a.pause();a._interval=c};a.getInterval=function(){return a._interval};
-a.setPaused=function(c){a._paused=c};a.getPaused=function(){return a._paused};a.getFPS=function(){return 1E3/a._interval};a.toString=function(){var c=new Date;return"unixts:"+c.getTime()+","+c};a.start=function(){0<a._intervalID&&clearInterval(a._intervalID);if(!(0>=a._interval))a.setPaused(!1),a._intervalID=setInterval(a.tick,a._interval)};a.pause=function(){a.setPaused(!0);0<a._intervalID&&clearInterval(a._intervalID)};a.tick=function(){a._tick++;currentTime=a._getTime();a._diff=Math.abs(currentTime)-
-Math.abs(a._lastTickTime);a._lastTickTime=currentTime;for(var c=0;c<a._listeners.length;c++)a._listeners[c].tick&&a._listeners[c].tick()};a.getTime=function(){return(new Date).getTime()};a._getTime=function(){return(new Date).getTime()};a._startTime=a._getTime();d.Clock=a})(NEngine);(function(d){function a(){throw"Keyboard cannot be instantiated.";}a.LEFT=37;a.RIGHT=39;a.UP=38;a.DOWN=40;d.Keyboard=a})(NEngine);(function(d){function a(){}a.prototype.degree2radian=function(c){return Math.PI/180*c};a.prototype.radian2degree=function(c){return c/(Math.PI/180)};d.Angle=a})(NEngine);(function(d){function a(c,a){this.name="Point";this.x=c;this.y=a}a.prototype.clone=function(){return new a(this.x,this.y)};a.prototype.toString=function(){return this.name+"(x:"+this.x+",y:"+this.y+")"};d.Point=a})(NEngine);(function(d){function a(){this.m11=1;this.m21=this.m12=0;this.m22=1;this.dy=this.dx=0}a.prototype.m11=1;a.prototype.m12=0;a.prototype.m21=1;a.prototype.m22=0;a.prototype.dx=0;a.prototype.dy=0;a.prototype.translate=function(c,a){c=parseFloat(c);a=parseFloat(a);this.dx+=c;this.dy+=a};a.prototype.scale=function(c,a){c=parseFloat(c);a=parseFloat(a);this.m11*=c;this.dx*=c;this.m22*=a;this.dy=this.dx*a};a.prototype.skew=function(c,a){c=parseFloat(c);a=parseFloat(a);c=c*Math.PI/180;a=a*Math.PI/180;this.append(Math.cos(a),
-Math.sin(a),-Math.sin(c),Math.cos(c),0,0)};a.prototype.rotate=function(c){var c=parseFloat(c),a=Math.cos(c),c=Math.sin(c),e=this.m11,d=this.m12,g=this.m21,h=this.m22,i=this.dx,j=this.dy;this.m11=e*a-d*c;this.m12=e*c+d*a;this.m21=g*a-h*c;this.m22=g*c+h*a;this.dx=i*a-j*c;this.dy=i*c+j*a};a.prototype.invert=function(){var c=this.m11,a=this.m12,e=this.m21,d=this.m22,g=this.dx,h=this.dy,i=c*d-a*e;this.m11=d/i;this.m12=-a/i;this.m21=-e/i;this.m22=c/i;this.dx=(e*h-d*g)/i;this.dy=-(c*h-a*g)/i};a.prototype.identity=
-function(){this.m11=1;this.m21=this.dx=this.m12=0;this.m22=1;this.dy=0};a.prototype.prepend=function(c,a,e,d,g,h){var c=parseFloat(c),a=parseFloat(a),e=parseFloat(e),d=parseFloat(d),g=parseFloat(g),h=parseFloat(h),i=this.m11,j=this.m12,k=this.m21,l=this.m22,m=this.dx,n=this.dy;this.m11=c*i+a*k+0*g;this.m12=c*j+a*l+0*g;this.m21=e*i+d*k+0*h;this.m22=e*j+d*l+0*h;this.dx=c*m+a*n+1*g;this.dy=e*m+d*n+1*h};a.prototype.prependMatrix2D=function(c){this.prepend(c.m11,c.m12,c.m21,c.m22,c.dx,c.dy)};a.prototype.append=
-function(c,a,e,d,g,h){var c=parseFloat(c),a=parseFloat(a),e=parseFloat(e),d=parseFloat(d),g=parseFloat(g),h=parseFloat(h),i=this.m11,j=this.m12,k=this.m21,l=this.m22,m=this.dx,n=this.dy;this.m11=i*c+j*e+0*m;this.m12=i*a+j*d+0*m;this.m21=k*c+l*e+0*n;this.m22=k*a+l*d+0*n;this.dx=i*g+j*h+1*m;this.dy=k*g+l*h+1*n};a.prototype.appendMatrix2D=function(c){this.append(c.m11,c.m12,c.m21,c.m22,c.dx,c.dy)};a.prototype.clone=function(){var c=new a;c.m11=this.m11;c.m12=this.m12;c.m21=this.m21;c.m22=this.m22;c.dx=
-this.dx;c.dy=this.dy;return c};a.prototype.transformPoint=function(c){var a=new d.Point(c.x,c.y);a.x=this.m11*c.x+this.m21*c.y+this.dx;a.y=this.m12*c.x+this.m22*c.y+this.dy;return a};a.prototype.concat=function(c,a,e,d,g,h){return this.prepend(c,a,e,d,g,h)};a.prototype.concatMatrix2D=function(c){this.concat(c.m11,c.m12,c.m21,c.m22,c.dx,c.dy)};a.prototype.toString=function(){return"(m11:"+this.m11+",m12:"+this.m12+",m21:"+this.m21+",m22:"+this.m22+",dx:"+this.dx+",dy:"+this.dy+")"};d.Matrix2D=a})(NEngine);(function(d){d.Event=function(){}})(NEngine);(function(d){function a(c){this._e=c;this.keycode=c.keyCode;this.charcode=c.charCode}a.prototype._e=null;a.prototype.keycode=0;a.prototype.charcode=0;d.KeyboardEvent=a})(NEngine);(function(d){function a(c){this._e=c;this.pageX=c.pageX;this.pageY=c.pageY}a.prototype._e=null;a.prototype.pageX=0;a.prototype.pageY=0;d.MouseEvent=a})(NEngine);(function(d){function a(){this.__displayobject_init()}a.prototype.constructor=a;a.suppressCrossDomainErrors=!1;a._hitTestCanvas=document.createElement("canvas");a._hitTestCanvas.width=a._hitTestCanvas.height=1;a._hitTestContext=a._hitTestCanvas.getContext("2d");a.prototype.id=null;a.prototype.name=null;a.prototype.x=0;a.prototype.y=0;a.prototype.width=0;a.prototype.height=0;a.prototype.scaleX=1;a.prototype.scaleY=1;a.prototype.skewX=0;a.prototype.skewY=0;a.prototype.regX=0;a.prototype.regY=0;a.prototype.rotation=
-0;a.prototype._mtx=null;a.prototype.mouseX=0;a.prototype.mouseY=0;a.prototype.visible=!0;a.prototype.isFocus=!1;a.prototype.isBounds=!1;a.prototype.alpha=1;a.prototype.shadow=null;a.prototype.compositeOperation="";a.prototype.cursor=null;a.prototype.stage=null;a.prototype.parent=null;a.prototype.cacheCanvas=null;a.prototype.ignoreCache=!1;a.prototype.onClick=null;a.prototype.onMouseDown=null;a.prototype.onMouseUp=null;a.prototype.onMouseOver=null;a.prototype.onMouseMove=null;a.prototype.onMouseOut=
-null;a.prototype.onKeyDown=null;a.prototype.onKeyUp=null;a.prototype.onKeyPress=null;a.prototype.__draw=function(c,a){if(a||!this.cacheCanvas)return!1;c.drawImage(this.cacheCanvas,this.x-this.regX,this.y-this.regY);return!0};a.prototype.clone=function(){var c=new a;c.name=this.name;c.x=this.x;c.y=this.y;c.width=this.width;c.height=this.height;c.scaleX=this.scaleX;c.scaleY=this.scaleY;c.skewX=this.skewX;c.skewY=this.skewY;c.regX=this.regX;c.regY=this.regY;c.rotation=this.rotation;c._mtx=this._mtx;
-c.mouseX=this.mouseX;c.mouseY=this.mouseY;c.visible=this.visible;c.alpha=this.alpha;c.shadow=this.shadow;c.compositeOperation=this.compositeOperation;c.stage=this.stage;c.parent=this.parent;c.cacheCanvas=this.cacheCanvas;c.ignoreCache=this.ignoreCache;return c};a.prototype.toString=function(){return this.name+"(id:"+this.id+")"};a.prototype.debug=function(c){for(var a in c)d.utils.log(a+"="+c[a])};a.prototype.getConcatenatedMatrix=function(c){c?c.identity():c=new d.Matrix2D;for(var a=this;null!=a;)a=
-a.parent;return c};a.prototype.applyShadow=function(){};a.prototype.applyStyle=function(c){if(null!=this.fillStyle)this.__fillStyle=c.fillStyle,c.fillStyle=this.fillStyle.toRGB();if(null!=this.strokeStyle)this.__strokeStyle=c.strokeStyle,c.strokeStyle=this.strokeStyle.toRGB()};a.prototype.resetStyle=function(c){if(null!=this.__fillStyle)c.fillStyle=this.__fillStyle;if(null!=this.__strokeStyle)c.strokeStyle=this.__strokeStyle};a.prototype.globalToLocal=function(c){return new Point(c-this.x,gloablY-
-this.y)};a.prototype.localToGlobal=function(c,a){return new Point(c+this.x,a+this.y)};a.prototype.cache=function(){var c;if(null==this.cacheCanvas)this.cacheCanvas=document.createElement("canvas");c=this.cacheCanvas.getContext("2d");this.cacheCanvas.width=this.width;this.cacheCanvas.height=this.height;c.setTransform(1,0,0,1,-this.x,-this.y);c.clearRect(0,0,this.width+1,this.height+1);this.draw(c,!0)};a.prototype.updateCache=function(){this.cache()};a.prototype.clearCache=function(){this.cacheCanvas=
-null};a.prototype.__displayobject_init=function(c){this._mtx=new d.Matrix2D;this._mtx.identity();this.id=d.utils.getUID();this.name=c};a.prototype.hitTest=function(c,b){var e=a._hitTestContext,d=a._hitTestCanvas;e.setTransform(1,0,0,1,-c,-b);this.draw(e,!0);e=this._testHit(e);d.width=0;d.width=1;return e};a.prototype._testHit=function(c){try{var b=1<c.getImageData(0,0,1,1).data[3]}catch(e){if(!a.suppressCrossDomainErrors)throw"An error has occured. This is most likely due to security restrictions on reading canvas pixel data with local or cross-domain images.";
-}return b};a.prototype.inBounds=function(c,a){return c>=this.x&&a>=this.y&&c<this.x+this.width&&a<this.y+this.height};d.DisplayObject=a})(NEngine);(function(d){function a(){}a.inheritsFrom(d.DisplayObject);a.prototype.mouseEnabled=!0;d.InteractiveObject=a})(NEngine);(function(d){function a(){this.__displayobject_init("DisplayObjectContainter")}a.inheritsFrom(d.InteractiveObject);a.prototype._children=[];a.prototype._isdirty=!1;a.prototype.numChildren=0;a.prototype.__displayobjectcont_init=function(){this._children=[]};a.prototype.addChild=function(c){this.numChildren++;this._children.push(c);this._isdirty=!0;c.parent=this;c.stage=this};a.prototype.addChildAt=function(){throw"Exception: DisplayObjectContainer.addChildAt(child, index) not implemented";};a.prototype.contains=
-function(c){for(var a=0;a<this._children.length;a++)if(this._children[a].id==c.id)return!0;return!1};a.prototype.getChildAt=function(c){return void 0!=this._children[c]?this._children[c]:null};a.prototype.getChildByName=function(){throw"Exception: DisplayObjectContainer.getChildByName(name) not implemented";};a.prototype.getChildIndex=function(c){for(var a=0;a<this._children.length;a++)if(this._children[a].id==c.id)return a;return-1};a.prototype.removeChild=function(c){for(var a=0;a<this._children.length;a++)if(this._children[a].id==
-c.id)return c=this._children[a],c.parent=null,c.stage=null,this._children.splice(a,1),this._isdirty=!0,this.numChildren--,c;return null};a.prototype.removeChildAt=function(c){var a=this._children[c];a.parent=null;a.stage=null;this._children.splice(c,1);this._isdirty=!0;this.numChildren--;return a};a.prototype.setChildIndex=function(){throw"Exception: DisplayObjectContainer.setChildIndex(child, index) not implemented";};a.prototype.swapChildren=function(c,a){for(var e=-1,d=-1,g=0;g<this._children.length;g++)this._children[g].id==
-c.id&&(e=g),this._children[g].id==a.id&&(d=g);-1!=e&&-1!=d&&(g=this._children[e],this._children[e]=this._children[d],this._children[d]=g)};a.prototype.swapChildrenAt=function(c,a){if(void 0!=this._children[c]&&void 0!=this._children[a]){var e=this._children[c];this._children[c]=this._children[a];this._children[a]=e}};a.prototype.getObjectsUnderPoint=function(a,b){for(var e=[],d=0;d<this._children.length;d++)this._children[d]instanceof DisplayObjectContainter||this._children[d].inBounds(a,b)&&e.push(this._children[d]);
-return e};d.DisplayObjectContainer=a})(NEngine);(function(d){function a(a){this.__displayobject_init("Sprite");this.__displayobjectcont_init();this.__stage_init(a)}a.inheritsFrom(d.DisplayObjectContainer);a.prototype.canvas=null;a.prototype.graphics=null;a.prototype.autoClear=!0;a.prototype.useHandCursor=!0;a.prototype.__stage_init=function(a){this.stage=this;this.canvas=a;this.graphics=new d.Graphics(this.canvas);var b=this;window.addEventListener?(window.addEventListener("mousemove",function(a){b._handleOnMouseMove(a)},!1),window.addEventListener("mouseup",
-function(a){b._handleOnMouseUp(a)},!1),window.addEventListener("mousedown",function(a){b._handleOnMouseDown(a)},!1),window.addEventListener("mouseover",function(a){b._handleOnMouseOver(a)},!1),window.addEventListener("mouseout",function(a){b._handleOnMouseOut(a)},!1),window.addEventListener("click",function(a){b._handleOnClick(a)},!1),window.addEventListener("keydown",function(a){b._handleOnKeyDown(a)},!1),window.addEventListener("keyup",function(a){b._handleOnKeyUp(a)},!1),window.addEventListener("keypress",
-function(a){b._handleOnKeyPress(a)},!1)):document.addEventListener?(document.addEventListener("mousemove",function(a){b._handleOnMouseMove(a)},!1),document.addEventListener("mouseup",function(a){b._handleOnMouseUp(a)},!1),document.addEventListener("mousedown",function(a){b._handleOnMouseDown(a)},!1),document.addEventListener("mouseover",function(a){b._handleOnMouseOver(a)},!1),document.addEventListener("mouseout",function(a){b._handleOnMouseOut(a)},!1),document.addEventListener("click",function(a){b._handleOnClick(a)},
-!1),document.addEventListener("keydown",function(a){b._handleOnKeyDown(a)},!1),document.addEventListener("keyup",function(a){b._handleOnKeyUp(a)},!1),document.addEventListener("keypress",function(a){b._handleOnKeyPress(a)},!1)):window.attachEvent&&(window.attachEvent("mousemove",function(a){b._handleOnMouseMove(a)}),window.attachEvent("mouseup",function(a){b._handleOnMouseUp(a)}),window.attachEvent("mousedown",function(a){b._handleOnMouseDown(a)}),window.attachEvent("mouseover",function(a){b._handleOnMouseOver(a)}),
-window.attachEvent("mouseout",function(a){b._handleOnMouseOut(a)}),window.attachEvent("click",function(a){b._handleOnClick(a)}),window.attachEvent("keydown",function(a){b._handleOnKeyDown(a)}),window.attachEvent("keyup",function(a){b._handleOnKeyUp(a)}),window.attachEvent("keypress",function(a){b._handleOnKeyPress(a)}));this.draw()};a.prototype._handleOnMouseMove=function(a){if(this.canvas){if(this.mouseX=a.pageX-this.canvas.offsetLeft,this.mouseY=a.pageY-this.canvas.offsetTop,0<=this.mouseX&&0<=
-this.mouseY&&this.mouseX<this.canvas.width&&this.mouseY<this.canvas.height){if(this.onMouseMove)this.onMouseMove(a);for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=a.pageX-this.canvas.offsetLeft-this._children[b].x,this._children[b].mouseY=a.pageY-this.canvas.offsetTop-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].onMouseMove&&this._children[b].onMouseMove instanceof Function)this._children[b].onMouseMove(a)}}else this.mouseX=this.mouseY=null};a.prototype._handleOnMouseUp=
-function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.offsetLeft;this.mouseY=a.pageY-this.canvas.offsetTop;if(this.onMouseUp)this.onMouseUp(a);for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=a.pageX-this.canvas.offsetLeft-this._children[b].x,this._children[b].mouseY=a.pageY-this.canvas.offsetTop-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].onMouseUp&&this._children[b].onMouseUp instanceof Function)this._children[b].onMouseUp(a)}else this.mouseX=this.mouseY=
-null};a.prototype._handleOnMouseDown=function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.offsetLeft;this.mouseY=a.pageY-this.canvas.offsetTop;if(this.onMouseDown)this.onMouseDown(a);for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=a.pageX-this.canvas.offsetLeft-this._children[b].x,this._children[b].mouseY=a.pageY-this.canvas.offsetTop-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].onMouseDown&&this._children[b].onMouseDown instanceof Function)this._children[b].onMouseDown(a)}else this.mouseX=
-this.mouseY=null};a.prototype._handleOnMouseOver=function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.offsetLeft;this.mouseY=a.pageY-this.canvas.offsetTop;if(this.onMouseOver)this.onMouseOver(a);for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=a.pageX-this.canvas.offsetLeft-this._children[b].x,this._children[b].mouseY=a.pageY-this.canvas.offsetTop-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].onMouseOver&&this._children[b].onMouseOver instanceof Function)this._children[b].onMouseOver(a)}else this.mouseX=
-this.mouseY=null};a.prototype._handleOnMouseOut=function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.offsetLeft;this.mouseY=a.pageY-this.canvas.offsetTop;if(this.onMouseOut)this.onMouseOut(a);for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=a.pageX-this.canvas.offsetLeft-this._children[b].x,this._children[b].mouseY=a.pageY-this.canvas.offsetTop-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].onMouseOut&&this._children[b].onMouseOut instanceof Function)this._children[b].onMouseOut(a)}else this.mouseX=
-this.mouseY=null};a.prototype._handleOnClick=function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.offsetLeft;this.mouseY=a.pageY-this.canvas.offsetTop;if(this.onClick)this.onClick(a);for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=a.pageX-this.canvas.offsetLeft-this._children[b].x,this._children[b].mouseY=a.pageY-this.canvas.offsetTop-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].inBounds(this.mouseX,this.mouseY)&&this._children[b].onClick&&this._children[b].onClick instanceof
-Function)this._children[b].onClick(a)}else this.mouseX=this.mouseY=null};a.prototype._handleOnKeyDown=function(a){if(this.canvas){if(this.onKeyDown)this.onKeyDown(a);for(var b=0;b<this._children.length;b++)if(this._children[b].onKeyDown&&this._children[b].onKeyDown instanceof Function)this._children[b].onKeyDown(a)}};a.prototype._handleOnKeyUp=function(a){if(this.canvas){if(this.onKeyUp)this.onKeyUp(a);for(var b=0;b<this._children.length;b++)if(this._children[b].onKeyUp&&this._children[b].onKeyUp instanceof
-Function)this._children[b].onKeyUp(a)}};a.prototype._handleOnKeyPress=function(a){if(this.canvas){if(this.onKeyPress)this.onKeyPress(a);for(var b=0;b<this._children.length;b++)if(this._children[b].onKeyPress&&this._children[b].onKeyPress instanceof Function)this._children[b].onKeyPress(a)}};a.prototype.tick=function(){this.draw()};a.prototype.clear=function(){null!=this.canvas&&this.canvas.getContext("2d").clearRect(0,0,this.canvas.width,this.canvas.height)};a.prototype.draw=function(){if(null!=this.canvas){this.autoClear&&
-this.clear();this.useHandCursor&&this.canvas.style.setProperty("cursor","pointer");this.animate&&this.animate();for(var a=0;a<this._children.length;a++)this._children[a].draw(this.graphics.ctx)}};a.prototype.toString=function(){return this.name+"(id:"+this.id+")"};d.Sprite=a})(NEngine);(function(d){function a(a){this.__displayobject_init("Stage");this.__displayobjectcont_init();this.__stage_init(a);d.Clock.setInterval(d.env.interval);d.Clock.addListeners(this);d.Clock.start()}a.inheritsFrom(d.DisplayObjectContainer);a.prototype.canvas=null;a.prototype.graphics=null;a.prototype.autoClear=!0;a.prototype.__stage_init=function(a){this.stage=this;this.canvas=a;this.graphics=new d.Graphics(this.canvas);this.canvas.globalOffsetLeft=this.canvas.offsetLeft;this.canvas.globalOffsetTop=this.canvas.offsetTop;
-for(a=this.canvas;a=a.offsetParent;)this.canvas.globalOffsetLeft+=a.offsetLeft,this.canvas.globalOffsetTop+=a.offsetTop;var b=this;window.addEventListener?(window.addEventListener("mousemove",function(a){b._handleOnMouseMove(a)},!1),window.addEventListener("mouseup",function(a){b._handleOnMouseUp(a)},!1),window.addEventListener("mousedown",function(a){b._handleOnMouseDown(a)},!1),window.addEventListener("click",function(a){b._handleOnClick(a)},!1),window.addEventListener("keydown",function(a){b._handleOnKeyDown(a)},
-!1),window.addEventListener("keyup",function(a){b._handleOnKeyUp(a)},!1),window.addEventListener("keypress",function(a){b._handleOnKeyPress(a)},!1)):document.addEventListener?(document.addEventListener("mousemove",function(a){b._handleOnMouseMove(a)},!1),document.addEventListener("mouseup",function(a){b._handleOnMouseUp(a)},!1),document.addEventListener("mousedown",function(a){b._handleOnMouseDown(a)},!1),document.addEventListener("click",function(a){b._handleOnClick(a)},!1),document.addEventListener("keydown",
-function(a){b._handleOnKeyDown(a)},!1),document.addEventListener("keyup",function(a){b._handleOnKeyUp(a)},!1),document.addEventListener("keypress",function(a){b._handleOnKeyPress(a)},!1)):window.attachEvent&&(window.attachEvent("mousemove",function(a){b._handleOnMouseMove(a)}),window.attachEvent("mouseup",function(a){b._handleOnMouseUp(a)}),window.attachEvent("mousedown",function(a){b._handleOnMouseDown(a)}),window.attachEvent("click",function(a){b._handleOnClick(a)}),window.attachEvent("keydown",
-function(a){b._handleOnKeyDown(a)}),window.attachEvent("keyup",function(a){b._handleOnKeyUp(a)}),window.attachEvent("keypress",function(a){b._handleOnKeyPress(a)}));this.draw()};a.prototype._handleOnMouseMove=function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.globalOffsetLeft;this.mouseY=a.pageY-this.canvas.globalOffsetTop;var b=0<=this.mouseX&&0<=this.mouseY&&this.mouseX<this.canvas.width&&this.mouseY<this.canvas.height;if(b){if(this.onMouseMove)this.onMouseMove(a);for(var d=0;d<this._children.length;d++)if(this._children[d].mouseX=
-this.mouseX-this._children[d].x,this._children[d].mouseY=this.mouseY-this._children[d].y,this._children[d].mouseEnabled){if((b=this._children[d].inBounds(this.mouseX,this.mouseY))&&this._children[d].onMouseMove&&this._children[d].onMouseMove instanceof Function)this._children[d].onMouseMove(a);var f=this._children[d].isBounds;if(!1==f&&b&&this._children[d].onMouseOver&&this._children[d].onMouseOver instanceof Function&&(this._children[d].onMouseOver(a),this._children[d].isBounds=!0,this._children[d].cursor))this.canvas.style.cursor=
-this._children[d].cursor;if(f&&!1==b&&this._children[d].onMouseOut&&this._children[d].onMouseOut instanceof Function&&(this._children[d].onMouseOut(a),this._children[d].isBounds=!1,this._children[d].cursor))this.canvas.style.cursor="auto"}}}else this.mouseX=this.mouseY=null};a.prototype._handleOnMouseUp=function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.globalOffsetLeft;this.mouseY=a.pageY-this.canvas.globalOffsetTop;if(this.onMouseUp)this.onMouseUp(a);for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=
-this.mouseX-this._children[b].x,this._children[b].mouseY=this.mouseY-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].inBounds(this.mouseX,this.mouseY)&&this._children[b].onMouseUp&&this._children[b].onMouseUp instanceof Function)this._children[b].onMouseUp(a)}else this.mouseX=this.mouseY=null};a.prototype._handleOnMouseDown=function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.globalOffsetLeft;this.mouseY=a.pageY-this.canvas.globalOffsetTop;if(this.onMouseDown)this.onMouseDown(a);
-for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=this.mouseX-this._children[b].x,this._children[b].mouseY=this.mouseY-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].inBounds(this.mouseX,this.mouseY)&&this._children[b].onMouseDown&&this._children[b].onMouseDown instanceof Function)this._children[b].onMouseDown(a)}else this.mouseX=this.mouseY=null};a.prototype._handleOnMouseOver=function(a){if(this.canvas){if(this.mouseX=a.pageX-this.canvas.globalOffsetLeft,
-this.mouseY=a.pageY-this.canvas.globalOffsetTop,this.onMouseOver)this.onMouseOver(a)}else this.mouseX=this.mouseY=null};a.prototype._handleOnMouseOut=function(a){if(this.canvas){if(this.mouseX=a.pageX-this.canvas.globalOffsetLeft,this.mouseY=a.pageY-this.canvas.globalOffsetTop,this.onMouseOut)this.onMouseOut(a)}else this.mouseX=this.mouseY=null};a.prototype._handleOnClick=function(a){if(this.canvas){this.mouseX=a.pageX-this.canvas.globalOffsetLeft;this.mouseY=a.pageY-this.canvas.globalOffsetTop;if(this.onClick)this.onClick(a);
-for(var b=0;b<this._children.length;b++)if(this._children[b].mouseX=this.mouseX-this._children[b].x,this._children[b].mouseY=this.mouseY-this._children[b].y,this._children[b].mouseEnabled&&this._children[b].inBounds(this.mouseX,this.mouseY)&&this._children[b].onClick&&this._children[b].onClick instanceof Function)this._children[b].onClick(a)}else this.mouseX=this.mouseY=null};a.prototype._handleOnKeyDown=function(a){if(this.canvas){if(this.onKeyDown)this.onKeyDown(a);for(var b=0;b<this._children.length;b++)if(this._children[b].onKeyDown&&
-this._children[b].onKeyDown instanceof Function)this._children[b].onKeyDown(a)}};a.prototype._handleOnKeyUp=function(a){if(this.canvas){if(this.onKeyUp)this.onKeyUp(a);for(var b=0;b<this._children.length;b++)if(this._children[b].onKeyUp&&this._children[b].onKeyUp instanceof Function)this._children[b].onKeyUp(a)}};a.prototype._handleOnKeyPress=function(a){if(this.canvas){if(this.onKeyPress)this.onKeyPress(a);for(var b=0;b<this._children.length;b++)if(this._children[b].onKeyPress&&this._children[b].onKeyPress instanceof
-Function)this._children[b].onKeyPress(a)}};a.prototype.tick=function(){this.draw()};a.prototype.clear=function(){null!=this.canvas&&this.canvas.getContext("2d").clearRect(0,0,this.canvas.width,this.canvas.height)};a.prototype.draw=function(){if(null!=this.canvas){this.autoClear&&this.clear();for(var a=0;a<this._children.length;a++)if(this._children[a].animate&&this._children[a].animate(),this._children[a].visible){var b=this._children[a]._mtx.clone();this.graphics.ctx.setTransform(b.m11,b.m12,b.m21,
-b.m22,b.dx,b.dy);0!=this._children[a].rotation&&(this.graphics.ctx.translate(this._children[a].x+this._children[a].regX,this._children[a].y+this._children[a].regY),this.graphics.ctx.rotate(this._children[a].rotation),this.graphics.ctx.translate(-(this._children[a].x+this._children[a].regX),-(this._children[a].y+this._children[a].regY)));this.graphics.ctx.globalAlpha=this._children[a].alpha;this.graphics.ctx.globalCompositeOperation=this._children[a].compositeOperation||"source-over";this._children[a].draw(this.graphics.ctx,
-this.ignoreCache)}}};a.prototype.toString=function(){return this.name+"(id:"+this.id+")"};d.Stage=a})(NEngine);(function(d){function a(a,b,d,f){if(0>a||256<a||void 0==a)a=0;if(0>b||256<b||void 0==b)b=0;if(0>d||256<d||void 0==d)d=0;if(0>f||1<f||void 0==f)f=1;this.r=a;this.g=b;this.b=d;this.alpha=f}a.prototype.r=0;a.prototype.g=0;a.prototype.b=0;a.prototype.alpha=1;a.prototype.clone=function(){return new a(this.r,this.g,this.b,this.alpha)};a.prototype.toRGB=function(){return"rgba("+this.r+","+this.g+","+this.b+","+this.alpha+")"};a.prototype.toCSS=function(){return"#"+dechex(this.r)+dechex(this.g)+dechex(this.b)};
-d.Color=a})(NEngine);(function(d){function a(a){this.canvas=a;this.ctx=this.canvas.getContext("2d")}a.prototype.canvas=null;a.prototype.ctx=null;a.prototype.strokeStyle=function(a){if(null!=this.ctx)return this.ctx.strokeStyle=a.toRGB(),this};a.prototype.fillStyle=function(a){if(null!=this.ctx)return this.ctx.fillStyle=a.toRGB(),this};d.Graphics=a})(NEngine);(function(d){function a(){this.__displayobject_init("Shape")}a.inheritsFrom(d.InteractiveObject);a.prototype.filled=!1;a.prototype.fillStyle=null;a.prototype.strokeStyle=null;a.prototype.rotation=0;a.prototype.clone=function(){return new a};a.prototype.toString=function(){return this.name+"(id:"+this.id+")"};d.Shape=a})(NEngine);(function(d){function a(a,b,d,f,g,h,i,j,k){this.__displayobject_init("Bitmap");this.x=b;this.y=d;this.regX=f/2;this.regY=g/2;if("string"==typeof a){this.image=new Image;var l=this;this.image.onload=function(){l.ready=!0};this.image.src=a}else if(a instanceof Image)this.image=a;else throw"Exception: the first parameter is not String or Image object";if(void 0!=f)this.width=f;if(void 0!=g)this.height=g;if(void 0!=h)this.sx=h;if(void 0!=i)this.sy=i;if(void 0!=j)this.sw=j;if(void 0!=k)this.sh=k}a.inheritsFrom(d.Shape);
-a.prototype.image=null;a.prototype.ready=!1;a.prototype.sx=null;a.prototype.sy=null;a.prototype.sw=null;a.prototype.sh=null;a.prototype.clone=function(){return new a(this.image.src)};a.prototype.toString=function(){return this.name+"(id:"+this.id+",imageurl:"+this.image.src+")"};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.ready&&(this.width&&this.height&&void 0!=this.sx&&void 0!=this.sy&&this.sw&&this.sh?a.drawImage(this.image,this.sx,this.sy,this.sw,this.sh,this.x,this.y,this.width,
-this.height):this.width&&this.height?a.drawImage(this.image,this.x,this.y,this.width,this.height):a.drawImage(this.image,this.x,this.y))};a.prototype.inBounds=function(a,b){var d=a>=this.x&&b>=this.y&&a<this.x+this.width&&b<this.y+this.height;return this.stage&&d?this.stage.graphics.ctx.getImageData(a,b,1,1).data[3]/255:d};d.Bitmap=a})(NEngine);(function(d){function a(a,b,d,f,g){this.__displayobject_init("Rectangle");this.x=a;this.y=b;this.width=d;this.height=f;this.regX=d/2;this.regY=f/2;if("boolean"==typeof g)this.filled=g}a.inheritsFrom(d.Shape);a.prototype.clone=function(){return new a(this.x,this.y,this.width,this.height,this.filled)};a.prototype.toString=function(){return this.name+"(id:"+this.id+",x:"+this.x+",y:"+this.y+",w:"+this.width+",h:"+this.height+")"};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.applyStyle(a);
-this.filled?a.fillRect(this.x,this.y,this.width,this.height):a.strokeRect(this.x,this.y,this.width,this.height);this.resetStyle(a)};a.prototype.inBounds=function(a,b){return a>=this.x&&b>=this.y&&a<this.x+this.width&&b<this.y+this.height};d.Rectangle=a})(NEngine);(function(d){function a(a,b,d,f){this.__displayobject_init("Circle");this.x=a;this.y=b;this.radius=d;this.regY=this.regX=0;if("boolean"==typeof f)this.filled=f}a.inheritsFrom(d.Shape);a.prototype.radius=0;a.prototype.clone=function(){return new a(this.x,this.y,this.r,this.filled)};a.prototype.toString=function(){return this.name+"(id:"+this.id+",x:"+this.x+",y:"+this.y+",r:"+this.radius+")"};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.applyStyle(a);a.beginPath();a.arc(this.x,
-this.y,this.radius,(new d.Angle).degree2radian(0),(new d.Angle).degree2radian(360),!0);this.filled?a.fill():a.stroke();this.resetStyle(a)};a.prototype.inBounds=function(){return!1};d.Circle=a})(NEngine);(function(d){function a(a,b,d,f){this.__displayobject_init("StaticText");this.x=a;this.y=b;this.regY=this.regX=0;this.text=d;if("boolean"==typeof f)this.filled=f}a.inheritsFrom(d.Shape);a.prototype.text=null;a.prototype.font="12pt Times New Roman";a.prototype.textAlign="left";a.prototype.textBaseline="bottom";a.prototype.maxWidth=0;a.prototype.clone=function(){var c=new a(this.x,this.y,this.text,this.filled);c.font=this.font;c.textAlign=this.textAlign;c.textBaseline=this.textBaseline;c.maxWidth=this.maxWidth;
-return c};a.prototype.toString=function(){return this.name+"(id:"+this.id+",x:"+this.x+",y:"+this.y+",text:"+this.text+")"};a.prototype.applyTextStyle=function(a){if(this.font)a.font=this.font;if(this.textAlign)a.textAlign=this.textAlign;if(this.textBaseline)a.textBaseline=this.textBaseline};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.applyStyle(a);this.applyTextStyle(a);this.filled?a.fillText(this.text,this.x,this.y,this.maxWidth):a.strokeText(this.text,this.x,this.y,this.maxWidth);
-this.resetStyle(a)};a.prototype.inBounds=function(){return!1};d.StaticText=a})(NEngine);(function(d){function a(a,b,e,f,g){this.__displayobject_init("Button");this.x=a;this.y=b;this.width=e;this.height=f;this.regX=e/2;this.regY=f/2;this.label=new d.StaticText(a+e/2,b+f/2,g,!0);this.label.textAlign="center";this.label.textBaseline="middle";this.cursor="pointer"}a.inheritsFrom(d.Rectangle);a.prototype.label=null;a.prototype._sizeDelta=3;a.prototype.clone=function(){return new a(this.x,this.y,this.width,this.height,this.label)};a.prototype.toString=function(){return this.name+"(id:"+this.id+
-",x:"+this.x+",y:"+this.y+",w:"+this.width+",h:"+this.height+")"};a.prototype.onMouseOver=function(){this._sizeDelta&&(this.x-=this._sizeDelta,this.y-=this._sizeDelta,this.width+=2*this._sizeDelta,this.height+=2*this._sizeDelta)};a.prototype.onMouseOut=function(){this._sizeDelta&&(this.x+=this._sizeDelta,this.y+=this._sizeDelta,this.width-=2*this._sizeDelta,this.height-=2*this._sizeDelta)};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.applyStyle(a);this.filled?a.fillRect(this.x,
-this.y,this.width,this.height):a.strokeRect(this.x,this.y,this.width,this.height);this.label.draw(a,b);this.resetStyle(a)};d.Button=a})(NEngine);(function(d){function a(a,b,e,f,g,h){this.__displayobject_init("ImageButton");this.x=a;this.y=b;this.width=e;this.height=f;this.regX=e/2;this.regY=f/2;this.image=new d.Bitmap(g,a,b,e,f);this.imageMouseOver=new d.Bitmap(h,a,b,e,f);this.active_image=this.image;this.cursor="pointer"}a.inheritsFrom(d.Button);a.prototype.imageMouseOver=null;a.prototype.image=null;a.prototype.active_image=null;a.prototype.clone=function(){return new a(this.x,this.y,this.width,this.height,this.image,this.imageMouseOver)};
-a.prototype.toString=function(){return this.name+"(id:"+this.id+",x:"+this.x+",y:"+this.y+",w:"+this.width+",h:"+this.height+")"};a.prototype.onMouseOver=function(){if(this._sizeDelta)this.x-=this._sizeDelta,this.y-=this._sizeDelta,this.width+=2*this._sizeDelta,this.height+=2*this._sizeDelta,this.active_image=this.imageMouseOver,this.image.x-=this._sizeDelta,this.image.y-=this._sizeDelta,this.image.width+=2*this._sizeDelta,this.image.height+=2*this._sizeDelta,this.imageMouseOver.x-=this._sizeDelta,
-this.imageMouseOver.y-=this._sizeDelta,this.imageMouseOver.width+=2*this._sizeDelta,this.imageMouseOver.height+=2*this._sizeDelta};a.prototype.onMouseOut=function(){if(this._sizeDelta)this.x+=this._sizeDelta,this.y+=this._sizeDelta,this.width-=2*this._sizeDelta,this.height-=2*this._sizeDelta,this.active_image=this.image,this.image.x+=this._sizeDelta,this.image.y+=this._sizeDelta,this.image.width-=2*this._sizeDelta,this.image.height-=2*this._sizeDelta,this.imageMouseOver.x+=this._sizeDelta,this.imageMouseOver.y+=
-this._sizeDelta,this.imageMouseOver.width-=2*this._sizeDelta,this.imageMouseOver.height-=2*this._sizeDelta};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.active_image.draw(a,b)};d.ImageButton=a})(NEngine);(function(d){function a(a,b,e,f){this.__displayobject_init("Loader");this.x=a;this.y=b;this.width=e;this.height=f;this.regX=e/2;this.regY=f/2;this.label=new d.StaticText(a+e/2,b+f/2,"0%",!0);this.label.textAlign="center";this.label.textBaseline="middle";this.image=new d.Bitmap("images/big_loading.gif",a,b,e,f)}a.inheritsFrom(d.Shape);a.prototype.label=null;a.prototype.showPercentage=!1;a.prototype.ready=!1;a.prototype._children=[];a.prototype.numChildren=0;a.prototype.clone=function(){return new a(this.x,
-this.y,this.width,this.height)};a.prototype.toString=function(){return this.name+"(id:"+this.id+",x:"+this.x+",y:"+this.y+",w:"+this.width+",h:"+this.height+")"};a.prototype.addChild=function(a){this.numChildren++;this._children.push(a)};a.prototype.removeChild=function(a){for(var b=0;b<this._children.length;b++)if(this._children[b].id==a.id)return a=this._children[b],this._children.splice(b,1),this.numChildren--,a;return null};a.prototype.isReady=function(){if(!0==this.ready)return!0;for(var a=0;a<
-this._children.length;a++)if("boolean"==typeof this._children[a].ready&&!1==this._children[a].ready)return!1;return this.ready=!0};a.prototype.progress=function(){for(var a=0,b=0;b<this._children.length;b++)"boolean"==typeof this._children[b].ready&&!0==this._children[b].ready&&++a;return a};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.applyStyle(a);this.image.draw(a,b);if(this.showPercentage&&0<this._children.length){var d=this.progress()/this._children.length;this.label.text=
-Math.floor(100*d)+"%";this.label.draw(a,b)}else if(this.showPercentage&&0==this._children.length)this.label.text="100%",this.label.draw(a,b);this.resetStyle(a)};d.Loader=a})(NEngine);(function(d){function a(a,b,e,f){this.__displayobject_init("TextField");this.x=a;this.y=b;this.width=e;this.height=f;this.regX=e/2;this.regY=f/2;this.label=new d.StaticText(a+5,b+f/2,"",!0);this.label.textAlign="left";this.label.textBaseline="middle"}a.inheritsFrom(d.Rectangle);a.prototype.label=null;a.prototype.isFlash=!1;a.prototype.clone=function(){return new a(this.x,this.y,this.width,this.height)};a.prototype.toString=function(){return this.name+"(id:"+this.id+",x:"+this.x+",y:"+this.y+",w:"+
-this.width+",h:"+this.height+")"};a.prototype.onClick=function(){this.isFocus=!0;this.label.text="click"};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.applyStyle(a);a.strokeRect(this.x,this.y,this.width,this.height);this.label.draw(a,b);this.resetStyle(a)};d.TextField=a})(NEngine);(function(d){function a(a,b,e,f,g,h,i){this.obj=a;this.prop=b;this.animation=e;this.begin=f;this.end=g;this.duration=h;this.useSecond=i;d.Clock.addListeners(this)}a.prototype._start=!1;a.prototype.obj=null;a.prototype.prop=null;a.prototype.animation=null;a.prototype.begin=0;a.prototype.end=0;a.prototype.duration=0;a.prototype.useSecond=0;a.prototype._originXValue=null;a.prototype._originYValue=null;a.prototype.clone=function(){return new a(this.obj,this.prop,this.animation,this.begin,this.end,this.duration,
-this.useSecond)};a.prototype.toString=function(){return"(obj:"+this.obj+",prop:"+this.prop+",animation:"+this.animation+",begin:"+this.begin+",end:"+this.end+",duration:"+this.duration+",useSecond:"+this.useSecond+")"};a.prototype.tick=function(){if(this._start){var a;a=this.useSecond?Math.floor((this.end-this.begin)/(this.duration*(1E3/d.env.interval))):Math.floor((this.end-this.begin)/this.duration);if("regular"==this.animation)if("x"==this.prop){if(0<a&&this.obj.x<this.end||0>a&&this.obj.x>this.end)this.obj.x+=
-a}else if("y"==this.prop&&(0<a&&this.obj.y<this.end||0>a&&this.obj.y>this.end))this.obj.y+=a}};a.prototype.start=function(){this._start=!0;this.obj.visible=!0;if("regular"==this.animation)if("x"==this.prop)this.obj.x=this.begin,this._originXValue=this.obj.x;else if("y"==this.prop)this.obj.y=this.begin,this._originYValue=this.obj.y};a.prototype.stop=function(){this._start=!1};a.prototype.reset=function(){if("regular"==this.animation)if("x"==this.prop)this.obj.x=this._originXValue;else if("y"==this.prop)this.obj.y=
-this._originYValue};d.Tween=a})(NEngine);(function(d){function a(a,b,e,f,g){this.__displayobject_init("NumberRectangle");this.x=a;this.y=b;this.width=e;this.height=f;this.regX=e/2;this.regY=f/2;this.number=new d.StaticText(a+e/2,b+f/2,this.id,!0);this.number.textAlign="center";this.number.textBaseline="middle";if("boolean"==typeof g)this.filled=g}a.inheritsFrom(d.Shape);a.prototype.clone=function(){return new a(this.x,this.y,this.width,this.height,this.filled)};a.prototype.toString=function(){return this.name+"(id:"+this.id+",x:"+this.x+
-",y:"+this.y+",w:"+this.width+",h:"+this.height+")"};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.applyStyle(a);this.filled?a.fillRect(this.x,this.y,this.width,this.height):a.strokeRect(this.x,this.y,this.width,this.height);this.number.draw(a);this.resetStyle(a)};a.prototype.inBounds=function(a,b){return a>=this.x&&b>=this.y&&a<this.x+this.width&&b<this.y+this.height};d.NumberRectangle=a})(NEngine);(function(d){function a(a,b,e,f,g){this.__displayobject_init("NumberBitmap");this.x=b;this.y=e;this.regX=f/2;this.regY=g/2;this.image=new Image;var h=this;this.image.onload=function(){h.ready=!0};if(f)this.width=f;if(g)this.height=g;this.image.src=a;this.number=new d.StaticText(b,e,this.id,!0)}a.inheritsFrom(d.Shape);a.prototype.image=null;a.prototype.ready=!1;a.prototype.number=null;a.prototype.clone=function(){return new a(this.image.src)};a.prototype.toString=function(){return this.name+"(id:"+
-this.id+",imageurl:"+this.image.src+")"};a.prototype.draw=function(a,b){if(this.__draw(a,b))return!0;this.ready&&(this.width&&this.height?a.drawImage(this.image,this.x,this.y,this.width,this.height):a.drawImage(this.image,this.x,this.y));this.number.draw(a)};a.prototype.inBounds=function(a,b){var d=a>=this.x&&b>=this.y&&a<this.x+this.width&&b<this.y+this.height;return this.stage&&d?this.stage.graphics.ctx.getImageData(a,b,1,1).data[3]/255:d};d.NumberBitmap=a})(NEngine);
+/**
+* NEngine.js by Nera Liu. Feb 5, 2011
+* Modified by Nikos M., 2026
+*
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+*
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**//**
+* NEngine.js by Nera Liu. Feb 5, 2011
+* Modified by Nikos M., 2026
+*
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+*
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* The NEngine Object is the global object continaing the classes, properties and methods of the engine.
+**/
+var NEngine = {
+  /**
+  * Version information of the NEngine
+  **/
+  version : {
+    /**
+    * The version string of the NEngine.
+    * @property version.name
+    * @type String
+    **/
+    name    : 'alpha 0.1',
+    /**
+    * The version number of the NEngine.
+    * @property version.number
+    * @type Number
+    **/
+    number  : 0.1
+  }
+};
+
+/**
+* The NEngine.env Object contains information on the environment that NEngine is running on.
+* @property env
+* @type Object
+**/
+NEngine.env = {
+  /**
+  * The env string to representing the running environment.
+  * @property env.name
+  * @type String
+  **/
+  name : '',
+  /**
+  * The env type to representing the running environment.
+  * @property env.type
+  * @type String
+  **/
+  type : '',
+  /**
+  * The env debug mode enable?
+  * @property env.debug
+  * @type Number
+  **/
+  debug : 1,
+  /**
+  * The time interval of the Clock in milliseconds.
+  * @type Number
+  **/
+  interval : 34
+};
+
+/**
+* The constant for web browser.
+* @property env.BROWSER
+* @type String
+**/
+NEngine.env.BROWSER = 'browser';
+
+/**
+* The constant for mobile device.
+* @property env.MOBILE
+* @type String
+**/
+NEngine.env.MOBILE = 'mobile';
+
+/**
+* The constant for console.
+* @property env.CONSOLE
+* @type String
+**/
+NEngine.env.CONSOLE = 'console';
+
+/**
+* The NEngine.utils Object contains all the utility method for the NEngine.
+* @property utils
+* @type Object
+**/
+NEngine.utils = {
+  /**
+  * The unique DisplayObject id
+  * @property utils_next_ID.
+  * @type Number
+  **/
+  _next_ID : 0
+};
+
+/**
+* Generate the unquie ID for DislayObject.
+* @method utils.getUID
+**/
+NEngine.utils.getUID = function() {
+  return ++this._next_ID;
+}
+
+/**
+* Same object in memory?
+* @method utils.assertSame(obj1, obj2)
+**/
+NEngine.utils.assertSame = function(obj1, obj2) {
+  if (obj1 == obj2) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+* Log the message to the logging facilities of the environment. All parameters are passed through.
+* @method utils.log
+**/
+NEngine.utils.log = function() {
+
+  if (NEngine.env.debug) {
+    switch (NEngine.env.type) {
+    case NEngine.env.BROWSER:
+      try {
+        if (typeof(console) !== 'undefined' && console && console.log) {
+                    console.log.apply(NEngine, arguments);
+                }
+      } catch (e) {
+        console.log(Array.prototype.join.apply(arguments, [',']));
+      }
+      break;
+    case NEngine.env.MOBILE:
+      break;
+    case NEngine.env.CONSOLE:
+      break;
+    }
+  }
+
+};
+
+/**
+* Get the timestamp of the system.
+* @method utils.getTimestamp
+**/
+NEngine.utils.getTimestamp = function() {
+  return Math.round((new Date()).getTime() / 1000);
+};
+
+/**
+* Get the timestamp of the system in millisecond.
+* @method utils.getTimestampInMS
+**/
+NEngine.utils.getTimestampInMS = function() {
+  return Math.round((new Date()).getTime());
+};
+
+// handle events uniformly
+NEngine.hasEventOptions = function() {
+    if (null == NEngine.hasEventOptions.supported)
+    {
+        var passiveSupported = false, options = {};
+        try {
+            Object.defineProperty(options, 'passive', {
+                get: function(){
+                    passiveSupported = true;
+                    return false;
+                }
+            });
+            window.addEventListener('test', null, options);
+            window.removeEventListener('test', null, options);
+        } catch(e) {
+            passiveSupported = false;
+        }
+        NEngine.hasEventOptions.supported = passiveSupported;
+    }
+    return NEngine.hasEventOptions.supported;
+}
+NEngine.addEvent = function(target, event, handler, options) {
+    if (target.attachEvent) target.attachEvent('on' + event, handler);
+    else target.addEventListener(event, handler, NEngine.hasEventOptions() ? options : ('object' === typeof(options) ? !!options.capture : !!options));
+};
+NEngine.removeEvent = function(target, event, handler, options) {
+    // if (el.removeEventListener) not working in IE11
+    if (target.detachEvent) target.detachEvent('on' + event, handler);
+    else target.removeEventListener(event, handler, NEngine.hasEventOptions() ? options : ('object' === typeof(options) ? !!options.capture : !!options));
+};
+
+/**
+* The main of the NEngine, everything starts from here.
+* @method NEngine.init
+**/
+(NEngine.init = function() {
+  /**
+  * init the environment for the NEngine
+  **/
+  NEngine.env.type = NEngine.env.BROWSER;
+  NEngine.utils.log("NEngine.init - done");
+}());
+
+/**
+* The inherit util functions for class inheritance.
+* @method Function.inheritsFrom
+**/
+Function.prototype.inheritsFrom = function(parentClassOrObject) {
+  if (parentClassOrObject.constructor == Function) {
+    this.prototype = new parentClassOrObject;
+    this.prototype.constructor = this;
+    this.prototype.parent = parentClassOrObject.prototype;
+  } else {
+    this.prototype = parentClassOrObject;
+    this.prototype.constructor = this;
+    this.prototype.parent = parentClassOrObject;
+  }
+  return this;
+};
+/**
+* Clock.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Clock of the game engine.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Clock's constructor.
+  **/
+  function Clock() {
+    throw "Clock cannot be instantiated.";
+  }
+
+  /**
+  * The interval ID of the setInterval.
+  * @type Number
+  **/
+  Clock._intervalID = 0;
+
+  /**
+  * The time interval of the Clock in milliseconds.
+  * @type Number
+  **/
+  Clock._interval = 0;
+
+  /**
+  * The start time of the Clock.
+  * @type Number
+  **/
+  Clock._startTime = 0;
+
+  /**
+  * The last tick time of the Clock.
+  * @type Number
+  **/
+  Clock._lastTickTime = 0;
+
+  /**
+  * How many tick since the Clock starts.
+  * @type Number
+  **/
+  Clock._tick = 0;
+
+  /**
+  * Is the Clock paused?
+  * @type Boolean 
+  **/
+  Clock._paused = false;
+
+  /**
+  * All the DisplayObject listening to the clock.
+  * @type Array 
+  **/
+  Clock._listeners = new Array();
+
+  /**
+  * The exact time difference of the Clock.
+  * @type Number 
+  **/
+  Clock._diff = 0;
+
+  /**
+  * Adds a DisplayObject instance to this Clock.
+  * @method Clock.addListeners(displayobject)
+  **/
+  Clock.addListeners = function(displayobject) {
+    Clock.pause();
+    Clock._listeners.push(displayobject);
+    Clock.start();
+  }
+
+  /**
+  * Removes the specified DisplayObject instance from the listener list of the Clock.
+  * @method Clock.removeListeners(displayobject)
+  **/
+  Clock.removeListeners = function(displayobject) {
+    for (var i=0;i<Clock._listeners.length;i++) {
+      if (Clock._listeners[i] == displayobject) {
+        Clock.pause();
+        var c = Clock._listeners[i];
+        Clock._listeners.splice(i, 1);
+        Clock.start();
+        return c;
+      }
+    }
+    return null;
+  }
+
+  /**
+  * Set the interval of the Clock.
+  * @method Clock.setInterval(interval)
+  **/
+  Clock.setInterval = function(interval) {
+    Clock.pause();
+    Clock._interval = interval;
+  }
+
+  /**
+  * Get the interval of the Clock.
+  * @method Clock.getInterval()
+  **/
+  Clock.getInterval = function() {
+    return Clock._interval;
+  }
+
+  /**
+  * Pause the Clock.
+  * @method Clock.setPaused(value)
+  **/
+  Clock.setPaused = function(value) {
+    Clock._paused = value;
+  }
+
+  /**
+  * Is the Clock paused?
+  * @method Clock.getPaused()
+  **/
+  Clock.getPaused = function() {
+    return Clock._paused;
+  }
+
+  /**
+  * Get the frame rate of the Clock. 
+  * @method Clock.getFPS()
+  **/
+  Clock.getFPS = function() {
+    return 1000/Clock._interval;
+  }
+
+  /**
+  * Return the string of Clock object.
+  * @method Clock.toString()
+  **/
+  Clock.toString = function() {
+    var d = new Date();
+    return "unixts:" + d.getTime() + "," + d;
+  }
+
+  /**
+  * Start the Clock.
+  * @method Clock.start()
+  **/
+  Clock.start = function() {
+    if (Clock._intervalID > 0) { clearInterval(Clock._intervalID); }
+    if (Clock._interval <= 0) { return; }
+    Clock.setPaused(false);
+    Clock._intervalID = setInterval(Clock.tick, Clock._interval);
+  }
+
+  /**
+  * Pause the Clock.
+  * @method Clock.pause()
+  **/
+  Clock.pause = function() {
+    Clock.setPaused(true);
+    if (Clock._intervalID > 0) { clearInterval(Clock._intervalID); }
+  }
+
+  /**
+  * Tick the Clock.
+  * @method Clock.tick()
+  **/
+  Clock.tick = function() {
+    Clock._tick++;
+    currentTime = Clock._getTime();
+    Clock._diff = Math.abs(currentTime) - Math.abs(Clock._lastTickTime);
+    Clock._lastTickTime = currentTime;
+
+    for (var i=0;i<Clock._listeners.length;i++) {
+      if (Clock._listeners[i].tick) {
+        Clock._listeners[i].tick();
+      }
+    }
+  }
+
+  /**
+  * Get the current unixtime of the Clock.
+  * @method Clock._getTime()
+  **/
+  Clock.getTime = function() {
+    return new Date().getTime();
+  }
+  Clock._getTime = function() {
+    return new Date().getTime();
+  }
+
+  Clock._startTime = Clock._getTime();
+
+  /**
+  * Exposing the Clock to the NEngine global object.
+  **/
+  NEngine.Clock = Clock;
+
+}(NEngine));
+/**
+* Keyboard.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Keyboard of the game engine.
+* reference - http://unixpapa.com/js/key.html.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Keyboard's constructor.
+  **/
+  function Keyboard() {
+    throw "Keyboard cannot be instantiated.";
+  }
+
+  /**
+  * The LEFT key of the keyboard.
+  * @type Number
+  **/
+  Keyboard.LEFT = 37;
+
+  /**
+  * The RIGHT key of the keyboard.
+  * @type Number
+  **/
+  Keyboard.RIGHT = 39;
+
+  /**
+  * The UP key of the keyboard.
+  * @type Number
+  **/
+  Keyboard.UP = 38;
+
+  /**
+  * The DOWN key of the keyboard.
+  * @type Number
+  **/
+  Keyboard.DOWN = 40;
+
+  /**
+  * Exposing the Keyboard to the NEngine global object.
+  **/
+  NEngine.Keyboard = Keyboard;
+
+}(NEngine));
+/**
+* Angle.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Convert angle to/from degree to/from radian.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Angle's constructor.
+  **/
+  function Angle() {
+  }
+
+  /**
+  * Convert degree to radian.
+  * @method Angle.degree2radian(degree)
+  **/
+  Angle.prototype.degree2radian = function(degree) {
+    return ((Math.PI/180)*degree);
+  }
+
+  /**
+  * Convert radian to degree.
+  * @method Angle.radian2degree(raidan)
+  **/
+  Angle.prototype.radian2degree = function(radian) {
+    return (radian/(Math.PI/180));
+  }
+
+  /**
+  * Exposing the Angle to the NEngine global object.
+  **/
+  NEngine.Angle = Angle;
+
+}(NEngine));
+/**
+* Point.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a point in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Point's constructor.
+  **/
+  function Point(x, y) {
+    this.name = "Point";
+    this.x = x;
+    this.y = y;
+  }
+
+  /**
+  * Clone the Point object.
+  * @method Point.clone()
+  **/
+  Point.prototype.clone = function() {
+    return new Point(this.x, this.y);
+  }
+
+  /**
+  * Return the string of Point object.
+  * @method Point.toString()
+  **/
+  Point.prototype.toString = function() {
+    return this.name + "(x:" + this.x + ",y:" + this.y + ")";
+  }
+
+  /**
+  * Exposing the Point to the NEngine global object.
+  **/
+  NEngine.Point = Point;
+
+}(NEngine));
+/**
+* Matrix2D.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* The transformation matrix in 2D
+[ x']   [ m11 m21 dx ] [ x ]   [ m11 * x + m21 * y + dx ]
+[ y'] = [ m12 m22 dy ] [ y ] = [ m12 * x + m22 * y + dy ]
+[ 1 ]   [ 0   0   1  ] [ 1 ]   [ 1 ]
+m11 - x scale
+m12 - y skew
+m21 - x skew
+m22 - y scale
+dx - x displacement
+dy - y displacement
+* Convert angle to/from degree to/from radian.
+* reference - http://www.senocular.com/flash/tutorials/transformmatrix/
+**/
+
+(function(NEngine) {
+
+  /**
+  * Matrix2D's constructor.
+  **/
+  function Matrix2D() {
+    this.m11 = 1;
+    this.m12 = 0;
+    this.m21 = 0;
+    this.m22 = 1;
+    this.dx = 0;
+    this.dy = 0;
+  }
+
+  /**
+  * The value of m11 in the 2D Matrix.
+  * @type Number
+  **/
+  Matrix2D.prototype.m11 = 1;
+
+  /**
+  * The value of m12 in the 2D Matrix.
+  * @type Number
+  **/
+  Matrix2D.prototype.m12 = 0;
+
+  /**
+  * The value of m21 in the 2D Matrix.
+  * @type Number
+  **/
+  Matrix2D.prototype.m21 = 1;
+
+  /**
+  * The value of m22 in the 2D Matrix.
+  * @type Number
+  **/
+  Matrix2D.prototype.m22 = 0;
+
+  /**
+  * The value of dx in the 2D Matrix.
+  * @type Number
+  **/
+  Matrix2D.prototype.dx = 0;
+
+  /**
+  * The value of dy in the 2D Matrix.
+  * @type Number
+  **/
+  Matrix2D.prototype.dy = 0;
+
+  /**
+  * The translate transformation of 2D matrix. Please note that the function is additive.
+  * @method Matrix2D.translate(tx, ty)
+  **/
+  Matrix2D.prototype.translate = function(tx, ty) {
+    tx = parseFloat(tx);
+    ty = parseFloat(ty);
+    this.dx = this.dx + tx;
+    this.dy = this.dy + ty;
+  }
+
+  /**
+  * The scale transformation of 2D matrix. Please note that the function is multiplicative.
+  * @method Matrix2D.scale(sx, sy)
+  **/
+  Matrix2D.prototype.scale = function(sx, sy) {
+    sx = parseFloat(sx);
+    sy = parseFloat(sy);
+    this.m11 = this.m11 * sx;
+    this.dx = this.dx * sx;
+    this.m22 = this.m22 * sy;
+    this.dy = this.dx * sy;
+  }
+
+  /**
+  * Performs the transformation of skew. (not yet test)
+  * @method Matrix2D.skew(sx, sy)
+  **/
+  Matrix2D.prototype.skew = function(sx, sy) {
+    sx = parseFloat(sx);
+    sy = parseFloat(sy);
+    sx = sx*Math.PI/180;
+    sy = sy*Math.PI/180;
+    this.append(Math.cos(sy), Math.sin(sy), -Math.sin(sx), Math.cos(sx), 0, 0);
+  }
+
+  /**
+  * The rotate transformation of 2D matrix. Please note that the function is multiplicative.
+  * @method Matrix2D.rotate(radian)
+  **/
+  Matrix2D.prototype.rotate = function(radian) {
+    radian = parseFloat(radian);
+    var cos = Math.cos(radian);
+    var sin = Math.sin(radian);
+
+    var m11 = this.m11;
+    var m12 = this.m12;
+    var m21 = this.m21;
+    var m22 = this.m22;
+    var dx = this.dx;
+    var dy = this.dy;
+
+    this.m11 = m11*cos - m12*sin;
+    this.m12 = m11*sin + m12*cos;
+    this.m21 = m21*cos - m22*sin;
+    this.m22 = m21*sin + m22*cos;
+    this.dx = dx*cos - dy*sin;
+    this.dy = dx*sin + dy*cos;
+  }
+
+  /**
+  * Performs the opposite transformation of the original matrix.
+  * @method Matrix2D.invert()
+  **/
+  Matrix2D.prototype.invert = function() {
+    var m11 = this.m11;
+    var m12 = this.m12;
+    var m21 = this.m21;
+    var m22 = this.m22;
+    var dx = this.dx;
+    var dy = this.dy;
+    var n = m11*m22-m12*m21;
+
+    this.m11 = m22/n;
+    this.m12 = -m12/n;
+    this.m21 = -m21/n;
+    this.m22 = m11/n;
+    this.dx = (m21*dy-m22*dx)/n;
+    this.dy = -(m11*dy-m12*dx)/n;
+  }
+
+  /**
+  * The identity 2D matrix.
+  * @method Matrix2D.identity()
+  **/
+  Matrix2D.prototype.identity = function() {
+    this.m11 = 1;
+    this.m12 = 0;
+    this.dx = 0;
+    this.m21 = 0;
+    this.m22 = 1;
+    this.dy = 0;
+  }
+
+  /**
+  * The prepend the 2D matrix.
+  * @method Matrix2D.prepend(m11, m12, m21, m22, dx, dy)
+  **/
+  Matrix2D.prototype.prepend = function(m11, m12, m21, m22, dx, dy) {
+    m11 = parseFloat(m11);
+    m12 = parseFloat(m12);
+    m21 = parseFloat(m21);
+    m22 = parseFloat(m22);
+    dx = parseFloat(dx);
+    dy = parseFloat(dy);
+
+    var pm11 = this.m11;
+    var pm12 = this.m12;
+    var pm21 = this.m21;
+    var pm22 = this.m22;
+    var pdx = this.dx;
+    var pdy = this.dy;
+
+    this.m11 = m11*pm11 + m12*pm21 + dx*0;
+    this.m12 = m11*pm12 + m12*pm22 + dx*0;
+    this.m21 = m21*pm11 + m22*pm21 + dy*0;
+    this.m22 = m21*pm12 + m22*pm22 + dy*0;
+    this.dx = m11*pdx + m12*pdy + dx*1;
+    this.dy = m21*pdx + m22*pdy + dy*1;
+  }
+
+  /**
+  * The prepend the 2D matrix.
+  * @method Matrix2D.prependMatrix2D(mtx)
+  **/
+  Matrix2D.prototype.prependMatrix2D = function(mtx) {
+    this.prepend(mtx.m11, mtx.m12, mtx.m21, mtx.m22, mtx.dx, mtx.dy);
+  }
+
+  /**
+  * The append the 2D matrix.
+  * @method Matrix2D.append(m11, m12, m21, m22, dx, dy)
+  **/
+  Matrix2D.prototype.append = function(m11, m12, m21, m22, dx, dy) {
+    m11 = parseFloat(m11);
+    m12 = parseFloat(m12);
+    m21 = parseFloat(m21);
+    m22 = parseFloat(m22);
+    dx = parseFloat(dx);
+    dy = parseFloat(dy);
+
+    var am11 = this.m11;
+    var am12 = this.m12;
+    var am21 = this.m21;
+    var am22 = this.m22;
+    var adx = this.dx;
+    var ady = this.dy;
+
+    this.m11 = am11*m11 + am12*m21 + adx*0;
+    this.m12 = am11*m12 + am12*m22 + adx*0;
+    this.m21 = am21*m11 + am22*m21 + ady*0;
+    this.m22 = am21*m12 + am22*m22 + ady*0;
+    this.dx = am11*dx + am12*dy + adx*1;
+    this.dy = am21*dx + am22*dy + ady*1;
+  }
+
+  /**
+  * The append the 2D matrix.
+  * @method Matrix2D.appendMatrix2D(mtx)
+  **/
+  Matrix2D.prototype.appendMatrix2D = function(mtx) {
+    this.append(mtx.m11, mtx.m12, mtx.m21, mtx.m22, mtx.dx, mtx.dy);
+  }
+
+  /**
+  * Clone the Matrix2D object.
+  * @method Matrix2D.clone()
+  **/
+  Matrix2D.prototype.clone = function() {
+    var o = new Matrix2D();
+    o.m11 = this.m11;
+    o.m12 = this.m12;
+    o.m21 = this.m21;
+    o.m22 = this.m22;
+    o.dx = this.dx;
+    o.dy = this.dy;
+    return o;
+  }
+
+  /**
+  * Returns the result of applying the geometric transformation represented by the Matrix object to the specified point.
+  * @method Matrix2D.transformPoint(point)
+  **/
+  Matrix2D.prototype.transformPoint = function(point) {
+    var newpoint = new NEngine.Point(point.x, point.y);
+    newpoint.x = this.m11 * point.x + this.m21 * point.y + this.dx;
+    newpoint.y = this.m12 * point.x + this.m22 * point.y + this.dy;
+    return newpoint;
+  }
+
+  /**
+  * The concat the 2D matrix.
+  * A*B -> B.concat(A);
+  * @method Matrix2D.concat(m11, m12, m21, m22, dx, dy)
+  **/
+  Matrix2D.prototype.concat = function(m11, m12, m21, m22, dx, dy) {
+    return this.prepend(m11, m12, m21, m22, dx, dy);
+  }
+
+  /**
+  * The concat the 2D matrix.
+  * A*B -> B.concat(A);
+  * @method Matrix2D.concatMatrix2D(mtx)
+  **/
+  Matrix2D.prototype.concatMatrix2D = function(mtx) {
+    this.concat(mtx.m11, mtx.m12, mtx.m21, mtx.m22, mtx.dx, mtx.dy);
+  }
+
+  /**
+  * Return the string of Matrix2D object.
+  * @method Matrix2D.toString()
+  **/
+  Matrix2D.prototype.toString = function() {
+    return "(m11:" + this.m11+ ",m12:" + this.m12 + ",m21:" + this.m21 + ",m22:" + this.m22 + ",dx:" + this.dx + ",dy:" + this.dy + ")";
+  }
+
+  /**
+  * Exposing the Matrix2D to the NEngine global object.
+  **/
+  NEngine.Matrix2D = Matrix2D;
+
+}(NEngine));
+/**
+* Event.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+**/
+
+(function(NEngine) {
+
+  /**
+  * Event's constructor.
+  **/
+  function Event() {
+  }
+
+  /**
+  * Exposing the Event to the NEngine global object.
+  **/
+  NEngine.Event = Event;
+
+}(NEngine));
+/**
+* KeyboardEvent.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+**/
+
+(function(NEngine) {
+
+  /**
+  * KeyboardEvent's constructor.
+  **/
+  function KeyboardEvent(e) {
+    this._e = e;
+    this.keycode = e.keyCode;
+    this.charcode = e.charCode;
+  }
+
+  /**
+  * The event object
+  * @type HTML event
+  **/
+  KeyboardEvent.prototype._e = null;
+
+  /**
+  * The event keycode, http://www.asquare.net/javascript/tests/KeyCode.html
+  * @type Number
+  **/
+  KeyboardEvent.prototype.keycode = 0;
+
+  /**
+  * The event charcode , http://www.asquare.net/javascript/tests/KeyCode.html
+  * @type Number
+  **/
+  KeyboardEvent.prototype.charcode = 0;
+
+  /**
+  * Exposing the KeyboardEvent to the NEngine global object.
+  **/
+  NEngine.KeyboardEvent = KeyboardEvent;
+
+}(NEngine));
+/**
+* MouseEvent.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+**/
+
+(function(NEngine) {
+
+  /**
+  * MouseEvent's constructor.
+  **/
+  function MouseEvent(e) {
+    this._e = e;
+    this.pageX  = e.pageX;
+    this.pageY  = e.pageY;
+  }
+
+  /**
+  * The event object
+  * @type HTML event
+  **/
+  MouseEvent.prototype._e = null;
+
+  /**
+  * @type Number
+  **/
+  MouseEvent.prototype.pageX = 0;
+
+  /**
+  * @type Number
+  **/
+  MouseEvent.prototype.pageY = 0;
+
+  /**
+  * Exposing the MouseEvent to the NEngine global object.
+  **/
+  NEngine.MouseEvent = MouseEvent;
+
+}(NEngine));
+/**
+* DisplayObject.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+*
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* The DisplayObject class is the base class for all objects that can be placed on the display list. The display list manages all objects displayed in NEngine. Use the DisplayObjectContainer class to arrange the display objects in the display list. DisplayObjectContainer objects can have child display objects, while other display objects, such as Shape and StaticText objects, are "leaf" nodes that have only parents and siblings, no children.
+**/
+
+(function(NEngine) {
+
+  /**
+  * DisplayObject's constructor.
+  **/
+  function DisplayObject() {
+    this.__displayobject_init();
+  }
+
+  DisplayObject.prototype.constructor = DisplayObject;
+
+  /**
+  * canvas used for hitTest
+  **/
+  DisplayObject.suppressCrossDomainErrors = false;
+  DisplayObject._hitTestCanvas = document.createElement("canvas");
+  DisplayObject._hitTestCanvas.width = DisplayObject._hitTestCanvas.height = 1;
+  DisplayObject._hitTestContext = DisplayObject._hitTestCanvas.getContext("2d");
+
+  /**
+  * The unique ID of the DisplayObject.
+  * @type Number
+  **/
+  DisplayObject.prototype.id = null;
+
+  /**
+  * Indicates the classname of the DisplayObject.
+  * @type String
+  **/
+  DisplayObject.prototype.name = null;
+
+  /**
+  * Indicates the global x coordinate of the DisplayObject instance relative to the local coordinates of the parent DisplayObjectContainer.
+  * @type Number
+  **/
+  DisplayObject.prototype.x = 0;
+
+  /**
+  * Indicates the global y coordinate of the DisplayObject instance relative to the local coordinates of the parent DisplayObjectContainer.
+  * @type Number
+  **/
+  DisplayObject.prototype.y = 0;
+
+  /**
+  * Indicates the width of the display object, in pixels.
+  * @type Number
+  **/
+  DisplayObject.prototype.width = 0;
+
+  /**
+  * Indicates the height of the display object, in pixels.
+  * @type Number
+  **/
+  DisplayObject.prototype.height = 0;
+
+  /**
+  * The scale factor of x coordination.
+  * @type Number
+  **/
+  DisplayObject.prototype.scaleX = 1;
+
+  /**
+  * The scale factor of y coordination.
+  * @type Number
+  **/
+  DisplayObject.prototype.scaleY = 1;
+
+  /**
+  * The skew factor of x coordination.
+  * @type Number
+  **/
+  DisplayObject.prototype.skewX = 0;
+
+  /**
+  * The skew factor of y coordination.
+  * @type Number
+  **/
+  DisplayObject.prototype.skewY = 0;
+
+  /**
+  * The origin of X for rotation.
+  * @type Number
+  **/
+  DisplayObject.prototype.regX = 0;
+
+  /**
+  * The origin of Y for rotation.
+  * @type Number
+  **/
+  DisplayObject.prototype.regY = 0;
+
+  /**
+  * Indicates the rotation of the DisplayObject instance, in degrees, from its original orientation.
+  * @type Number
+  **/
+  DisplayObject.prototype.rotation = 0;
+
+  /**
+  * The working matrix of the DisplayObject.
+  * @type NEngine.Matrix2D
+  **/
+  DisplayObject.prototype._mtx = null;
+
+  /**
+  * [read-only] Indicates the local x coordinate of the mouse position, in pixels.
+  * @type Number
+  **/
+  DisplayObject.prototype.mouseX = 0;
+
+  /**
+  * [read-only] Indicates the local y coordinate of the mouse position, in pixels.
+  * @type Number
+  **/
+  DisplayObject.prototype.mouseY = 0;
+
+  /**
+  * [read-only] Indicates the local touch points, in pixels.
+  * @type Array
+  **/
+  DisplayObject.prototype.touches = null;
+
+  /**
+  * the visibility flag of the DisplayObject
+  * @type Boolean
+  **/
+  DisplayObject.prototype.visible = true;
+
+  /**
+  * the isFocus flag of the DisplayObject
+  * @type Boolean
+  **/
+  DisplayObject.prototype.isFocus = false;
+
+  /**
+  * the inBounds flag of the DisplayObject
+  * @type Boolean
+  **/
+  DisplayObject.prototype.isBounds = false;
+
+  /**
+  * Indicates the alpha transparency value of the object specified.
+  * 0 is fully transparent, 1 is fully opaque.
+  * @type Number
+  **/
+  DisplayObject.prototype.alpha = 1;
+
+  /**
+  * Indicates the shadow of the DisplayObject.
+  * @type
+  **/
+  DisplayObject.prototype.shadow = null;
+
+  /**
+  * Indicates the compositeOperation of the DisplayObject.
+  * @type String
+  **/
+  DisplayObject.prototype.compositeOperation = "";
+
+  /**
+  * A Boolean value that indicates whether the pointing hand (hand cursor) appears when the mouse rolls over a sprite in which the buttonMode property is set to true.
+  * @type Boolean
+  **/
+  DisplayObject.prototype.cursor = null;
+
+  /**
+  * NEngine.Stage instance of the DisplayObject.
+  * @type NEngine.Stage
+  **/
+  DisplayObject.prototype.stage = null;
+
+  /**
+  * The parent DisplayObject of the DisplayObject.
+  * @type NEngine.DisplayObject
+  **/
+  DisplayObject.prototype.parent = null;
+
+  /**
+  * The cache Canvas of the DisplayObject.
+  * @type htmlCanvasElement
+  **/
+  DisplayObject.prototype.cacheCanvas = null;
+
+  /**
+  * The ignoreCache flag of the DisplayObject.
+  * @type Boolean
+  **/
+  DisplayObject.prototype.ignoreCache = false;
+
+  // DisplayObject.prototype.cashAsBitmap
+  // DisplayObject.prototype.filter;
+  // DisplayObject.prototype.mask
+  // DisplayObject.prototype.opaqueBackground
+  // DisplayObject.prototype.scrollRect
+  // DisplayObject.prototype.scale9Grid
+  // DisplayObject.prototype.root
+  // DisplayObject.prototype.transform
+
+  /**
+  * onClick handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onClick = null;
+
+  /**
+  * onMouseDown handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onMouseDown = null;
+
+  /**
+  * onMouseUp handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onMouseUp = null;
+
+  /**
+  * onMouseOver handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onMouseOver = null;
+
+  /**
+  * onMouseMove handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onMouseMove = null;
+
+  /**
+  * onMouseOut handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onMouseOut = null;
+
+  /**
+  * onTouchStart handler of the DisplayObject.
+  * @type Function
+  **/
+  DisplayObject.prototype.onTouchStart = null;
+
+  /**
+  * onTouchEnd handler of the DisplayObject.
+  * @type Function
+  **/
+  DisplayObject.prototype.onTouchEnd = null;
+
+  /**
+  * onTouchMove handler of the DisplayObject.
+  * @type Function
+  **/
+  DisplayObject.prototype.onTouchMove = null;
+
+  /**
+  * onKeyDown handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onKeyDown = null;
+
+  /**
+  * onKeyUp handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onKeyUp = null;
+
+  /**
+  * onKeyPress handler of the DisplayObject.
+  * (http://www.w3.org/TR/DOM-Level-2-Events/events.html#Events-eventgroupings-mouseevents)
+  * @type Function
+  **/
+  DisplayObject.prototype.onKeyPress = null;
+
+  /**
+  * Draw the cached canvas on the ctx
+  * @method DisplayObject.__draw(ctx, ignoreCache)
+  **/
+  DisplayObject.prototype.__draw = function(ctx, ignoreCache) {
+    if (ignoreCache || !this.cacheCanvas) { return false; }
+    ctx.drawImage(this.cacheCanvas, this.x-this.regX, this.y-this.regY);
+    return true;
+  }
+
+  /**
+  * Clone the DisplayObject object.
+  * @method DisplayObject.clone()
+  **/
+  DisplayObject.prototype.clone = function() {
+    var o = new DisplayObject();
+    o.name = this.name;
+    o.x = this.x;
+    o.y = this.y;
+    o.width = this.width;
+    o.height = this.height;
+    o.scaleX = this.scaleX;
+    o.scaleY = this.scaleY;
+    o.skewX = this.skewX;
+    o.skewY = this.skewY
+    o.regX = this.regX;
+    o.regY = this.regY;
+    o.rotation = this.rotation;
+    o._mtx = this._mtx;
+    o.mouseX = this.mouseX;
+    o.mouseY = this.mouseY;
+    o.touches = this.touches;
+    o.visible = this.visible;
+    // o.isFocus = this.isFocus;
+    // o.isBounds = this.isBounds;
+    o.alpha = this.alpha;
+    o.shadow = this.shadow;
+    o.compositeOperation = this.compositeOperation;
+    o.stage = this.stage;
+    o.parent = this.parent;
+    o.cacheCanvas = this.cacheCanvas;
+    o.ignoreCache = this.ignoreCache;
+    return o;
+  }
+
+  /**
+  * Return the string of DisplayObject object.
+  * @method DisplayObject.toString()
+  **/
+  DisplayObject.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ")";
+  }
+
+  /**
+  * Debug the DisplayObject to log facility.
+  * @method DisplayObject.debug(obj)
+  **/
+  DisplayObject.prototype.debug = function(obj) {
+    for(var prop in obj) {
+      NEngine.utils.log(prop+"="+obj[prop]);
+    }
+  }
+
+  /**
+  * Generates a concatenated Matrix2D object representing the combined transform of
+  * the display object and all of its parent DisplayObject up to the highest level ancestor
+  * (usually the stage). This can be used to transform positions between coordinate spaces,
+  * such as with localToGlobal and globalToLocal.
+  * @method getConcatenatedMatrix
+  * @param {Matrix2D} mtx Optional. A Matrix2D object to populate with the calculated values. If null, a new
+  * Matrix object is returned.
+  * @return {Matrix2D} a concatenated Matrix2D object representing the combined transform of
+  * the display object and all of its parent DisplayObject up to the highest level ancestor (usually the stage).
+  **/
+  DisplayObject.prototype.getConcatenatedMatrix = function(mtx) {
+    if (mtx) { mtx.identity(); }
+    else { mtx = new NEngine.Matrix2D(); }
+    var target = this;
+    while (target != null) {
+      // mtx.prependTransform(target.x, target.y, target.scaleX, target.scaleY, target.rotation, target.skewX,
+      // target.skewY, target.regX, target.regY);
+      target = target.parent;
+    }
+    return mtx;
+  }
+
+  /**
+  * Apply the shadow style.
+  * @method DisplayObject.applyShadow(ctx, shadow)
+  **/
+  DisplayObject.prototype.applyShadow = function(ctx, shadow) {
+  }
+
+  /**
+  * Apply the fill/stroke style.
+  * @method DisplayObject.applyStyle(ctx)
+  **/
+  DisplayObject.prototype.applyStyle = function(ctx) {
+    if (this.fillStyle != null) {
+      this.__fillStyle = ctx.fillStyle;
+      ctx.fillStyle = this.fillStyle.toRGB();
+    }
+    if (this.strokeStyle != null) {
+      this.__strokeStyle = ctx.strokeStyle;
+      ctx.strokeStyle = this.strokeStyle.toRGB();
+    }
+  }
+
+  /**
+  * Reset the fill/stroke style.
+  * @method DisplayObject.resetStyle(ctx)
+  **/
+  DisplayObject.prototype.resetStyle = function(ctx) {
+    if (this.__fillStyle != null) {
+      ctx.fillStyle = this.__fillStyle;
+    }
+    if (this.__strokeStyle != null) {
+      ctx.strokeStyle = this.__strokeStyle;
+    }
+  }
+
+  /**
+  * Converts the point object from the Stage (global) coordinates to the display object's (local) coordinates.
+  * @method DisplayObject.globalToLocal(x,y)
+  **/
+  DisplayObject.prototype.globalToLocal = function(globalX, globalY) {
+    return new Point(globalX-this.x, gloablY-this.y);
+  }
+
+  /**
+  * Converts the point object from the display object's (local) coordinates to the Stage (global) coordinates.
+  * @method DisplayObject.localToGlobal(x,y)
+  **/
+  DisplayObject.prototype.localToGlobal = function(localX, localY) {
+    return new Point(localX+this.x, localY+this.y);
+  }
+
+  /**
+  * Cache the DisplayObject on the cache canvas.
+  * @method DisplayObject.cache()
+  **/
+  DisplayObject.prototype.cache = function() {
+    var cache_ctx;
+    if (this.cacheCanvas == null) { this.cacheCanvas = document.createElement("canvas"); }
+    cache_ctx = this.cacheCanvas.getContext("2d");
+    this.cacheCanvas.width  = this.width;
+    this.cacheCanvas.height = this.height;
+    cache_ctx.setTransform(1, 0, 0, 1, -this.x, -this.y);
+    cache_ctx.clearRect(0, 0, this.width+1, this.height+1);
+    this.draw(cache_ctx, true);
+  }
+
+  /**
+  * Update the DisplayObject on the cache canvas.
+  * @method DisplayObject.cache()
+  **/
+  DisplayObject.prototype.updateCache = function() {
+    this.cache();
+  }
+
+  /**
+  * Clear the cache object in the DisplayObject.
+  * @method DisplayObject.clearCache()
+  **/
+  DisplayObject.prototype.clearCache = function() {
+    this.cacheCanvas = null;
+  }
+
+  /**
+  * Init the DisplayObject of generating this.id and this.name.
+  * @method DisplayObject.__displayobject_init(classname)
+  **/
+  DisplayObject.prototype.__displayobject_init = function(classname) {
+    this._mtx = new NEngine.Matrix2D();
+    this._mtx.identity();
+    this.id = NEngine.utils.getUID();
+    this.name = classname;
+  }
+
+  /*
+  DisplayObject.prototype.getBounds = function() { }
+  DisplayObject.prototype.getRect = function() { }
+  */
+
+  /**
+  * Test whether the mouseX/Y is in bound of the DisplayObject.
+  * @method DisplayObject.hitTest(x, y)
+  **/
+  DisplayObject.prototype.hitTest = function(x, y) {
+    var ctx = DisplayObject._hitTestContext;
+    var canvas = DisplayObject._hitTestCanvas;
+
+    ctx.setTransform(1,0,0,1,-x,-y);
+    this.draw(ctx, true);
+
+    var hit = this._testHit(ctx);
+
+    canvas.width = 0;
+    canvas.width = 1;
+    return hit;
+  }
+
+  /**
+  * Test the alpha value of the hitTest
+  * @method DisplayObject._testHit(x, y)
+  **/
+  DisplayObject.prototype._testHit = function(ctx) {
+    try {
+      /*
+      NEngine.utils.log(ctx.getImageData(0, 0, 1, 1).data[0]);
+      NEngine.utils.log(ctx.getImageData(0, 0, 1, 1).data[1]);
+      NEngine.utils.log(ctx.getImageData(0, 0, 1, 1).data[2]);
+      NEngine.utils.log(ctx.getImageData(0, 0, 1, 1).data[3]);
+      */
+      var hit = ctx.getImageData(0, 0, 1, 1).data[3] > 1;
+    } catch (e) {
+      if (!DisplayObject.suppressCrossDomainErrors) {
+        throw "An error has occured. This is most likely due to security restrictions on reading canvas pixel " +
+        "data with local or cross-domain images.";
+      }
+    }
+    return hit;
+  }
+
+  /**
+  * Test whether the mouseX/Y is in bound of the DisplayObject.
+  * @method DisplayObject.inBounds(globalX, globalY)
+  **/
+  DisplayObject.prototype.inBounds = function(globalX, globalY) {
+    var inBounds = (globalX >= this.x && globalY >= this.y && globalX < (this.x + this.width) && globalY < (this.y + this.height));
+    return inBounds;
+  }
+  DisplayObject.prototype.skipBounds = false;
+
+  /**
+  * Exposing the DisplayObject to the window global object.
+  **/
+  NEngine.DisplayObject = DisplayObject;
+
+}(NEngine));
+/**
+* InteractiveObject.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+*
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* The InteractiveObject class is the abstract base class for all display objects with which the user can interact, using the mouse, keyboard, or other user input device.
+**/
+
+(function(NEngine) {
+
+  /**
+  * InteractiveObject's constructor.
+  **/
+  function InteractiveObject() {
+  }
+
+  InteractiveObject.inheritsFrom(NEngine.DisplayObject);
+
+  /**
+  * Specifies whether this object receives mouse, or other user input, messages.
+  * @type Boolean
+  **/
+  InteractiveObject.prototype.mouseEnabled = true;
+
+  /**
+  * Exposing the InteractiveObject to the NEngine global object.
+  **/
+  NEngine.InteractiveObject = InteractiveObject;
+
+}(NEngine));
+/**
+* DisplayObjectContainer.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* The DisplayObjectContainer class is the base class for all objects that can serve as display object containers on the display list. The display list manages all objects displayed in NEngine. Use the DisplayObjectContainer class to arrange the display objects in the display list. Each DisplayObjectContainer object has its own child list for organizing the z-order of the objects. The z-order is the front-to-back order that determines which object is drawn in front, which is behind, and so on.
+**/
+
+(function(NEngine) {
+
+  /**
+  * DisplayObjectContainer's constructor.
+  **/
+  function DisplayObjectContainer() {
+    this.__displayobject_init('DisplayObjectContainter');
+  }
+
+  DisplayObjectContainer.inheritsFrom(NEngine.InteractiveObject);
+
+  /**
+  * An array of children of the DisplayObject.
+  * @type NEngine.DisplayObject
+  **/
+  DisplayObjectContainer.prototype._children = new Array();
+
+  /**
+  * is the DisplayObject being dirty to redraw.
+  * @type Boolean
+  **/
+  DisplayObjectContainer.prototype._isdirty = false;
+
+  /**
+  * [read-only] Returns the number of children of this object.
+  * @type Number
+  **/
+  DisplayObjectContainer.prototype.numChildren = 0;
+
+  // DisplayObjectContainer.prototype.mouseChildren;
+  // DisplayObjectContainer.prototype.tabChildren;
+  // DisplayObjectContainer.prototype.textSnapshot;
+
+  /**
+  * Init the DisplayObject of generating this.id and this.name.
+  * @method DisplayObject.__displayobjectcont_init()
+  **/
+  DisplayObjectContainer.prototype.__displayobjectcont_init = function() {
+    this._children = new Array();
+  }
+
+  /**
+  * Adds a child DisplayObject instance to this DisplayObjectContainer instance.
+  * @method DisplayObjectContainer.addChild(child)
+  **/
+  DisplayObjectContainer.prototype.addChild = function(child) {
+    this.numChildren++;
+    this._children.push(child);
+    this._isdirty = true;
+    child.parent = this;
+    child.stage = this;
+  }
+
+  /**
+  * Adds a child DisplayObject instance to this DisplayObjectContainer instance.
+  * @method DisplayObjectContainer.addChildAt(child, index)
+  **/
+  DisplayObjectContainer.prototype.addChildAt = function(child, index) {
+    throw "Exception: DisplayObjectContainer.addChildAt(child, index) not implemented";
+    this._isdirty = true;
+    child.parent = this;
+    child.stage = this;
+  }
+
+  /**
+  * Determines whether the specified display object is a child of the DisplayObjectContainer instance or the instance itself.
+  * @method DisplayObjectContainer.contains(child)
+  **/
+  DisplayObjectContainer.prototype.contains = function(child) {
+    for (var i=0;i<this._children.length;i++) {
+      if (this._children[i].id == child.id) { return true; }
+    }
+    return false;
+  }
+
+  /**
+  * Returns the child display object instance that exists at the specified index.
+  * @method DisplayObjectContainer.getChildAt(index)
+  **/
+  DisplayObjectContainer.prototype.getChildAt = function(index) {
+    if (this._children[index] != undefined) {
+      return this._children[index];
+    } else { return null; }
+  }
+
+  /**
+  * Returns the child display object that exists with the specified name.
+  * @method DisplayObjectContainer.getChildByName(name)
+  **/
+  DisplayObjectContainer.prototype.getChildByName = function(name) {
+    throw "Exception: DisplayObjectContainer.getChildByName(name) not implemented";
+    /*
+    for (var i=0;i<this._children.length;i++) {
+      if (this._children[i].name == name) { return this._children[i]; }
+    }
+    return null;
+    */
+  }
+
+  /**
+  * Returns the index position of a child DisplayObject instance.
+  * @method DisplayObjectContainer.getChildIndex(child)
+  **/
+  DisplayObjectContainer.prototype.getChildIndex = function(child) {
+    for (var i=0;i<this._children.length;i++) {
+      if (this._children[i].id == child.id) { return i; }
+    }
+    return -1;
+  }
+
+  /**
+  * Removes the specified child DisplayObject instance from the child list of the DisplayObjectContainer instance.
+  * @method DisplayObjectContainer.removeChild(child)
+  **/
+  DisplayObjectContainer.prototype.removeChild = function(child) {
+    for (var i=0;i<this._children.length;i++) {
+      if (this._children[i].id == child.id) { 
+        var c = this._children[i];
+        c.parent = null;
+        c.stage = null;
+        this._children.splice(i, 1);
+        this._isdirty = true;
+        this.numChildren--;
+        return c;
+      }
+    }
+    return null;
+  }
+
+  /**
+  * Removes a child DisplayObject from the specified index position in the child list of the DisplayObjectContainer.
+  * @method DisplayObjectContainer.removeChildAt(index)
+  **/
+  DisplayObjectContainer.prototype.removeChildAt = function(index) {
+    var c = this._children[index];
+    c.parent = null;
+    c.stage = null;
+    this._children.splice(index, 1);
+    this._isdirty = true;
+    this.numChildren--;
+    return c;
+  }
+
+  /**
+  * Changes the position of an existing child in the display object container.
+  * @method DisplayObjectContainer.setChildIndex(child, index)
+  **/
+  DisplayObjectContainer.prototype.setChildIndex = function(child, index) {
+    throw "Exception: DisplayObjectContainer.setChildIndex(child, index) not implemented";
+  }
+
+  /**
+  * Swaps the z-order (front-to-back order) of the two specified child objects.
+  * @method DisplayObjectContainer.swapChildren(child1, child2)
+  **/
+  DisplayObjectContainer.prototype.swapChildren = function(child1, child2) {
+    var index1 = -1; var index2 = -1;
+    for (var i=0;i<this._children.length;i++) {
+      if (this._children[i].id == child1.id) { index1 = i; }
+      if (this._children[i].id == child2.id) { index2 = i; }
+    }
+    if (index1 != -1 && index2 != -1) {
+      var tmp = this._children[index1];
+      this._children[index1] = this._children[index2];
+      this._children[index2] = tmp;
+    }
+  }
+
+  /**
+  * Swaps the z-order (front-to-back order) of the child objects at the two specified index positions in the child list.
+  * @method DisplayObjectContainer.swapChildrenAt(index1, index2)
+  **/
+  DisplayObjectContainer.prototype.swapChildrenAt = function(index1, index2) {
+    if (this._children[index1] != undefined && this._children[index2] != undefined) {
+      var tmp = this._children[index1];
+      this._children[index1] = this._children[index2];
+      this._children[index2] = tmp;
+    }
+  }
+
+  /*
+  DisplayObjectContainer.prototype.areInaccessibleObjectsUnderPoint = function(point) {
+    throw "Exception: DisplayObjectContainer.(reInaccessibleObjectsUnderPoint(point) not implemented";
+  }
+  */
+  
+  /**
+  * Return the DisplayObject under the current points
+  * @method DisplayObjectContainer.getObjectsUnderPoint(globalX, globalY)
+  **/
+  DisplayObjectContainer.prototype.getObjectsUnderPoint = function(globalX, globalY) {
+    var inbound_obj = new Array();
+    for (var i=0;i<this._children.length;i++) {
+      if (this._children[i] instanceof DisplayObjectContainter) {
+      } else {
+        var inBounds = this._children[i].inBounds(globalX, globalY);
+        if (inBounds) { inbound_obj.push(this._children[i]); }
+      }
+    }
+    return inbound_obj;
+  }
+
+  /**
+  * Exposing the DisplayObjectContainer to the NEngine global object.
+  **/
+  NEngine.DisplayObjectContainer = DisplayObjectContainer;
+
+}(NEngine));
+/**
+* Sprite.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+*
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* The Sprite class is a basic display list building block: a display list node that can display graphics and can also contain children. The Sprite class represents the main drawing area without timeline.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Sprite's constructor.
+  **/
+  function Sprite(canvas) {
+    if (canvas)
+    {
+        this.__displayobject_init("Sprite");
+        this.__displayobjectcont_init();
+        this.__stage_init(canvas);
+        if (NEngine.Clock)
+        {
+            NEngine.Clock.setInterval(NEngine.env.interval);
+            NEngine.Clock.addListeners(this);
+            NEngine.Clock.start();
+        }
+    }
+  }
+
+  Sprite.inheritsFrom(NEngine.DisplayObjectContainer);
+
+  /**
+  * The canvas element of html object.
+  * @type html object
+  **/
+  Sprite.prototype.canvas = null;
+
+  /**
+  * The NEngine.Graphics for drawing.
+  * @type NEngine.Graphics
+  **/
+  Sprite.prototype.graphics = null;
+
+  /**
+  * Clear the canvas automatically?
+  * @type Boolean
+  **/
+  Sprite.prototype.autoClear = true;
+
+  /**
+  * A Boolean value that indicates whether the pointing hand (hand cursor) appears when the mouse rolls over a sprite in which the buttonMode property is set to true.
+  * @type Boolean
+  **/
+  Sprite.prototype.useHandCursor = true;
+
+  // Sprite.prototype.buttonMode = null;
+  // Sprite.prototype.dropTarget = null;
+  // Sprite.prototype.hitArea = null;
+  // Sprite.prototype.soundTransform = null;
+
+  /**
+  * Init the Sprite, in NEngine, we do not use the "capturing" for event handling.
+  * reference - http://blog.neraliu.com/2009/09/20/javascript-dom-events-specification/
+  * @method Sprite.__stage_init()
+  **/
+  Sprite.prototype.__stage_init = function(canvas) {
+    this.stage = this;
+    this.canvas = canvas;
+    this.graphics = new NEngine.Graphics(this.canvas);
+
+    var s = this;
+    NEngine.addEvent(window, 'mousemove', function(e) { s._handleOnMouseMove(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mouseup', function(e) { s._handleOnMouseUp(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mousedown', function(e) { s._handleOnMouseDown(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mouseover', function(e) { s._handleOnMouseOver(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mouseout', function(e) { s._handleOnMouseOut(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'click', function(e) { s._handleOnClick(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keydown', function(e) { s._handleOnKeyDown(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keyup', function(e) { s._handleOnKeyUp(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keypress', function(e) { s._handleOnKeyPress(e); }, {passive:false, capture:false});
+    this.draw();
+  }
+
+  /**
+  * The handler of mousemove event in the Sprite.
+  * @method Sprite._handleOnMouseMove(e)
+  **/
+  Sprite.prototype._handleOnMouseMove = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.offsetLeft;
+    this.mouseY = e.pageY-this.canvas.offsetTop;
+    var inBounds = (this.mouseX >= 0 && this.mouseY >= 0 && this.mouseX < this.canvas.width && this.mouseY < this.canvas.height);
+    if (!inBounds) return;
+
+    if (this.onMouseMove) { this.onMouseMove(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
+      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      if(this._children[i].onMouseMove && this._children[i].onMouseMove instanceof Function) { this._children[i].onMouseMove(e); }
+    }
+  }
+
+  /**
+  * The handler of mouseup event in the Sprite.
+  * @method Sprite._handleOnMouseUp(e)
+  **/
+  Sprite.prototype._handleOnMouseUp = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.offsetLeft;
+    this.mouseY = e.pageY-this.canvas.offsetTop;
+    if (this.onMouseUp) { this.onMouseUp(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
+      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      if(this._children[i].onMouseUp && this._children[i].onMouseUp instanceof Function) { this._children[i].onMouseUp(e); }
+    }
+  }
+
+  /**
+  * The handler of mousedown event in the Sprite.
+  * @method Sprite._handleOnMouseDown(e)
+  **/
+  Sprite.prototype._handleOnMouseDown = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.offsetLeft;
+    this.mouseY = e.pageY-this.canvas.offsetTop;
+    if (this.onMouseDown) { this.onMouseDown(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
+      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      if(this._children[i].onMouseDown && this._children[i].onMouseDown instanceof Function) { this._children[i].onMouseDown(e); }
+    }
+  }
+
+  /**
+  * The handler of mouseover event in the Sprite.
+  * @method Sprite._handleOnMouseOver(e)
+  **/
+  Sprite.prototype._handleOnMouseOver = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.offsetLeft;
+    this.mouseY = e.pageY-this.canvas.offsetTop;
+    if (this.onMouseOver) { this.onMouseOver(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
+      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      if(this._children[i].onMouseOver && this._children[i].onMouseOver instanceof Function) { this._children[i].onMouseOver(e); }
+    }
+  }
+
+  /**
+  * The handler of mouseout event in the Sprite.
+  * @method Sprite._handleOnMouseOut(e)
+  **/
+  Sprite.prototype._handleOnMouseOut = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.offsetLeft;
+    this.mouseY = e.pageY-this.canvas.offsetTop;
+    if (this.onMouseOut) { this.onMouseOut(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
+      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      if(this._children[i].onMouseOut && this._children[i].onMouseOut instanceof Function) { this._children[i].onMouseOut(e); }
+    }
+  }
+
+  /**
+  * The handler of click event in the Sprite.
+  * @method Sprite._handleOnClick(e)
+  **/
+  Sprite.prototype._handleOnClick = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.offsetLeft;
+    this.mouseY = e.pageY-this.canvas.offsetTop;
+    if (this.onClick) { this.onClick(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
+      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
+      if(inBounds && this._children[i].onClick && this._children[i].onClick instanceof Function) { this._children[i].onClick(e); }
+    }
+  }
+
+  /**
+  * The handler of keydown event in the Sprite.
+  * @method Sprite._handleOnKeyDown(e)
+  **/
+  Sprite.prototype._handleOnKeyDown = function(e) {
+    if (!this.canvas) { return; }
+    if (this.onKeyDown) { this.onKeyDown(e); }
+    for (var i=0;i<this._children.length;i++) {
+      if(this._children[i].onKeyDown && this._children[i].onKeyDown instanceof Function) { this._children[i].onKeyDown(e); }
+    }
+  }
+
+  /**
+  * The handler of keyup event in the Sprite.
+  * @method Sprite._handleOnKeyUp(e)
+  **/
+  Sprite.prototype._handleOnKeyUp = function(e) {
+    if (!this.canvas) { return; }
+    if (this.onKeyUp) { this.onKeyUp(e); }
+    for (var i=0;i<this._children.length;i++) {
+      if(this._children[i].onKeyUp && this._children[i].onKeyUp instanceof Function) { this._children[i].onKeyUp(e); }
+    }
+  }
+
+  /**
+  * The handler of keypress event in the Sprite.
+  * @method Sprite._handleOnKeyUp(e)
+  **/
+  Sprite.prototype._handleOnKeyPress = function(e) {
+    if (!this.canvas) { return; }
+    if (this.onKeyPress) { this.onKeyPress(e); }
+    for (var i=0;i<this._children.length;i++) {
+      if(this._children[i].onKeyPress && this._children[i].onKeyPress instanceof Function) { this._children[i].onKeyPress(e); }
+    }
+  }
+
+  /**
+  * The clock handler.
+  * @method Sprite.tick()
+  **/
+  Sprite.prototype.tick = function() {
+    this.draw();
+  }
+
+  /**
+  * Clear the canvas.
+  * @method Sprite.clear()
+  **/
+  Sprite.prototype.clear = function() {
+    if (this.canvas == null) { return; }
+    this.canvas.getContext("2d").clearRect(0,0,this.canvas.width,this.canvas.height);
+  }
+
+  /**
+  * Draw the canvas.
+  * @method Sprite.draw()
+  **/
+  Sprite.prototype.draw = function() {
+    if (this.canvas == null) { return; }
+    if (this.autoClear) { this.clear(); }
+   // if (this.useHandCursor) { this.canvas.style.setProperty('cursor','pointer'); }
+    if (this.animate) { this.animate(); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].draw(this.graphics.ctx);
+    }
+  }
+
+  /**
+  * Return the string of Sprite object.
+  * @method Sprite.toString()
+  **/
+  Sprite.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ")";
+  }
+
+  /**
+  * Exposing the Sprite to the NEngine global object.
+  **/
+  NEngine.Sprite = Sprite;
+
+}(NEngine));
+/**
+* Stage.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+*
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* The Stage class is a basic display list building block: a display list node that can display graphics and can also contain children. The Stage class represents the main drawing area with timeline.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Stage's constructor.
+  **/
+  function Stage(canvas) {
+    if (canvas)
+    {
+        this.__displayobject_init("Stage");
+        this.__displayobjectcont_init();
+        this.__stage_init(canvas);
+        if (NEngine.Clock)
+        {
+            NEngine.Clock.setInterval(NEngine.env.interval);
+            NEngine.Clock.addListeners(this);
+            NEngine.Clock.start();
+        }
+    }
+  }
+
+  Stage.inheritsFrom(NEngine.DisplayObjectContainer);
+
+  /**
+  * The canvas element of html object.
+  * @type html object
+  **/
+  Stage.prototype.canvas = null;
+
+  /**
+  * The NEngine.Graphics for drawing.
+  * @type NEngine.Graphics
+  **/
+  Stage.prototype.graphics = null;
+
+  /**
+  * Clear the canvas automatically?
+  * @type Boolean
+  **/
+  Stage.prototype.autoClear = true;
+
+  // Stage.prototype.buttonMode = null;
+  // Stage.prototype.dropTarget = null;
+  // Stage.prototype.hitArea = null;
+  // Stage.prototype.soundTransform = null;
+
+  /**
+  * Init the Stage, in NEngine, we do not use the "capturing" for event handling.
+  * reference - http://blog.neraliu.com/2009/09/20/javascript-dom-events-specification/
+  * @method Stage.__stage_init()
+  **/
+  Stage.prototype.__stage_init = function(canvas) {
+    this.stage = this;
+    this.canvas = canvas;
+    this.graphics = new NEngine.Graphics(this.canvas);
+
+    // find canvas global offset
+    this.canvas.globalOffsetLeft=this.canvas.offsetLeft;
+    this.canvas.globalOffsetTop=this.canvas.offsetTop;
+    var obj=this.canvas;
+    while (obj=obj.offsetParent)
+    {
+        this.canvas.globalOffsetLeft+=obj.offsetLeft;
+        this.canvas.globalOffsetTop+=obj.offsetTop;
+    }
+    var s = this;
+    NEngine.addEvent(window, 'touchmove', function(e) { s._handleOnTouchMove(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'touchend', function(e) { s._handleOnTouchEnd(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'touchstart', function(e) { s._handleOnTouchStart(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mousemove', function(e) { s._handleOnMouseMove(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mouseup', function(e) { s._handleOnMouseUp(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mousedown', function(e) { s._handleOnMouseDown(e); }, {passive:false, capture:false});
+    // NEngine.addEvent(window, 'mouseover', function(e) { s._handleOnMouseOver(e); }, {passive:false, capture:false});
+    // NEngine.addEvent(window, 'mouseout', function(e) { s._handleOnMouseOut(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'click', function(e) { s._handleOnClick(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keydown', function(e) { s._handleOnKeyDown(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keyup', function(e) { s._handleOnKeyUp(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keypress', function(e) { s._handleOnKeyPress(e); }, {passive:false, capture:false});
+    this.draw();
+  }
+
+  /**
+  * The handler of touchmove event in the Stage.
+  * @method Stage._handleOnTouchMove(e)
+  **/
+  Stage.prototype._handleOnTouchMove = function(e) {
+    if (!this.canvas) { this.touches = null; this.mouseX = this.mouseY = null; return; }
+    var self = this;
+    this.touches = Array.prototype.map.call(e.touches, function(touch) {
+        return {
+            x: touch.pageX-self.canvas.globalOffsetLeft,
+            y: touch.pageY-self.canvas.globalOffsetTop
+        };
+    });
+    if (this.touches.length)
+    {
+        this.mouseX = this.touches[0].x;
+        this.mouseY = this.touches[0].y;
+    }
+    var inBounds = 0 < this.touches.filter(function(touch) {return (touch.x >= 0 && touch.y >= 0 && touch.x < self.canvas.width && touch.y < self.canvas.height);}).length;
+    if (!inBounds) return;
+
+    if (this.onTouchMove) { this.onTouchMove(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].touches = this.touches.map(function(touch) {
+          return {
+            x: touch.x-self._children[i].x,
+            y: touch.y-self._children[i].y,
+          };
+      });
+      if (this._children[i].touches.length)
+      {
+          this._children[i].mouseX = this._children[i].touches[0].x;
+          this._children[i].mouseY = this._children[i].touches[0].y;
+      }
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
+      if(inBounds && this._children[i].onTouchMove && this._children[i].onTouchMove instanceof Function) { this._children[i].onTouchMove(e); }
+    }
+  }
+
+  /**
+  * The handler of touchend event in the Stage.
+  * @method Stage._handleOnMouseUp(e)
+  **/
+  Stage.prototype._handleOnTouchEnd = function(e) {
+    if (!this.canvas) { this.touches = null; this.mouseX = this.mouseY = null; return; }
+    var self = this;
+    this.touches = Array.prototype.map.call(e.touches, function(touch) {
+        return {
+            x: touch.pageX-self.canvas.globalOffsetLeft,
+            y: touch.pageY-self.canvas.globalOffsetTop
+        };
+    });
+    if (this.touches.length)
+    {
+        this.mouseX = this.touches[0].x;
+        this.mouseY = this.touches[0].y;
+    }
+    if (this.onTouchEnd) { this.onTouchEnd(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].touches = this.touches.map(function(touch) {
+          return {
+            x: touch.x-self._children[i].x,
+            y: touch.y-self._children[i].y,
+          };
+      });
+      if (this._children[i].touches.length)
+      {
+          this._children[i].mouseX = this._children[i].touches[0].x;
+          this._children[i].mouseY = this._children[i].touches[0].y;
+      }
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
+      if(inBounds && this._children[i].onTouchEnd && this._children[i].onTouchEnd instanceof Function) { this._children[i].onTouchEnd(e); }
+    }
+  }
+
+  /**
+  * The handler of touchstart event in the Stage.
+  * @method Stage._handleOnMouseDown(e)
+  **/
+  Stage.prototype._handleOnTouchStart = function(e) {
+    if (!this.canvas) { this.touches = null; this.mouseX = this.mouseY = null; return; }
+    var self = this;
+    this.touches = Array.prototype.map.call(e.touches, function(touch) {
+        return {
+            x: touch.pageX-self.canvas.globalOffsetLeft,
+            y: touch.pageY-self.canvas.globalOffsetTop
+        };
+    });
+    if (this.touches.length)
+    {
+        this.mouseX = this.touches[0].x;
+        this.mouseY = this.touches[0].y;
+    }
+    if (this.onTouchStart) { this.onTouchStart(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].touches = this.touches.map(function(touch) {
+          return {
+            x: touch.x-self._children[i].x,
+            y: touch.y-self._children[i].y,
+          };
+      });
+      if (this._children[i].touches.length)
+      {
+          this._children[i].mouseX = this._children[i].touches[0].x;
+          this._children[i].mouseY = this._children[i].touches[0].y;
+      }
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
+      if(inBounds && this._children[i].onTouchStart && this._children[i].onTouchStart instanceof Function) { this._children[i].onTouchStart(e); }
+    }
+  }
+
+  /**
+  * The handler of mousemove event in the Stage.
+  * @method Stage._handleOnMouseMove(e)
+  **/
+  Stage.prototype._handleOnMouseMove = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    var inBounds = (this.mouseX >= 0 && this.mouseY >= 0 && this.mouseX < this.canvas.width && this.mouseY < this.canvas.height);
+    if (!inBounds) return;
+
+    if (this.onMouseMove) { this.onMouseMove(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = this.mouseX-this._children[i].x;
+      this._children[i].mouseY = this.mouseY -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
+      if(inBounds && this._children[i].onMouseMove && this._children[i].onMouseMove instanceof Function) { this._children[i].onMouseMove(e); }
+      var isBounds = this._children[i].isBounds;
+      if (isBounds == false && inBounds && this._children[i].onMouseOver && this._children[i].onMouseOver instanceof Function) {
+        this._children[i].onMouseOver(e);
+        this._children[i].isBounds = true;
+        if (this._children[i].cursor) { this.canvas.style.cursor = this._children[i].cursor; }
+      }
+      if (isBounds && inBounds == false && this._children[i].onMouseOut && this._children[i].onMouseOut instanceof Function) {
+        this._children[i].onMouseOut(e);
+        this._children[i].isBounds = false;
+        if (this._children[i].cursor) { this.canvas.style.cursor = "auto"; }
+      }
+    }
+  }
+
+  /**
+  * The handler of mouseup event in the Stage.
+  * @method Stage._handleOnMouseUp(e)
+  **/
+  Stage.prototype._handleOnMouseUp = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    if (this.onMouseUp) { this.onMouseUp(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = this.mouseX-this._children[i].x;
+      this._children[i].mouseY = this.mouseY -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
+      if(inBounds && this._children[i].onMouseUp && this._children[i].onMouseUp instanceof Function) { this._children[i].onMouseUp(e); }
+    }
+  }
+
+  /**
+  * The handler of mousedown event in the Stage.
+  * @method Stage._handleOnMouseDown(e)
+  **/
+  Stage.prototype._handleOnMouseDown = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    if (this.onMouseDown) { this.onMouseDown(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = this.mouseX-this._children[i].x;
+      this._children[i].mouseY = this.mouseY -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
+      if(inBounds && this._children[i].onMouseDown && this._children[i].onMouseDown instanceof Function) { this._children[i].onMouseDown(e); }
+    }
+  }
+
+  /**
+  * The handler of mouseover event in the Stage.
+  * @method Stage._handleOnMouseOver(e)
+  **/
+  Stage.prototype._handleOnMouseOver = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    if (this.onMouseOver) { this.onMouseOver(e); }
+    /* for the main Stage/Sprite only
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
+      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
+      if(inBounds && this._children[i].onMouseOver && this._children[i].onMouseOver instanceof Function) { this._children[i].onMouseOver(e); }
+    }
+    */
+  }
+
+  /**
+  * The handler of mouseout event in the Stage.
+  * @method Stage._handleOnMouseOut(e)
+  **/
+  Stage.prototype._handleOnMouseOut = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    if (this.onMouseOut) { this.onMouseOut(e); }
+    /* for the main Stage/Sprite only
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
+      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
+      if(inBounds && this._children[i].onMouseOut && this._children[i].onMouseOut instanceof Function) { this._children[i].onMouseOut(e); }
+    }
+    */
+  }
+
+  /**
+  * The handler of click event in the Stage.
+  * @method Stage._handleOnClick(e)
+  **/
+  Stage.prototype._handleOnClick = function(e) {
+    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    if (this.onClick) { this.onClick(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].mouseX = this.mouseX-this._children[i].x;
+      this._children[i].mouseY = this.mouseY -this._children[i].y;
+      if(!this._children[i].mouseEnabled) { continue; }
+      /* hitTest not yet completed
+      NEngine.utils.log(this._children[i].hitTest(this.mouseX, this.mouseY));
+      */
+      var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
+      if(inBounds && this._children[i].onClick && this._children[i].onClick instanceof Function) { this._children[i].onClick(e); }
+    }
+  }
+
+  /**
+  * The handler of keydown event in the Stage.
+  * @method Stage._handleOnKeyDown(e)
+  **/
+  Stage.prototype._handleOnKeyDown = function(e) {
+    if (!this.canvas) { return; }
+    if (this.onKeyDown) { this.onKeyDown(e); }
+    for (var i=0;i<this._children.length;i++) {
+      if(this._children[i].onKeyDown && this._children[i].onKeyDown instanceof Function) { this._children[i].onKeyDown(e); }
+    }
+  }
+
+  /**
+  * The handler of keyup event in the Stage.
+  * @method Stage._handleOnKeyUp(e)
+  **/
+  Stage.prototype._handleOnKeyUp = function(e) {
+    if (!this.canvas) { return; }
+    if (this.onKeyUp) { this.onKeyUp(e); }
+    for (var i=0;i<this._children.length;i++) {
+      if(this._children[i].onKeyUp && this._children[i].onKeyUp instanceof Function) { this._children[i].onKeyUp(e); }
+    }
+  }
+
+  /**
+  * The handler of keypress event in the Stage.
+  * @method Stage._handleOnKeyPress(e)
+  **/
+  Stage.prototype._handleOnKeyPress = function(e) {
+    if (!this.canvas) { return; }
+    if (this.onKeyPress) { this.onKeyPress(e); }
+    for (var i=0;i<this._children.length;i++) {
+      if(this._children[i].onKeyPress && this._children[i].onKeyPress instanceof Function) { this._children[i].onKeyPress(e); }
+    }
+  }
+
+  /**
+  * The clock handler.
+  * @method Stage.tick()
+  **/
+  Stage.prototype.tick = function() {
+   this.draw();
+  }
+
+  /**
+  * Clear the canvas.
+  * @method Stage.clear()
+  **/
+  Stage.prototype.clear = function() {
+    if (this.canvas == null) { return; }
+    this.canvas.getContext("2d").clearRect(0,0,this.canvas.width,this.canvas.height);
+  }
+
+  /**
+  * Draw the canvas.
+  * @method Stage.draw()
+  **/
+  Stage.prototype.draw = function() {
+
+    if (this.canvas == null) { return; }
+    if (this.autoClear) { this.clear(); }
+
+    for (var i=0;i<this._children.length;i++) {
+      if (this._children[i].animate) { this._children[i].animate(); }
+      if (!this._children[i].visible)  { continue; }
+
+      var mtx = this._children[i]._mtx.clone();
+      this.graphics.ctx.setTransform(mtx.m11, mtx.m12, mtx.m21, mtx.m22, mtx.dx, mtx.dy);
+      if (this._children[i].rotation != 0) {
+        this.graphics.ctx.translate(this._children[i].x+this._children[i].regX, this._children[i].y+this._children[i].regY);
+        this.graphics.ctx.rotate(this._children[i].rotation);
+        this.graphics.ctx.translate(-(this._children[i].x+this._children[i].regX), -(this._children[i].y+this._children[i].regY));
+      }
+      this.graphics.ctx.globalAlpha = this._children[i].alpha;
+      this.graphics.ctx.globalCompositeOperation = this._children[i].compositeOperation || "source-over";
+      // shadow?
+      this._children[i].draw(this.graphics.ctx, this.ignoreCache);
+    }
+  }
+
+  /**
+  * Return the string of Stage object.
+  * @method Stage.toString()
+  **/
+  Stage.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ")";
+  }
+
+  /**
+  * Exposing the Stage to the NEngine global object.
+  **/
+  NEngine.Stage = Stage;
+
+}(NEngine));
+/**
+* Color.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents color.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Color's constructor.
+  **/
+  function Color(r, g, b, alpha) {
+    if (r<0 || r>256 || r == undefined) { r = 0; }
+    if (g<0 || g>256 || g == undefined) { g = 0; }
+    if (b<0 || b>256 || b == undefined) { b = 0; }
+    if (alpha<0 || alpha>1 || alpha == undefined) { alpha = 1; }
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.alpha = alpha;
+  }
+
+  /**
+  * The reb component of RGB.
+  * @type Number
+  **/
+  Color.prototype.r = 0;
+
+  /**
+  * The green component of RGB.
+  * @type Number
+  **/
+  Color.prototype.g = 0;
+
+  /**
+  * The blue component of RGB.
+  * @type Number
+  **/
+  Color.prototype.b = 0;
+
+  /**
+  * The alpha channel.
+  * @type Number
+  **/
+  Color.prototype.alpha = 1;
+
+  /**
+  * Clone the Color object.
+  * @method Color.clone()
+  **/
+  Color.prototype.clone = function() {
+    return new Color(this.r, this.g, this.b, this.alpha);
+  }
+
+  /**
+  * Return the string rgba of Color object.
+  * @method Color.toRGB()
+  **/
+  Color.prototype.toRGB = function() {
+    return "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.alpha + ")";
+  }
+
+  /**
+  * Return the string CSS of Color object.
+  * @method Color.toRGB()
+  **/
+  Color.prototype.toCSS = function() {
+    return "#" + dechex(this.r) + dechex(this.g) + dechex(this.b);
+  }
+
+  /**
+  * Exposing the Color to the NEngine global object.
+  **/
+  NEngine.Color = Color;
+
+}(NEngine));
+/**
+* Graphics.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* This is the wrapper class for canvas api.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Graphics's constructor
+  **/
+  function Graphics(canvas) {
+    this.canvas = canvas;
+    this.ctx = this.canvas.getContext("2d");
+  }
+
+  /**
+  * The canvas element of html object.
+  * @type html object
+  **/
+  Graphics.prototype.canvas = null;
+
+  /**
+  * The Context of 2d canvas
+  * @type html object
+  **/
+  Graphics.prototype.ctx = null;
+
+  /**
+  * Fill the stroke color of the Graphics
+  * @method Graphics.strokeStyle(color)
+  **/
+  Graphics.prototype.strokeStyle = function(color) {
+    if (this.ctx == null) return;
+    this.ctx.strokeStyle = color.toRGB();
+    return this;
+  }
+
+  /**
+  * Fill the color of the Graphics
+  * @method Graphics.fillStyle(color)
+  **/
+  Graphics.prototype.fillStyle = function(color) {
+    if (this.ctx == null) return;
+    this.ctx.fillStyle = color.toRGB();
+    return this;
+  }
+
+  /**
+  * Exposing the Graphics to the NEngine global object
+  **/
+  NEngine.Graphics = Graphics;
+
+}(NEngine));
+/**
+* Shape.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a Shape.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Shape's constructor.
+  **/
+  function Shape() {
+    this.__displayobject_init("Shape");
+  }
+
+  Shape.inheritsFrom(NEngine.InteractiveObject);
+
+  /**
+  * Is the Shape filled when draw?
+  * @type Boolean
+  **/
+  Shape.prototype.filled = false;
+
+  /**
+  * fillStyle of the Shape
+  * @type NEngine.Color
+  **/
+  Shape.prototype.fillStyle = null;
+
+  /**
+  * strokeStyle of the Shape
+  * @type NEngine.Color
+  **/
+  Shape.prototype.strokeStyle = null;
+
+  /**
+  * The rotation in radian.
+  * @type Number
+  **/
+  Shape.prototype.rotation = 0;
+
+  /**
+  * Clone the Shape object.
+  * @method Shape.clone()
+  **/
+  Shape.prototype.clone = function() {
+    return new Shape();
+  }
+
+  /**
+  * Return the string of Shape object
+  * @method Shape.toString()
+  **/
+  Shape.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ")";
+  }
+
+  /**
+  * Exposing the Shape to the NEngine global object.
+  **/
+  NEngine.Shape = Shape;
+
+}(NEngine));
+/**
+* Bitmap.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a Bitmap in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Bitmap's constructor.
+  **/
+  function Bitmap(image, x, y, w, h, sx, sy, sw, sh) {
+    this.__displayobject_init("Bitmap");
+    this.x = x;
+    this.y = y;
+    this.regX = w/2;
+    this.regY = h/2;
+
+    if (typeof image == "string") {
+      this.image = new Image();
+      var o = this;
+      this.image.onload = function() {
+        o.ready = true;
+      }
+      this.image.src = image;
+    } else if (image instanceof Image) {
+      this.image = image;
+    } else {
+      throw "Exception: the first parameter is not String or Image object"; 
+    }
+
+    if (w != undefined) { this.width = w; }
+    if (h != undefined) { this.height = h; }
+    if (sx != undefined) { this.sx = sx; }
+    if (sy != undefined) { this.sy = sy; }
+    if (sw != undefined) { this.sw = sw; }
+    if (sh != undefined) { this.sh = sh; }
+  }
+
+  Bitmap.inheritsFrom(NEngine.Shape);
+
+  /**
+  * The image object.
+  * @type Image
+  **/
+  Bitmap.prototype.image = null;
+
+  /**
+  * Is the Image ready?
+  * @type Boolean
+  **/
+  Bitmap.prototype.ready = false;
+
+  /**
+  * The x displacement of the image object.
+  * @type Number
+  **/
+  Bitmap.prototype.sx = null;
+
+  /**
+  * The y displacement of the image object.
+  * @type Number
+  **/
+  Bitmap.prototype.sy = null;
+
+  /**
+  * The w displacement of the image object.
+  * @type Number
+  **/
+  Bitmap.prototype.sw = null;
+
+  /**
+  * The h displacement of the image object.
+  * @type Number
+  **/
+  Bitmap.prototype.sh = null;
+
+  /**
+  * Clone the Bitmap object.
+  * @method Bitmap.clone()
+  **/
+  Bitmap.prototype.clone = function() {
+    return new Bitmap(this.image.src);
+  }
+
+  /**
+  * Return the string of Bitmap object.
+  * @method Bitmap.toString()
+  **/
+  Bitmap.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",imageurl:" + this.image.src + ")";
+  }
+
+  /**
+  * Draw the Bitmap on the canvas.
+  * @method Bitmap.draw(ctx, ignoreCache)
+  **/
+  Bitmap.prototype.draw = function(ctx, ignoreCache) {
+	if (this.__draw(ctx, ignoreCache)) { return true; }
+    if (this.ready) {
+      if (this.width && this.height && this.sx != undefined && this.sy != undefined && this.sw && this.sh) {
+        ctx.drawImage(this.image, this.sx, this.sy, this.sw, this.sh, this.x, this.y, this.width, this.height);
+      } else if (this.width && this.height) {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+      } else {
+        ctx.drawImage(this.image, this.x, this.y);
+      }
+    }
+  }
+
+  /**
+  * Test whether the mouseX/Y is in bound of the Bitmap.
+  * @method Bitmap.inBounds(globalX, globalY)
+  **/
+  Bitmap.prototype.inBounds = function(globalX, globalY) {
+    var inBounds = (globalX >= this.x && globalY >= this.y && globalX < (this.x + this.width) && globalY < (this.y + this.height));
+    if (this.stage) {
+      if (inBounds) {
+        var imagedata = this.stage.graphics.ctx.getImageData(globalX, globalY, 1, 1);
+        return (imagedata.data[3]/255);
+      }
+    }
+    return inBounds;
+  }
+
+  /**
+  * Exposing the Bitmap to the NEngine global object.
+  **/
+  NEngine.Bitmap = Bitmap;
+
+}(NEngine));
+/**
+* Rectangle.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a Rectangle in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Rectangle's constructor.
+  **/
+  function Rectangle(x, y, w, h, filled) {
+    this.__displayobject_init("Rectangle");
+    this.x = x;
+    this.y = y;
+    this.width = w;
+    this.height = h;
+    this.regX = w/2;
+    this.regY = h/2;
+    if (typeof filled == 'boolean') { this.filled = filled; }
+  }
+
+  Rectangle.inheritsFrom(NEngine.Shape);
+
+  /**
+  * Clone the Rectangle object.
+  * @method Rectangle.clone()
+  **/
+  Rectangle.prototype.clone = function() {
+    return new Rectangle(this.x, this.y, this.width, this.height, this.filled);
+  }
+
+  /**
+  * Return the string of Rectangle object.
+  * @method Rectangle.toString()
+  **/
+  Rectangle.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",w:" + this.width + ",h:" + this.height + ")";
+  }
+
+  /**
+  * Draw the Rectangle on the canvas.
+  * @method Rectangle.draw(ctx, ignoreCache)
+  **/
+  Rectangle.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    this.applyStyle(ctx);
+    if (this.filled) {
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    } else {
+      ctx.strokeRect(this.x, this.y, this.width, this.height);
+    }
+    this.resetStyle(ctx);
+  }
+
+  /**
+  * Test whether the mouseX/Y is in bound of the Rectangle.
+  * @method Rectangle.inBounds(globalX, globalY)
+  **/
+  Rectangle.prototype.inBounds = function(globalX, globalY) {
+    var inBounds = (globalX >= this.x && globalY >= this.y && globalX < (this.x + this.width) && globalY < (this.y + this.height));
+    return inBounds;
+  }
+
+  /**
+  * Exposing the Rectangle to the NEngine global object.
+  **/
+  NEngine.Rectangle = Rectangle;
+
+}(NEngine));
+/**
+* Circle.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a Circle wth x / y coordinates as center.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Circle's constructor.
+  **/
+  function Circle(x, y, r, filled) {
+    this.__displayobject_init("Circle");
+    this.x = x;
+    this.y = y;
+    this.radius = r;
+    this.regX = 0;
+    this.regY = 0;
+    if (typeof filled == 'boolean') { this.filled = filled; }
+  }
+
+  Circle.inheritsFrom(NEngine.Shape);
+
+  /**
+  * The radius of the Circle.
+  * @type Number 
+  **/
+  Circle.prototype.radius = 0;
+
+  /**
+  * Clone the Circle object.
+  * @method Circle.clone()
+  **/
+  Circle.prototype.clone = function() {
+    return new Circle(this.x, this.y, this.r, this.filled);
+  }
+
+  /**
+  * Return the string of Circle object.
+  * @method Circle.toString()
+  **/
+  Circle.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",r:" + this.radius + ")";
+  }
+
+  /**
+  * Draw the Circle on the canvas.
+  * @method Circle.draw(ctx, ignoreCache)
+  **/
+  Circle.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    this.applyStyle(ctx);
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.radius, new NEngine.Angle().degree2radian(0), new NEngine.Angle().degree2radian(360), true);
+    if (this.filled) { ctx.fill(); } else { ctx.stroke(); }
+    this.resetStyle(ctx);
+  }
+
+  /**
+  * Test whether the mouseX/Y is in bound of the Circle.
+  * @method Circle.inBounds(globalX, globalY)
+  **/
+  Circle.prototype.inBounds = function(globalX, globalY) {
+    // throw "Exception: Circle.inBounds(globalX, globalY)";
+    return false;
+  }
+
+  /**
+  * Exposing the Circle to the NEngine global object.
+  **/
+  NEngine.Circle = Circle;
+
+}(NEngine));
+/**
+* StaticText.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a StaticText in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * StaticText's constructor.
+  **/
+  function StaticText(x, y, text, filled) {
+    this.__displayobject_init("StaticText");
+    this.x = x;
+    this.y = y;
+    this.regX = 0;
+    this.regY = 0;
+    this.text = text;
+    if (typeof filled == 'boolean') { this.filled = filled; }
+  }
+
+  StaticText.inheritsFrom(NEngine.Shape);
+
+  /**
+  * The text of the StaticText object.
+  * @type String
+  **/
+  StaticText.prototype.text = null;
+
+  /**
+  * Please refer to https://developer.mozilla.org/en/Drawing_text_using_a_canvas.
+  * @type String
+  **/
+  StaticText.prototype.font = "12pt Times New Roman";
+
+  /**
+  * Please refer to https://developer.mozilla.org/en/Drawing_text_using_a_canvas.
+  * @type String
+  **/
+  StaticText.prototype.textAlign = "left";
+
+  /**
+  * Please refer to https://developer.mozilla.org/en/Drawing_text_using_a_canvas.
+  * @type String
+  **/
+  StaticText.prototype.textBaseline = "bottom";
+
+  /**
+  * Please refer to https://developer.mozilla.org/en/Drawing_text_using_a_canvas.
+  * @type String
+  **/
+  StaticText.prototype.maxWidth = 0;
+
+  /**
+  * Clone the StaticText object.
+  * @method StaticText.clone()
+  **/
+  StaticText.prototype.clone = function() {
+    var o = new StaticText(this.x, this.y, this.text, this.filled);
+    o.font = this.font;
+    o.textAlign = this.textAlign;
+    o.textBaseline  = this.textBaseline;
+    o.maxWidth = this.maxWidth;
+    return o;
+  }
+
+  /**
+  * Return the string of StaticText object.
+  * @method StaticText.toString()
+  **/
+  StaticText.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",text:" + this.text + ")";
+  }
+
+  /**
+  * Apply the text style.
+  * @method StaticText.applyTextStyle(ctx)
+  **/
+  StaticText.prototype.applyTextStyle = function(ctx) {
+    if (this.font) { ctx.font = this.font; }
+    if (this.textAlign) { ctx.textAlign = this.textAlign; }
+    if (this.textBaseline) { ctx.textBaseline = this.textBaseline; }
+  }
+
+  /**
+  * Draw the StaticText on the canvas.
+  * @method StaticText.draw(ctx, ignoreCache)
+  **/
+  StaticText.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    this.applyStyle(ctx);
+    this.applyTextStyle(ctx);
+    if (this.filled) { 
+      ctx.fillText(this.text,this.x,this.y,this.maxWidth);
+    } else {
+      ctx.strokeText(this.text,this.x,this.y,this.maxWidth); 
+    }
+    this.resetStyle(ctx);
+  }
+
+  /**
+  * Test whether the mouseX/Y is in bound of the StaticText.
+  * @method StaticText.inBounds(globalX, globalY)
+  **/
+  StaticText.prototype.inBounds = function(globalX, globalY) {
+    // throw "Exception: StaticText.inBounds(globalX, globalY)";
+    return false;
+  }
+
+  /**
+  * Exposing the StaticText to the NEngine global object.
+  **/
+  NEngine.StaticText = StaticText;
+
+}(NEngine));
+/**
+* Button.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a Button in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Button's constructor.
+  **/
+  function Button(x, y, w, h, label) {
+    this.__displayobject_init("Button");
+    this.x = x;
+    this.y = y;
+    this.width = w;
+    this.height = h;
+    this.regX = w/2;
+    this.regY = h/2;
+    this.label = new NEngine.StaticText(x+w/2,y+h/2,label,true);
+    this.label.textAlign = "center";
+    this.label.textBaseline = "middle";
+    this.cursor = "pointer";
+  }
+
+  Button.inheritsFrom(NEngine.Rectangle);
+
+  /**
+  * The label of the NEngine.Button.
+  * @type NEngine.StaticText
+  **/
+  Button.prototype.label = null;
+
+  /**
+  * The pixel change of the Button when MouseOver/MouseOut.
+  * @type Number
+  **/
+  Button.prototype._sizeDelta = 3;
+
+  /**
+  * Clone the Button object.
+  * @method Button.clone()
+  **/
+  Button.prototype.clone = function() {
+    return new Button(this.x, this.y, this.width, this.height, this.label);
+  }
+
+  /**
+  * Return the string of Button object.
+  * @method Button.toString()
+  **/
+  Button.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",w:" + this.width + ",h:" + this.height + ")";
+  }
+
+  /**
+  * The default onMouseOver handler of the Button.
+  * @method Button.onMouseOver()
+  **/
+  Button.prototype.onMouseOver = function(e) {
+    if (this._sizeDelta) {
+      this.x = this.x - this._sizeDelta;
+      this.y = this.y - this._sizeDelta;
+      this.width  = this.width + (this._sizeDelta*2);
+      this.height = this.height + (this._sizeDelta*2);
+    }
+  }
+
+  /**
+  * The default onMouseOver handler of the Button.
+  * @method Button.onMouseOver()
+  **/
+  Button.prototype.onMouseOut = function(e) {
+    if (this._sizeDelta) {
+      this.x = this.x + this._sizeDelta;
+      this.y = this.y + this._sizeDelta;
+      this.width  = this.width - (this._sizeDelta*2);
+      this.height = this.height - (this._sizeDelta*2);
+    }
+  }
+
+  /**
+  * Draw the Button on the canvas.
+  * @method Button.draw(ctx)
+  **/
+  Button.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    this.applyStyle(ctx);
+    if (this.filled) {
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+      this.label.draw(ctx, ignoreCache);
+    } else {
+      ctx.strokeRect(this.x, this.y, this.width, this.height);
+      this.label.draw(ctx, ignoreCache);
+    }
+    this.resetStyle(ctx);
+  }
+
+  /**
+  * Exposing the Button to the NEngine global object.
+  **/
+  NEngine.Button = Button;
+
+}(NEngine));
+/**
+* ImageImageButton.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a ImageImageButton in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * ImageButton's constructor.
+  **/
+  function ImageButton(x, y, w, h, image, imageMouseOver) {
+    this.__displayobject_init("ImageButton");
+    this.x = x;
+    this.y = y;
+    this.width = w;
+    this.height = h;
+    this.regX = w/2;
+    this.regY = h/2;
+    this.image = new NEngine.Bitmap(image,x,y,w,h);
+    this.imageMouseOver = new NEngine.Bitmap(imageMouseOver,x,y,w,h);
+    this.active_image = this.image;
+    this.cursor = "pointer";
+  }
+
+  ImageButton.inheritsFrom(NEngine.Button);
+
+  /**
+  * The MouseOver image.
+  * @type NEngine.Bitmap
+  **/
+  ImageButton.prototype.imageMouseOver = null;
+
+  /**
+  * The image.
+  * @type NEngine.Bitmap
+  **/
+  ImageButton.prototype.image = null;
+
+  /**
+  * The active image.
+  * @type NEngine.Bitmap
+  **/
+  ImageButton.prototype.active_image = null;
+
+  /**
+  * Clone the ImageButton object.
+  * @method ImageButton.clone()
+  **/
+  ImageButton.prototype.clone = function() {
+    return new ImageButton(this.x, this.y, this.width, this.height, this.image, this.imageMouseOver);
+  }
+
+  /**
+  * Return the string of ImageButton object.
+  * @method ImageButton.toString()
+  **/
+  ImageButton.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",w:" + this.width + ",h:" + this.height + ")";
+  }
+
+  /**
+  * The default onMouseOver handler of the ImageButton.
+  * @method ImageButton.onMouseOver()
+  **/
+  ImageButton.prototype.onMouseOver = function(e) {
+    if (this._sizeDelta) {
+      this.x = this.x - this._sizeDelta;
+      this.y = this.y - this._sizeDelta;
+      this.width  = this.width + (this._sizeDelta*2);
+      this.height = this.height + (this._sizeDelta*2);
+      this.active_image = this.imageMouseOver;
+      this.image.x = this.image.x - this._sizeDelta;
+      this.image.y = this.image.y - this._sizeDelta;
+      this.image.width  = this.image.width + (this._sizeDelta*2);
+      this.image.height = this.image.height + (this._sizeDelta*2);
+      this.imageMouseOver.x = this.imageMouseOver.x - this._sizeDelta;
+      this.imageMouseOver.y = this.imageMouseOver.y - this._sizeDelta;
+      this.imageMouseOver.width  = this.imageMouseOver.width + (this._sizeDelta*2);
+      this.imageMouseOver.height = this.imageMouseOver.height + (this._sizeDelta*2);
+    }
+  }
+
+  /**
+  * The default onMouseOver handler of the ImageButton.
+  * @method ImageButton.onMouseOver()
+  **/
+  ImageButton.prototype.onMouseOut = function(e) {
+    if (this._sizeDelta) {
+      this.x = this.x + this._sizeDelta;
+      this.y = this.y + this._sizeDelta;
+      this.width  = this.width - (this._sizeDelta*2);
+      this.height = this.height - (this._sizeDelta*2);
+      this.active_image = this.image;
+      this.image.x = this.image.x + this._sizeDelta;
+      this.image.y = this.image.y + this._sizeDelta;
+      this.image.width  = this.image.width - (this._sizeDelta*2);
+      this.image.height = this.image.height - (this._sizeDelta*2);
+      this.imageMouseOver.x = this.imageMouseOver.x + this._sizeDelta;
+      this.imageMouseOver.y = this.imageMouseOver.y + this._sizeDelta;
+      this.imageMouseOver.width  = this.imageMouseOver.width - (this._sizeDelta*2);
+      this.imageMouseOver.height = this.imageMouseOver.height - (this._sizeDelta*2);
+    }
+  }
+
+  /**
+  * Draw the ImageButton on the canvas.
+  * @method ImageButton.draw(ctx)
+  **/
+  ImageButton.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    this.active_image.draw(ctx, ignoreCache);
+  }
+
+  /**
+  * Exposing the ImageButton to the NEngine global object.
+  **/
+  NEngine.ImageButton = ImageButton;
+
+}(NEngine));
+/**
+* Loader.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* a Loader of the Stage
+**/
+
+(function(NEngine) {
+
+  /**
+  * Loader's constructor.
+  **/
+  function Loader(x, y, w, h) {
+    this.__displayobject_init("Loader");
+    this.x = x;
+    this.y = y;
+    this.width = w;
+    this.height = h;
+    this.regX = w/2;
+    this.regY = h/2;
+    // specific
+    this.label = new NEngine.StaticText(x+w/2,y+h/2,"0%",true);
+    this.label.textAlign = "center";
+    this.label.textBaseline = "middle";
+    // specific
+    this.image = new NEngine.Bitmap('images/big_loading.gif',x,y,w,h);
+  }
+
+  Loader.inheritsFrom(NEngine.Shape);
+
+  /**
+  * The label of the NEngine.Loader.
+  * @type NEngine.StaticText
+  **/
+  Loader.prototype.label = null;
+
+  /**
+  * show Percentage?
+  * @type Boolean
+  **/
+  Loader.prototype.showPercentage = false;
+
+  /**
+  * Is all asset ready?
+  * @type Boolean
+  **/
+  Loader.prototype.ready = false;
+
+  /**
+  * An array of children of the DisplayObject.
+  * @type NEngine.DisplayObject
+  **/
+  Loader.prototype._children = new Array();
+
+  /**
+  * [read-only] Returns the number of children of this object.
+  * @type Number
+  **/
+  Loader.prototype.numChildren = 0;
+
+  /**
+  * Clone the Loader object.
+  * @method Loader.clone()
+  **/
+  Loader.prototype.clone = function() {
+    return new Loader(this.x, this.y, this.width, this.height);
+  }
+
+  /**
+  * Return the string of Loader object.
+  * @method Loader.toString()
+  **/
+  Loader.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",w:" + this.width + ",h:" + this.height + ")";
+  }
+
+  /**
+  * Adds a child DisplayObject instance to this Loader instance.
+  * @method Loader.addChild(child)
+  **/
+  Loader.prototype.addChild = function(child) {
+    this.numChildren++;
+    this._children.push(child);
+  }
+
+  /**
+  * Removes the specified child DisplayObject instance from the child list of the Loader instance.
+  * @method Loader.removeChild(child)
+  **/
+  Loader.prototype.removeChild = function(child) {
+    for (var i=0;i<this._children.length;i++) {
+      if (this._children[i].id == child.id) {
+        var c = this._children[i];
+        this._children.splice(i, 1);
+        this.numChildren--;
+        return c;
+      }
+    }
+    return null;
+  }
+
+  /**
+  * Check the readiness of the DisplayObject in the Loader.
+  * @method Loader.isReady()
+  **/
+  Loader.prototype.isReady = function() {
+    if (this.ready == true) { return true; }
+    for (var i=0;i<this._children.length;i++) {
+      if (typeof this._children[i].ready == 'boolean' && this._children[i].ready == false) { return false; }
+    }
+    this.ready = true;
+    return true;
+  }
+
+  /**
+  * Check the completion of loading the DisplayObject in the Loader.
+  * @method Loader.progress()
+  **/
+  Loader.prototype.progress = function() {
+    var ready_count = 0;
+    for (var i=0;i<this._children.length;i++) {
+      if (typeof this._children[i].ready == 'boolean' && this._children[i].ready == true) { ++ready_count; }
+    }
+    return ready_count;
+  }
+
+  // specific
+  /**
+  * Draw the Loader on the canvas. (default loader)
+  * @method Loader.draw(ctx)
+  **/
+  Loader.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    this.applyStyle(ctx);
+    this.image.draw(ctx, ignoreCache);
+    if (this.showPercentage && this._children.length > 0) {
+      var w = this.progress() / this._children.length; 
+      this.label.text = Math.floor(w*100) + "%";
+      this.label.draw(ctx, ignoreCache);
+    } else if (this.showPercentage && this._children.length == 0) {
+      this.label.text = "100%";
+      this.label.draw(ctx, ignoreCache);
+    }
+    this.resetStyle(ctx);
+  }
+  // specific
+
+  /**
+  * Exposing the Loader to the NEngine global object.
+  **/
+  NEngine.Loader = Loader;
+
+}(NEngine));
+/**
+* TextField.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a TextField in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * TextField's constructor.
+  **/
+  function TextField(x, y, w, h) {
+    this.__displayobject_init("TextField");
+    this.x = x;
+    this.y = y;
+    this.width = w;
+    this.height = h;
+    this.regX = w/2;
+    this.regY = h/2;
+    this.label = new NEngine.StaticText(x+5,y+h/2,"",true);
+    this.label.textAlign = "left";
+    this.label.textBaseline = "middle";
+  }
+
+  TextField.inheritsFrom(NEngine.Rectangle);
+
+  /**
+  * The label of the NEngine.TextField.
+  * @type NEngine.StaticText
+  **/
+  TextField.prototype.label = null;
+
+  /**
+  * The isFocus flash of the NEngine.TextField.
+  * @type Boolean
+  **/
+  TextField.prototype.isFlash = false;
+
+  /**
+  * Clone the TextField object.
+  * @method TextField.clone()
+  **/
+  TextField.prototype.clone = function() {
+    return new TextField(this.x, this.y, this.width, this.height);
+  }
+
+  /**
+  * Return the string of TextField object.
+  * @method TextField.toString()
+  **/
+  TextField.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",w:" + this.width + ",h:" + this.height + ")";
+  }
+
+ /**
+  * The default onMouseOver handler of the Button.
+  * @method Button.onClick()
+  **/
+  TextField.prototype.onClick = function(e) {
+    this.isFocus = true;
+    this.label.text = "click";
+  }
+
+  /**
+  * Draw the TextField on the canvas.
+  * @method TextField.draw(ctx)
+  **/
+  TextField.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    this.applyStyle(ctx);
+    ctx.strokeRect(this.x, this.y, this.width, this.height);
+    this.label.draw(ctx, ignoreCache);
+    this.resetStyle(ctx);
+  }
+
+  /**
+  * Exposing the TextField to the NEngine global object.
+  **/
+  NEngine.TextField = TextField;
+
+}(NEngine));
+/**
+* Tween.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* The animation class of NEngine.
+**/
+
+(function(NEngine) {
+
+  /**
+  * Tween's constructor.
+  **/
+  function Tween(obj, prop, animation, begin, end, duration, useSecond) {
+    this.obj = obj;
+    this.prop = prop;
+    this.animation = animation;
+    this.begin = begin;
+    this.end = end;
+    this.duration = duration;
+    this.useSecond = useSecond;
+    if (NEngine.Clock) NEngine.Clock.addListeners(this);
+  }
+
+  /**
+  * the start / stop thread of Tween
+  * @type Boolean
+  **/
+  Tween.prototype._start = false;
+
+  /**
+  * The DisplayObject being animated.
+  * @type NEngine.DisplayObject
+  **/
+  Tween.prototype.obj = null;
+
+  /**
+  * The DisplayObject's property being animated - alpha, x, y.
+  * @type String
+  **/
+  Tween.prototype.prop = null;
+
+  /**
+  * The type of animation - regular, bounce, back, elastic, strong, none.
+  * @type String 
+  **/
+  Tween.prototype.animation = null;
+
+  /**
+  * This is the position from which the animation will start.
+  * @type Number
+  **/
+  Tween.prototype.begin = 0;
+
+  /**
+  * This is the position from which the animation will end.
+  * @type Number
+  **/
+  Tween.prototype.end = 0;
+
+  /**
+  * This is the period for which the animation will run, the default unit for it is frames.
+  * @type Number
+  **/
+  Tween.prototype.duration = 0;
+
+  /**
+  * Set this parameter to true if you want to the duration to be measured in seconds instead of frames.
+  * @type Number
+  **/
+  Tween.prototype.useSecond = 0;
+
+  /**
+  * The orginal X value of the DisplayObject
+  * @type Number
+  **/
+  Tween.prototype._originXValue = null;
+
+  /**
+  * The orginal Y value of the DisplayObject
+  * @type Number
+  **/
+  Tween.prototype._originYValue = null;
+
+  /**
+  * Clone the Tween object.
+  * @method Tween.clone()
+  **/
+  Tween.prototype.clone = function() {
+    return new Tween(this.obj, this.prop, this.animation, this.begin, this.end, this.duration, this.useSecond);
+  }
+
+  /**
+  * Return the string of Tween object.
+  * @method Tween.toString()
+  **/
+  Tween.prototype.toString = function() {
+    return "(obj:" + this.obj + ",prop:" + this.prop + ",animation:" + this.animation + ",begin:" + this.begin + ",end:" + this.end + ",duration:" + this.duration + ",useSecond:" + this.useSecond + ")";
+  }
+
+  /**
+  * Draw the Tween on the canvas.
+  * @method Tween.tick()
+  **/
+  Tween.prototype.tick = function() {
+    if (this._start) {
+      var delta;
+      if (this.useSecond) {
+        delta = Math.floor((this.end - this.begin)/(this.duration*(1000/NEngine.env.interval)));
+      } else {
+        delta = Math.floor((this.end - this.begin)/this.duration);
+      }
+
+      if (this.animation == "regular") {
+        if (this.prop == "x") {
+          if ((delta > 0 && this.obj.x < this.end) || (delta < 0 && this.obj.x > this.end)) {
+            this.obj.x = this.obj.x + delta;
+          }
+        } else if (this.prop == "y") {
+          if ((delta > 0 && this.obj.y < this.end) || (delta < 0 && this.obj.y > this.end)) {
+            this.obj.y = this.obj.y + delta;
+          }
+        } else if (this.prop == "alpha") {
+        }
+      }
+    }
+  }
+
+  /**
+  * Start drawing the Tween on the canvas.
+  * @method Tween.start()
+  **/
+  Tween.prototype.start = function() {
+    this._start = true;
+    this.obj.visible = true;
+    if (this.animation == "regular") {
+      if (this.prop == "x") {
+        this.obj.x = this.begin;
+        this._originXValue = this.obj.x;
+      } else if (this.prop == "y") {
+        this.obj.y = this.begin;
+        this._originYValue = this.obj.y;
+      }
+    }
+  }
+
+  /**
+  * End drawing the Tween on the canvas.
+  * @method Tween.stop()
+  **/
+  Tween.prototype.stop = function() {
+    this._start = false;
+  }
+
+  /**
+  * Reset the drawing the Tween on the canvas.
+  * @method Tween.reset()
+  **/
+  Tween.prototype.reset = function() {
+    if (this.animation == "regular") {
+      if (this.prop == "x") {
+        this.obj.x = this._originXValue;
+      } else if (this.prop == "y") {
+        this.obj.y = this._originYValue;
+      }
+    }
+  }
+
+  /**
+  * Exposing the Tween to the NEngine global object.
+  **/
+  NEngine.Tween = Tween;
+
+}(NEngine));
+/**
+* NumberRectangle.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a NumberRectangle in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * NumberRectangle's constructor.
+  **/
+  function NumberRectangle(x, y, w, h, filled) {
+    this.__displayobject_init("NumberRectangle");
+    this.x = x;
+    this.y = y;
+    this.width = w;
+    this.height = h;
+    this.regX = w/2;
+    this.regY = h/2;
+    this.number = new NEngine.StaticText(x+w/2,y+h/2,this.id,true);
+    this.number.textAlign = "center";
+    this.number.textBaseline = "middle";
+    if (typeof filled == 'boolean') { this.filled = filled; }
+  }
+
+  NumberRectangle.inheritsFrom(NEngine.Shape);
+
+  NumberRectangle.prototype.number;
+
+  /**
+  * Clone the NumberRectangle object.
+  * @method NumberRectangle.clone()
+  **/
+  NumberRectangle.prototype.clone = function() {
+    return new NumberRectangle(this.x, this.y, this.width, this.height, this.filled);
+  }
+
+  /**
+  * Return the string of NumberRectangle object.
+  * @method NumberRectangle.toString()
+  **/
+  NumberRectangle.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",w:" + this.width + ",h:" + this.height + ")";
+  }
+
+  /**
+  * Draw the NumberRectangle on the canvas.
+  * @method NumberRectangle.draw(ctx, ignoreCache)
+  **/
+  NumberRectangle.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    this.applyStyle(ctx);
+    if (this.filled) {
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+      this.number.draw(ctx);
+    } else {
+      ctx.strokeRect(this.x, this.y, this.width, this.height);
+      this.number.draw(ctx);
+    }
+    this.resetStyle(ctx);
+  }
+
+  /**
+  * Test whether the mouseX/Y is in bound of the NumberRectangle.
+  * @method NumberRectangle.inBounds(globalX, globalY)
+  **/
+  NumberRectangle.prototype.inBounds = function(globalX, globalY) {
+    var inBounds = (globalX >= this.x && globalY >= this.y && globalX < (this.x + this.width) && globalY < (this.y + this.height));
+    return inBounds;
+  }
+
+  /**
+  * Exposing the NumberRectangle to the NEngine global object.
+  **/
+  NEngine.NumberRectangle = NumberRectangle;
+
+}(NEngine));
+/**
+* NumberBitmap.js by Nera Liu. Feb 5, 2011
+* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
+*
+*
+* Copyright (c) 2011 Nera Liu
+* 
+* Permission is hereby granted, free of charge, to any person
+* obtaining a copy of this software and associated documentation
+* files (the "Software"), to deal in the Software without
+* restriction, including without limitation the rights to use,
+* copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the
+* Software is furnished to do so, subject to the following
+* conditions:
+* 
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+* OTHER DEALINGS IN THE SOFTWARE.
+**/
+
+/**
+* Represents a NumberBitmap in x / y coordinates.
+**/
+
+(function(NEngine) {
+
+  /**
+  * NumberBitmap's constructor.
+  **/
+  function NumberBitmap(imageurl, x, y, w, h) {
+    this.__displayobject_init("NumberBitmap");
+    this.x = x;
+    this.y = y;
+    this.regX = w/2;
+    this.regY = h/2;
+    this.image = new Image();
+    var o = this;
+    this.image.onload = function() {
+      o.ready = true;
+    }
+    if (w) { this.width = w; }
+    if (h) { this.height = h; }
+    this.image.src = imageurl;
+    this.number = new NEngine.StaticText(x,y,this.id,true);
+  }
+
+  NumberBitmap.inheritsFrom(NEngine.Shape);
+
+  /**
+  * The image object.
+  * @type Image
+  **/
+  NumberBitmap.prototype.image = null;
+
+  /**
+  * Is the Image ready?
+  * @type Boolean
+  **/
+  NumberBitmap.prototype.ready = false;
+
+  /**
+  * The text object.
+  * @type StaticText
+  **/
+  NumberBitmap.prototype.number = null;
+
+  /**
+  * Clone the NumberBitmap object.
+  * @method NumberBitmap.clone()
+  **/
+  NumberBitmap.prototype.clone = function() {
+    return new NumberBitmap(this.image.src);
+  }
+
+  /**
+  * Return the string of NumberBitmap object.
+  * @method NumberBitmap.toString()
+  **/
+  NumberBitmap.prototype.toString = function() {
+    return this.name + "(id:" + this.id + ",imageurl:" + this.image.src + ")";
+  }
+
+  /**
+  * Draw the NumberBitmap on the canvas.
+  * @method NumberBitmap.draw(ctx, ignoreCache)
+  **/
+  NumberBitmap.prototype.draw = function(ctx, ignoreCache) {
+    if (this.__draw(ctx, ignoreCache)) { return true; }
+    if (this.ready) {
+      if (this.width && this.height) {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+      } else {
+        ctx.drawImage(this.image, this.x, this.y);
+      }
+    }
+    this.number.draw(ctx);
+  }
+
+  /**
+  * Test whether the mouseX/Y is in bound of the NumberBitmap.
+  * @method NumberBitmap.inBounds(globalX, globalY)
+  **/
+  NumberBitmap.prototype.inBounds = function(globalX, globalY) {
+    var inBounds = (globalX >= this.x && globalY >= this.y && globalX < (this.x + this.width) && globalY < (this.y + this.height));
+    if (this.stage) {
+      if (inBounds) {
+        var imagedata = this.stage.graphics.ctx.getImageData(globalX, globalY, 1, 1);
+        return (imagedata.data[3]/255);
+      }
+    }
+    return inBounds;
+  }
+
+  /**
+  * Exposing the NumberBitmap to the NEngine global object.
+  **/
+  NEngine.NumberBitmap = NumberBitmap;
+
+}(NEngine));

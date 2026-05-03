@@ -1,10 +1,12 @@
 /**
 * NEngine.js by Nera Liu. Feb 5, 2011
+* Modified by Nikos M., 2026
+*
 * Visit blog.neraliu.com/nengine for documentation, updates and more free code.
 *
 *
 * Copyright (c) 2011 Nera Liu
-* 
+*
 * Permission is hereby granted, free of charge, to any person
 * obtaining a copy of this software and associated documentation
 * files (the "Software"), to deal in the Software without
@@ -13,10 +15,10 @@
 * copies of the Software, and to permit persons to whom the
 * Software is furnished to do so, subject to the following
 * conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be
 * included in all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -52,7 +54,7 @@ var NEngine = {
 
 /**
 * The NEngine.env Object contains information on the environment that NEngine is running on.
-* @property env 
+* @property env
 * @type Object
 **/
 NEngine.env = {
@@ -147,8 +149,8 @@ NEngine.utils.log = function() {
     case NEngine.env.BROWSER:
       try {
         if (typeof(console) !== 'undefined' && console && console.log) {
-					console.log.apply(NEngine, arguments);
-				}
+                    console.log.apply(NEngine, arguments);
+                }
       } catch (e) {
         console.log(Array.prototype.join.apply(arguments, [',']));
       }
@@ -178,6 +180,37 @@ NEngine.utils.getTimestampInMS = function() {
   return Math.round((new Date()).getTime());
 };
 
+// handle events uniformly
+NEngine.hasEventOptions = function() {
+    if (null == NEngine.hasEventOptions.supported)
+    {
+        var passiveSupported = false, options = {};
+        try {
+            Object.defineProperty(options, 'passive', {
+                get: function(){
+                    passiveSupported = true;
+                    return false;
+                }
+            });
+            window.addEventListener('test', null, options);
+            window.removeEventListener('test', null, options);
+        } catch(e) {
+            passiveSupported = false;
+        }
+        NEngine.hasEventOptions.supported = passiveSupported;
+    }
+    return NEngine.hasEventOptions.supported;
+}
+NEngine.addEvent = function(target, event, handler, options) {
+    if (target.attachEvent) target.attachEvent('on' + event, handler);
+    else target.addEventListener(event, handler, NEngine.hasEventOptions() ? options : ('object' === typeof(options) ? !!options.capture : !!options));
+};
+NEngine.removeEvent = function(target, event, handler, options) {
+    // if (el.removeEventListener) not working in IE11
+    if (target.detachEvent) target.detachEvent('on' + event, handler);
+    else target.removeEventListener(event, handler, NEngine.hasEventOptions() ? options : ('object' === typeof(options) ? !!options.capture : !!options));
+};
+
 /**
 * The main of the NEngine, everything starts from here.
 * @method NEngine.init
@@ -195,7 +228,7 @@ NEngine.utils.getTimestampInMS = function() {
 * @method Function.inheritsFrom
 **/
 Function.prototype.inheritsFrom = function(parentClassOrObject) {
-  if (parentClassOrObject.constructor == Function) { 
+  if (parentClassOrObject.constructor == Function) {
     this.prototype = new parentClassOrObject;
     this.prototype.constructor = this;
     this.prototype.parent = parentClassOrObject.prototype;
@@ -203,6 +236,6 @@ Function.prototype.inheritsFrom = function(parentClassOrObject) {
     this.prototype = parentClassOrObject;
     this.prototype.constructor = this;
     this.prototype.parent = parentClassOrObject;
-  } 
+  }
   return this;
-}
+};

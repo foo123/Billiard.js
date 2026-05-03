@@ -1,157 +1,190 @@
-(function(BILLIARD){
-    BILLIARD.Taco=function(taco)
-    {
-        this.moving=false;
-        this.holding=false;
-        this.hits=0;
-        this.first_hit=null;
-        this.vector_mouse=null;
-        this.init_mouse=null;
-        this.whiteBall=null;
-        this.last_power_factor=null;
-        this.maxPower = 120;
-        this.RAD_TO_DEG = 180/Math.PI;
-        this.DEG_TO_RAD = Math.PI/180;
-        this.maxRadius = 100;
-        var thiss=this;
-        this.keypress=false;
-        NEngine.Shape.call(this);
-        this.name='taco';
-        this.cacheCanvas=document.createElement('canvas');
-        this.image=new Image();
-        this.image.onload=function(){
-            thiss.cacheCanvas.width=thiss.image.width;
-            thiss.cacheCanvas.height=thiss.image.height;
-            var ctx=thiss.cacheCanvas.getContext('2d');
-            ctx.drawImage(thiss.image,0,0);
-            thiss.width=thiss.image.width;
-            thiss.height=thiss.image.height;
-            thiss.regX=thiss.image.width/2;
-            thiss.regY=0;
-        };
-        
-        this.init_mouse = new BILLIARD.TriangleData();
-        this.vector_mouse = new BILLIARD.TriangleData();
-        
-        this.onKeyDown=function(e){thiss.onPress(e)};
-        this.onKeyUp=function(e){thiss.onRelease(e)};
-        this.image.src=taco;
+(function(BILLIARD) {
+"use strict";
+BILLIARD.Taco = function Taco(taco) {
+    var self = this;
+    NEngine.InteractiveObject.call(self);
+    self.moving = false;
+    self.holding = false;
+    self.locked = false;
+    self.hits = 0;
+    self.first_hit = null;
+    self.whiteBall = null;
+    self.last_power_factor = null;
+    self.maxPower = 120;
+    self.maxRadius = 100;
+    self.name = 'taco';
+    self.init_mouse = new BILLIARD.TriangleData();
+    self.vector_mouse = new BILLIARD.TriangleData();
+    self.skipBounds = true;
+    self.onKeyDown = function(e) {self.onPress(e)};
+    self.onKeyUp = function(e) {self.onRelease(e)};
+    self.onTouchStart = function(e) {self.onPress(e);};
+    self.onTouchEnd = function(e) {self.onRelease(e);};
+    self.onTouchMove = function(e) {if (e.preventDefault) e.preventDefault();};
+    self.cacheCanvas = document.createElement('canvas');
+    self.image = new Image();
+    self.image.onload = function() {
+        self.cacheCanvas.width = self.image.width;
+        self.cacheCanvas.height = self.image.height;
+        self.width = self.image.width;
+        self.height = self.image.height;
+        self.regX = self.image.width/2;
+        self.regY = 0;
+        var ctx = self.cacheCanvas.getContext('2d');
+        ctx.drawImage(self.image, 0, 0);
+
     };
-    BILLIARD.Taco.inheritsFrom(NEngine.Shape);
-    BILLIARD.Taco.prototype.draw=function(ctx,ignoreCache)
+    self.image.src = taco;
+};
+BILLIARD.Taco.inheritsFrom(NEngine.InteractiveObject);
+
+BILLIARD.Taco.prototype.moving = false;
+BILLIARD.Taco.prototype.holding = false;
+BILLIARD.Taco.prototype.locked = false;
+BILLIARD.Taco.prototype.hits = 0;
+BILLIARD.Taco.prototype.first_hit = null;
+BILLIARD.Taco.prototype.vector_mouse = null;
+BILLIARD.Taco.prototype.init_mouse = null;
+BILLIARD.Taco.prototype.whiteBall = null;
+BILLIARD.Taco.prototype.last_power_factor = null;
+BILLIARD.Taco.prototype.maxPower = 120;
+BILLIARD.Taco.prototype.maxRadius = 100;
+BILLIARD.Taco.prototype.image = null;
+BILLIARD.Taco.prototype.draw = function(ctx, ignoreCache) {
+    this.__draw(ctx,ignoreCache);
+};
+BILLIARD.Taco.prototype.init = function(whiteBall) {
+    var self = this;
+    self.moving = true;
+    self.holding = false;
+    self.alpha = 0;
+    self.hits = 0;
+    self.whiteBall = whiteBall;
+};
+BILLIARD.Taco.prototype.putOnBorder = function(off) {
+    if (null == off) off = 0;
+    var self = this,
+        a = self.rotation+Math.PI*0.5,
+        c = Math.cos(a),
+        s = Math.sin(a),
+        r = self.whiteBall.r + 5 + off;
+    //self.x = self.whiteBall.x + self.vector_mouse.dx * self.whiteBall.r;
+    //self.y = self.whiteBall.y + self.vector_mouse.dy * self.whiteBall.r;
+    self.x = self.whiteBall.x + c * r;
+    self.y = self.whiteBall.y + s * r;
+};
+BILLIARD.Taco.prototype.updateState = function() {
+    var self = this,
+        _loc_1 = null,
+        _loc_2 = NaN;
+    if (self.moving)
     {
-        this.__draw(ctx,ignoreCache);
-    };
-    BILLIARD.Taco.prototype.init=function(whiteBall)
-    {
-        this.moving = true;
-        this.holding = false;
-        this.alpha = 0;
-        this.hits = 0;
-        this.whiteBall = whiteBall;
-    };// end function
-    BILLIARD.Taco.prototype.putOnBorder=function(off)
-    {
-        if (typeof off=='undefined')
-            off=0;
-        var a=this.rotation+Math.PI*0.5;
-        var c=Math.cos(a);
-        var s=Math.sin(a);
-        var r=this.whiteBall.r+5+off;
-        //this.x = this.whiteBall.x + this.vector_mouse.dx * this.whiteBall.r;
-        //this.y = this.whiteBall.y + this.vector_mouse.dy * this.whiteBall.r;
-        this.x = this.whiteBall.x + c * r;
-        this.y = this.whiteBall.y + s * r;
-    };// end function
-    BILLIARD.Taco.prototype.updateState=function()
-    {
-        var _loc_1 = null;
-        var _loc_2 = NaN;
-        if (this.moving)
+        //self.rotation=-Math.PI/2;
+        //self.putOnBorder();
+        //return;
+        if (self.holding)
         {
-                //this.rotation=-Math.PI/2;
-                //this.putOnBorder();
-                //return;
-            if (this.holding)
+            _loc_1 = new BILLIARD.TriangleData();
+            _loc_1.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
+            _loc_1.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            _loc_1.refresh(true);
+            _loc_2 = _loc_1.len - self.init_mouse.len;
+            if (_loc_1.len <= self.whiteBall.r || _loc_2 <= 0)
             {
-                _loc_1 = new BILLIARD.TriangleData();
-                _loc_1.p0 = new BILLIARD.SimplePoint(this.whiteBall.x, this.whiteBall.y);
-                _loc_1.p1 = new BILLIARD.SimplePoint(this.parent.mouseX, this.parent.mouseY);
-                _loc_1.refresh(true);
-                _loc_2 = _loc_1.len - this.init_mouse.len;
-                if (_loc_1.len <= this.whiteBall.r || _loc_2 <= 0)
-                {
-                    this.putOnBorder();
-                }
-                else if (_loc_2 <= this.maxRadius && (this.vector_mouse.dx > 0 && _loc_1.dx > 0 || this.vector_mouse.dx < 0 && _loc_1.dx < 0))
-                {
-                    //this.x = this.whiteBall.x + this.vector_mouse.dx * (this.whiteBall.r + _loc_2);
-                    //this.y = this.whiteBall.y + this.vector_mouse.dy * (this.whiteBall.r + _loc_2);
-                    this.putOnBorder(_loc_2);
-                }
+                self.putOnBorder();
+            }
+            else if (_loc_2 <= self.maxRadius && (self.vector_mouse.dx > 0 && _loc_1.dx > 0 || self.vector_mouse.dx < 0 && _loc_1.dx < 0))
+            {
+                //self.x = self.whiteBall.x + self.vector_mouse.dx * (self.whiteBall.r + _loc_2);
+                //self.y = self.whiteBall.y + self.vector_mouse.dy * (self.whiteBall.r + _loc_2);
+                self.putOnBorder(_loc_2);
+            }
+        }
+        else
+        {
+            self.vector_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
+            self.vector_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            self.vector_mouse.refresh(true);
+            if (self.vector_mouse.dx < 0)
+            {
+                self.rotation = Math.PI/2 + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
             }
             else
             {
-                this.vector_mouse.p0 = new BILLIARD.SimplePoint(this.whiteBall.x, this.whiteBall.y);
-                this.vector_mouse.p1 = new BILLIARD.SimplePoint(this.parent.mouseX, this.parent.mouseY);
-                this.vector_mouse.refresh(true);
-                if (this.vector_mouse.dx < 0)
+                self.rotation = 3*Math.PI/2 + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
+            }
+            self.putOnBorder();
+        }
+    }
+};
+BILLIARD.Taco.prototype.onPress = function(event) {
+    var self = this;
+    if (!self.locked)
+    {
+        if (event.touches)
+        {
+            var start_mouse = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            setTimeout(function update() {
+                var curr_mouse = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY),
+                    dist = BILLIARD.TriangleData.getHypotenuse(curr_mouse.x-start_mouse.x, curr_mouse.y-start_mouse.y);
+                if (dist < 1)
                 {
-                    this.rotation = Math.PI/2 + Math.atan(this.vector_mouse.vy / this.vector_mouse.vx);
+                    self.init_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
+                    self.init_mouse.p1 = new BILLIARD.SimplePoint(curr_mouse.x, curr_mouse.y);
+                    self.init_mouse.refresh(true);
+                    self.holding = true;
+                    self.locked = true;
                 }
                 else
                 {
-                    this.rotation = 3*Math.PI/2 + Math.atan(this.vector_mouse.vy / this.vector_mouse.vx);
+                    start_mouse = curr_mouse;
+                    setTimeout(update, 2000);
                 }
-                this.putOnBorder();
-            }
+            }, 2000);
         }
-    };// end function
-    BILLIARD.Taco.prototype.onPress=function(event)
+        else if (event.keyCode === 81) //q key pressed
+        {
+            self.init_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
+            self.init_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            self.init_mouse.refresh(true);
+            self.holding = true;
+            self.locked = true;
+        }
+    }
+};
+BILLIARD.Taco.prototype.onRelease = function(event) {
+    var self = this,
+        _loc_2 = null,
+        _loc_5 = NaN;
+    if (self.whiteBall.dragging)
     {
-        if (!this.keypress && event.keyCode==81) //q key pressed
-        {
-        this.init_mouse.p0 = new BILLIARD.SimplePoint(this.whiteBall.x, this.whiteBall.y);
-        this.init_mouse.p1 = new BILLIARD.SimplePoint(this.parent.mouseX, this.parent.mouseY);
-        this.init_mouse.refresh(true);
-        this.holding = true;
-        this.keypress=true;
-        }
-    };// end function
-    BILLIARD.Taco.prototype.onRelease=function(event)
+        self.whiteBall.allowDrag(false);
+    }
+    if (self.holding)
     {
-        var _loc_2 = null;
-        var _loc_5 = NaN;
-        if (this.whiteBall.dragging)
+        _loc_2 = new BILLIARD.TriangleData();
+        _loc_2.p0 = new BILLIARD.SimplePoint(self.whiteBall.x + self.init_mouse.dx * self.whiteBall.r, self.whiteBall.y + self.init_mouse.dy * self.whiteBall.r);
+        _loc_2.p1 = new BILLIARD.SimplePoint(self.x, self.y);
+        _loc_2.refresh(true);
+        self.moving = false;
+        self.holding = false;
+        self.locked = false;
+        self.putOnBorder();
+        if (_loc_2.len > 0 && self.whiteBall.direction.vx === 0 && self.whiteBall.direction.vy === 0)
         {
-            this.whiteBall.allowDrag(false);
-        }
-        if (this.holding)
-        {
-            this.moving = false;
-            this.holding = false;
-            this.keypress=false;
-            _loc_2 = new BILLIARD.TriangleData();
-            _loc_2.p0 = new BILLIARD.SimplePoint(this.whiteBall.x + this.init_mouse.dx * this.whiteBall.r, this.whiteBall.y + this.init_mouse.dy * this.whiteBall.r);
-            _loc_2.p1 = new BILLIARD.SimplePoint(this.x, this.y);
-            _loc_2.refresh(true);
-            this.putOnBorder();
-            if (_loc_2.len > 0 && this.whiteBall.direction.vx == 0 && this.whiteBall.direction.vy == 0)
+            self.last_power_factor = _loc_2.len / self.maxRadius;
+            _loc_5 = self.last_power_factor * self.maxPower;
+            /*if (self.hits > 0)
             {
-                this.last_power_factor = _loc_2.len / this.maxRadius;
-                _loc_5 = this.last_power_factor * this.maxPower;
-                /*if (this.hits > 0)
-                {
-                    _loc_5 = _loc_5 * 0.65;
-                }*/
-                this.first_hit = null;
-                this.whiteBall.updateDirection(this.whiteBall.x + _loc_5 * (-this.init_mouse.dx), this.whiteBall.y + _loc_5 * (-this.init_mouse.dy));
-                this.hits++;
-            }
+                _loc_5 = _loc_5 * 0.65;
+            }*/
+            self.first_hit = null;
+            self.whiteBall.updateDirection(self.whiteBall.x + _loc_5 * (-self.init_mouse.dx), self.whiteBall.y + _loc_5 * (-self.init_mouse.dy));
+            ++self.hits;
         }
-    };// end function
-    BILLIARD.Taco.prototype.getDirection=function()
-    {
-        return new BILLIARD.SimplePoint(-this.vector_mouse.dx, -this.vector_mouse.dy);
-    };// end function
+    }
+};
+BILLIARD.Taco.prototype.getDirection = function() {
+    return new BILLIARD.SimplePoint(-this.vector_mouse.dx, -this.vector_mouse.dy);
+};
 })(BILLIARD);

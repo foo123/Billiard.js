@@ -4,7 +4,7 @@
 *
 *
 * Copyright (c) 2011 Nera Liu
-* 
+*
 * Permission is hereby granted, free of charge, to any person
 * obtaining a copy of this software and associated documentation
 * files (the "Software"), to deal in the Software without
@@ -13,10 +13,10 @@
 * copies of the Software, and to permit persons to whom the
 * Software is furnished to do so, subject to the following
 * conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be
 * included in all copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -37,12 +37,18 @@
   * Stage's constructor.
   **/
   function Stage(canvas) {
-	this.__displayobject_init("Stage");
-    this.__displayobjectcont_init();
-    this.__stage_init(canvas);
-    NEngine.Clock.setInterval(NEngine.env.interval);
-    NEngine.Clock.addListeners(this);
-    NEngine.Clock.start();
+    if (canvas)
+    {
+        this.__displayobject_init("Stage");
+        this.__displayobjectcont_init();
+        this.__stage_init(canvas);
+        if (NEngine.Clock)
+        {
+            NEngine.Clock.setInterval(NEngine.env.interval);
+            NEngine.Clock.addListeners(this);
+            NEngine.Clock.start();
+        }
+    }
   }
 
   Stage.inheritsFrom(NEngine.DisplayObjectContainer);
@@ -79,49 +85,144 @@
     this.stage = this;
     this.canvas = canvas;
     this.graphics = new NEngine.Graphics(this.canvas);
-	
-	// find canvas global offset
-	this.canvas.globalOffsetLeft=this.canvas.offsetLeft;
-	this.canvas.globalOffsetTop=this.canvas.offsetTop;
-	var obj=this.canvas;
-	while (obj=obj.offsetParent)
-	{
-		this.canvas.globalOffsetLeft+=obj.offsetLeft;
-		this.canvas.globalOffsetTop+=obj.offsetTop;
-	}
-    var s = this;
-    if (window.addEventListener) {
-      window.addEventListener('mousemove', function(e) { s._handleOnMouseMove(e); }, false);
-      window.addEventListener('mouseup', function(e) { s._handleOnMouseUp(e); }, false);
-      window.addEventListener('mousedown', function(e) { s._handleOnMouseDown(e); }, false);
-      // window.addEventListener('mouseover', function(e) { s._handleOnMouseOver(e); }, false);
-      // window.addEventListener('mouseout', function(e) { s._handleOnMouseOut(e); }, false);
-      window.addEventListener('click', function(e) { s._handleOnClick(e); }, false);
-      window.addEventListener('keydown', function(e) { s._handleOnKeyDown(e); }, false);
-      window.addEventListener('keyup', function(e) { s._handleOnKeyUp(e); }, false);
-      window.addEventListener('keypress', function(e) { s._handleOnKeyPress(e); }, false);
-    } else if (document.addEventListener) {
-      document.addEventListener('mousemove', function(e) { s._handleOnMouseMove(e); }, false);
-      document.addEventListener('mouseup', function(e) { s._handleOnMouseUp(e); }, false);
-      document.addEventListener('mousedown', function(e) { s._handleOnMouseDown(e); }, false);
-      // document.addEventListener('mouseover', function(e) { s._handleOnMouseOver(e); }, false);
-      // document.addEventListener('mouseout', function(e) { s._handleOnMouseOut(e); }, false);
-      document.addEventListener('click', function(e) { s._handleOnClick(e); }, false);
-      document.addEventListener('keydown', function(e) { s._handleOnKeyDown(e); }, false);
-      document.addEventListener('keyup', function(e) { s._handleOnKeyUp(e); }, false);
-      document.addEventListener('keypress', function(e) { s._handleOnKeyPress(e); }, false);
-    } else if (window.attachEvent) {
-      window.attachEvent('mousemove', function(e) { s._handleOnMouseMove(e); });
-      window.attachEvent('mouseup', function(e) { s._handleOnMouseUp(e); });
-      window.attachEvent('mousedown', function(e) { s._handleOnMouseDown(e); });
-      // window.attachEvent('mouseover', function(e) { s._handleOnMouseOver(e); });
-      // window.attachEvent('mouseout', function(e) { s._handleOnMouseOut(e); });
-      window.attachEvent('click', function(e) { s._handleOnClick(e); });
-      window.attachEvent('keydown', function(e) { s._handleOnKeyDown(e); });
-      window.attachEvent('keyup', function(e) { s._handleOnKeyUp(e); });
-      window.attachEvent('keypress', function(e) { s._handleOnKeyPress(e); });
+
+    // find canvas global offset
+    this.canvas.globalOffsetLeft=this.canvas.offsetLeft;
+    this.canvas.globalOffsetTop=this.canvas.offsetTop;
+    var obj=this.canvas;
+    while (obj=obj.offsetParent)
+    {
+        this.canvas.globalOffsetLeft+=obj.offsetLeft;
+        this.canvas.globalOffsetTop+=obj.offsetTop;
     }
+    var s = this;
+    NEngine.addEvent(window, 'touchmove', function(e) { s._handleOnTouchMove(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'touchend', function(e) { s._handleOnTouchEnd(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'touchstart', function(e) { s._handleOnTouchStart(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mousemove', function(e) { s._handleOnMouseMove(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mouseup', function(e) { s._handleOnMouseUp(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'mousedown', function(e) { s._handleOnMouseDown(e); }, {passive:false, capture:false});
+    // NEngine.addEvent(window, 'mouseover', function(e) { s._handleOnMouseOver(e); }, {passive:false, capture:false});
+    // NEngine.addEvent(window, 'mouseout', function(e) { s._handleOnMouseOut(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'click', function(e) { s._handleOnClick(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keydown', function(e) { s._handleOnKeyDown(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keyup', function(e) { s._handleOnKeyUp(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'keypress', function(e) { s._handleOnKeyPress(e); }, {passive:false, capture:false});
     this.draw();
+  }
+
+  /**
+  * The handler of touchmove event in the Stage.
+  * @method Stage._handleOnTouchMove(e)
+  **/
+  Stage.prototype._handleOnTouchMove = function(e) {
+    if (!this.canvas) { this.touches = null; this.mouseX = this.mouseY = null; return; }
+    var self = this;
+    this.touches = Array.prototype.map.call(e.touches, function(touch) {
+        return {
+            x: touch.pageX-self.canvas.globalOffsetLeft,
+            y: touch.pageY-self.canvas.globalOffsetTop
+        };
+    });
+    if (this.touches.length)
+    {
+        this.mouseX = this.touches[0].x;
+        this.mouseY = this.touches[0].y;
+    }
+    var inBounds = 0 < this.touches.filter(function(touch) {return (touch.x >= 0 && touch.y >= 0 && touch.x < self.canvas.width && touch.y < self.canvas.height);}).length;
+    if (!inBounds) return;
+
+    if (this.onTouchMove) { this.onTouchMove(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].touches = this.touches.map(function(touch) {
+          return {
+            x: touch.x-self._children[i].x,
+            y: touch.y-self._children[i].y,
+          };
+      });
+      if (this._children[i].touches.length)
+      {
+          this._children[i].mouseX = this._children[i].touches[0].x;
+          this._children[i].mouseY = this._children[i].touches[0].y;
+      }
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
+      if(inBounds && this._children[i].onTouchMove && this._children[i].onTouchMove instanceof Function) { this._children[i].onTouchMove(e); }
+    }
+  }
+
+  /**
+  * The handler of touchend event in the Stage.
+  * @method Stage._handleOnMouseUp(e)
+  **/
+  Stage.prototype._handleOnTouchEnd = function(e) {
+    if (!this.canvas) { this.touches = null; this.mouseX = this.mouseY = null; return; }
+    var self = this;
+    this.touches = Array.prototype.map.call(e.touches, function(touch) {
+        return {
+            x: touch.pageX-self.canvas.globalOffsetLeft,
+            y: touch.pageY-self.canvas.globalOffsetTop
+        };
+    });
+    if (this.touches.length)
+    {
+        this.mouseX = this.touches[0].x;
+        this.mouseY = this.touches[0].y;
+    }
+    if (this.onTouchEnd) { this.onTouchEnd(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].touches = this.touches.map(function(touch) {
+          return {
+            x: touch.x-self._children[i].x,
+            y: touch.y-self._children[i].y,
+          };
+      });
+      if (this._children[i].touches.length)
+      {
+          this._children[i].mouseX = this._children[i].touches[0].x;
+          this._children[i].mouseY = this._children[i].touches[0].y;
+      }
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
+      if(inBounds && this._children[i].onTouchEnd && this._children[i].onTouchEnd instanceof Function) { this._children[i].onTouchEnd(e); }
+    }
+  }
+
+  /**
+  * The handler of touchstart event in the Stage.
+  * @method Stage._handleOnMouseDown(e)
+  **/
+  Stage.prototype._handleOnTouchStart = function(e) {
+    if (!this.canvas) { this.touches = null; this.mouseX = this.mouseY = null; return; }
+    var self = this;
+    this.touches = Array.prototype.map.call(e.touches, function(touch) {
+        return {
+            x: touch.pageX-self.canvas.globalOffsetLeft,
+            y: touch.pageY-self.canvas.globalOffsetTop
+        };
+    });
+    if (this.touches.length)
+    {
+        this.mouseX = this.touches[0].x;
+        this.mouseY = this.touches[0].y;
+    }
+    if (this.onTouchStart) { this.onTouchStart(e); }
+    for (var i=0;i<this._children.length;i++) {
+      this._children[i].touches = this.touches.map(function(touch) {
+          return {
+            x: touch.x-self._children[i].x,
+            y: touch.y-self._children[i].y,
+          };
+      });
+      if (this._children[i].touches.length)
+      {
+          this._children[i].mouseX = this._children[i].touches[0].x;
+          this._children[i].mouseY = this._children[i].touches[0].y;
+      }
+      if(!this._children[i].mouseEnabled) { continue; }
+      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
+      if(inBounds && this._children[i].onTouchStart && this._children[i].onTouchStart instanceof Function) { this._children[i].onTouchStart(e); }
+    }
   }
 
   /**
@@ -130,7 +231,7 @@
   **/
   Stage.prototype._handleOnMouseMove = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-	this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
     this.mouseY = e.pageY-this.canvas.globalOffsetTop;
     var inBounds = (this.mouseX >= 0 && this.mouseY >= 0 && this.mouseX < this.canvas.width && this.mouseY < this.canvas.height);
     if (!inBounds) return;
@@ -143,12 +244,12 @@
       var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
       if(inBounds && this._children[i].onMouseMove && this._children[i].onMouseMove instanceof Function) { this._children[i].onMouseMove(e); }
       var isBounds = this._children[i].isBounds;
-      if (isBounds == false && inBounds && this._children[i].onMouseOver && this._children[i].onMouseOver instanceof Function) { 
+      if (isBounds == false && inBounds && this._children[i].onMouseOver && this._children[i].onMouseOver instanceof Function) {
         this._children[i].onMouseOver(e);
         this._children[i].isBounds = true;
         if (this._children[i].cursor) { this.canvas.style.cursor = this._children[i].cursor; }
       }
-      if (isBounds && inBounds == false && this._children[i].onMouseOut && this._children[i].onMouseOut instanceof Function) { 
+      if (isBounds && inBounds == false && this._children[i].onMouseOut && this._children[i].onMouseOut instanceof Function) {
         this._children[i].onMouseOut(e);
         this._children[i].isBounds = false;
         if (this._children[i].cursor) { this.canvas.style.cursor = "auto"; }
@@ -162,7 +263,7 @@
   **/
   Stage.prototype._handleOnMouseUp = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-	this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
     this.mouseY = e.pageY-this.canvas.globalOffsetTop;
     if (this.onMouseUp) { this.onMouseUp(e); }
     for (var i=0;i<this._children.length;i++) {
@@ -180,7 +281,7 @@
   **/
   Stage.prototype._handleOnMouseDown = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-	this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
     this.mouseY = e.pageY-this.canvas.globalOffsetTop;
     if (this.onMouseDown) { this.onMouseDown(e); }
     for (var i=0;i<this._children.length;i++) {
@@ -198,7 +299,7 @@
   **/
   Stage.prototype._handleOnMouseOver = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-	this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
     this.mouseY = e.pageY-this.canvas.globalOffsetTop;
     if (this.onMouseOver) { this.onMouseOver(e); }
     /* for the main Stage/Sprite only
@@ -218,7 +319,7 @@
   **/
   Stage.prototype._handleOnMouseOut = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-	this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
     this.mouseY = e.pageY-this.canvas.globalOffsetTop;
     if (this.onMouseOut) { this.onMouseOut(e); }
     /* for the main Stage/Sprite only
@@ -238,7 +339,7 @@
   **/
   Stage.prototype._handleOnClick = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-	this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
+    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
     this.mouseY = e.pageY-this.canvas.globalOffsetTop;
     if (this.onClick) { this.onClick(e); }
     for (var i=0;i<this._children.length;i++) {

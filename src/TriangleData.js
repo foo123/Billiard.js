@@ -1,44 +1,50 @@
-(function(BILLIARD){
-    BILLIARD.TriangleData=function()
-    {
-        this.p0=0;
-        this.vy=0;
-        this.p1=0;
-        this.vx=0;
-        this.dx=0;
-        this.len=0;
-        this.dy=0;
-
-        this.p0 = new BILLIARD.SimplePoint();
-        this.p1 = new BILLIARD.SimplePoint();
-    };// end function
-    BILLIARD.TriangleData.prototype.refresh=function(param1)
-    {
-        if (typeof param1=='undefined')
-            param1=false;
+(function(BILLIARD) {
+"use strict";
+BILLIARD.TriangleData = function() {
+    var self = this;
+    self.p0 = new BILLIARD.SimplePoint();
+    self.p1 = new BILLIARD.SimplePoint();
+    self.dx = 0;
+    self.dy = 0;
+    self.vx = 0;
+    self.vy = 0;
+    self.len = 0;
+};
+BILLIARD.TriangleData.prototype = {
+    constructor: BILLIARD.TriangleData,
+    p0: null,
+    p1: null,
+    vx: 0,
+    vy: 0,
+    dx: 0,
+    dy: 0,
+    len: 0,
+    refresh: function(param1) {
+        var self = this;
+        if (null == param1) param1 = false;
         if (param1)
         {
-            this.vx = BILLIARD.Ball.correctFloatingPointError(this.p1.x - this.p0.x);
-            this.vy = BILLIARD.Ball.correctFloatingPointError(this.p1.y - this.p0.y);
+            self.vx = BILLIARD.Ball.correctFloatingPointError(self.p1.x - self.p0.x);
+            self.vy = BILLIARD.Ball.correctFloatingPointError(self.p1.y - self.p0.y);
         }
         else
         {
-            this.p1.update(this.p0.x + this.vx, this.p0.y + this.vy);
+            self.p1.update(self.p0.x + self.vx, self.p0.y + self.vy);
         }
-        this.len = BILLIARD.TriangleData.getHypotenuse(this.vx, this.vy);
-        if (this.len > 0)
+        self.len = BILLIARD.TriangleData.getHypotenuse(self.vx, self.vy);
+        if (self.len > 0)
         {
-            this.dx = BILLIARD.Ball.correctFloatingPointError(this.vx / this.len);
-            this.dy = BILLIARD.Ball.correctFloatingPointError(this.vy / this.len);
+            self.dx = BILLIARD.Ball.correctFloatingPointError(self.vx / self.len);
+            self.dy = BILLIARD.Ball.correctFloatingPointError(self.vy / self.len);
         }
         else
         {
-            this.dx = 0;
-            this.dy = 0;
+            self.dx = 0;
+            self.dy = 0;
         }
-    };// end function
-    BILLIARD.TriangleData.getHypotenuse=function(side1, side2)
-    {
-        return BILLIARD.Ball.correctFloatingPointError(Math.sqrt(side1 * side1 + side2 * side2));
-    };// end function
+    }
+};
+BILLIARD.TriangleData.getHypotenuse = function(side1, side2) {
+    return BILLIARD.Ball.correctFloatingPointError(Math.hypot(side1, side2));
+};
 })(BILLIARD);

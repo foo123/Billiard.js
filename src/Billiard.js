@@ -1,2 +1,3 @@
-// BILLIARD Object
-var BILLIARD=BILLIARD || {};
+// BILLIARD
+var BILLIARD = {VERSION: "2.0.0"};
+/*window.BILLIARD = BILLIARD;*/

@@ -44,7 +44,7 @@
     this.end = end;
     this.duration = duration;
     this.useSecond = useSecond;
-    NEngine.Clock.addListeners(this);
+    if (NEngine.Clock) NEngine.Clock.addListeners(this);
   }
 
   /**

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0">
+<title>Billiard Game</title>
+<meta name="description" content="Billiard Game (American and French) in pure HTML and JavaScript" />
+<meta property="og:image" content="https://foo123.github.io/thumbs/billiard.jpg">
+<meta property="og:url" content="https://foo123.github.io/examples/billiard.js/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/png" href="./favicon-96x96.png?v=1.0.1" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1.0.1" />
+<link rel="shortcut icon" href="./favicon.ico?v=1.0.1" />
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=1.0.1" />
+<meta name="apple-mobile-web-app-title" content="Billiard" />
+<link rel="manifest" href="./manifest.json?v=1.0.1" />
+<style type="text/css">
+body {
+    position: relative;
+    box-sizing: border-box;
+    font-family: Monospace, sans-serif;
+    background: #121212;
+    color: #efefef;
+    font-size: 16px;
+    margin: 0;
+    padding: 4px;
+    min-height: 100%;
+}
+.button {
+    -moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+    -webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+    box-shadow:inset 0px 1px 0px 0px #ffffff;
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf) );
+    background:-moz-linear-gradient( center top, #ededed 5%, #dfdfdf 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf');
+    background-color:#ededed;
+    -webkit-border-top-left-radius:20px;
+    -moz-border-radius-topleft:20px;
+    border-top-left-radius:20px;
+    -webkit-border-top-right-radius:20px;
+    -moz-border-radius-topright:20px;
+    border-top-right-radius:20px;
+    -webkit-border-bottom-right-radius:20px;
+    -moz-border-radius-bottomright:20px;
+    border-bottom-right-radius:20px;
+    -webkit-border-bottom-left-radius:20px;
+    -moz-border-radius-bottomleft:20px;
+    border-bottom-left-radius:20px;
+    text-indent:0;
+    border:1px solid #dcdcdc;
+    display:inline-block;
+    color:#777777;
+    font-family:Arial;
+    font-size:16px;
+    font-weight:bold;
+    font-style:normal;
+    height:30px;
+    line-height:30px;
+    width:86px;
+    text-decoration:none;
+    text-align:center;
+    text-shadow:1px 1px 0px #ffffff;
+}
+.button:hover {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );
+    background:-moz-linear-gradient( center top, #dfdfdf 5%, #ededed 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed');
+    background-color:#dfdfdf;
+}.button:active {
+    position:relative;
+    top:1px;
+}
+#wrapper {
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+    width: 700px;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    margin: 40px auto;
+}
+#controls {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 100%;
+    text-align: center;
+    border: 0;
+    padding: 0;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+#type {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: middle;
+    color: #343434;
+    background: #dfdfdf;
+    font-size: 14px;
+    padding: 12px 8px;
+    margin-right: 8px;
+    border-radius: 10px;
+}
+#newgame {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    vertical-align: middle;
+    width: 120px;
+    height: 38px;
+    line-height: 38px;
+    cursor: pointer;
+    margin: 0;
+}
+#responsive-canvas {
+    position: relative;
+    display: inline-block;
+    box-sizing: border-box;
+    max-width: 100%;
+    min-width: 340px;
+    height: auto;
+    overflow: hidden;
+    font-size: 0;
+    border: 0;
+    padding: 0;
+    margin: 0 auto;
+}
+#canvas {
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    width: 700px;
+    height: 500px;
+    transform-origin: 0 0;
+    transform: scale(1);
+}
+#instructions {
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    font-size: 13px;
+}
+#forkongithub {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+#forkongithub  a {
+    background: #aa0000;
+    color: #fff;
+    text-decoration: none;
+    font-family: arial, sans-serif;
+    text-align: center;
+    font-weight: bold;
+    padding: 5px 40px;
+    font-size: 0.9rem;
+    line-height: 1.4rem;
+    position: relative;
+    transition: all 0.5s;
+}
+#forkongithub a:hover {
+    background: #aa0000;
+    color: #fff;
+}
+#forkongithub a::before, #forkongithub a::after {
+    content: "";
+    width: 100%;
+    display: block;
+    position: absolute;
+    z-index: 100;
+    top: 1px;
+    left: 0;
+    height: 1px;
+    background: #fff;
+}
+#forkongithub a::after
+{
+    bottom: 1px;
+    top: auto;
+}
+@media screen and (min-width:800px) {
+    #forkongithub {
+        position: absolute;
+        display: block;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        width: 200px;
+        overflow: hidden;
+        height: 200px;
+        margin-bottom: 0;
+    }
+    #forkongithub a {
+        width: 200px;
+        position: absolute;
+        top: 60px;
+        right: -60px;
+        transform: rotate(45deg);
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.8);
+    }
+}
+#forkongithub a, #forkongithub a:hover{background:#155817;color:#fff;}
+</style>
+</head>
+<body>
+<span id="forkongithub"><a href="https://github.com/foo123/Billiard.js">Play with me on GitHub</a></span>
+
+<center><img src='./assets/logo.png' style="max-width:300px;"/></center>
+
+<div id="wrapper">
+<div id="controls">
+<select id="type">
+<option value="1" selected>American Pool</option>
+<option value="2">French Billiard</option>
+</select>
+<button id="newgame" class="button">New Game</button>
+</div>
+
+<div id="responsive-canvas"><canvas id="canvas" width=700 height=500></canvas></div>
+
+<ol id="instructions">
+<li>Rotate stick with mouse or touch to direct hit.</li>
+<li>Press 'q' key or wait until target ball becomes bold.</li>
+<li>Move stick to give strike force.</li>
+<li>Release 'q' key or release touch to strike ball.</li>
+</ol>
+</div>
+
+<div style="margin:10px auto; text-align:center; z-index:10;"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DP8WED9XW9TAE" style="color:#f90b13;font-size:14px;">donate</a></div>
+
+<script src="./build/NEngine.js"></script>
+<script src="./build/Billiard.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+(function(window) {
+"use strict";
+var billiard, canvas = document.getElementById('canvas'), types = document.getElementById('type');
+
+function responsive_canvas(canvas)
+{
+    var scale = Math.min(1, canvas.parentNode.offsetWidth/canvas.width);
+    canvas.style.transform = 'scale('+String(scale)+')';
+    canvas.parentNode.style.maxHeight = String(Math.ceil(scale*canvas.height))+'px';
+    return canvas;
+}
+
+billiard = new window.BILLIARD.Game(
+    responsive_canvas(canvas), 1,
+    './assets/billiardtable1.png',
+    './assets/billiardtable2.png',
+    './assets/white.png',
+    './assets/black.png',
+    './assets/yellow.png',
+    './assets/red.png',
+    './assets/taco.png'
+);
+
+document.getElementById('newgame').addEventListener('click', function() {
+    billiard.init(parseInt(types.options[types.selectedIndex].value));
+}, false);
+window.addEventListener('resize', function() {
+    responsive_canvas(canvas);
+});
+})(window);
+//]]>
+</script>
+</body>
+</html>

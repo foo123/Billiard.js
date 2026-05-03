@@ -1,10 +1,17 @@
 @echo off
 
+REM ###################################################
+REM #
+REM #   The buildtools repository is at:
+REM #   https://github.com/foo123/Beeld
+REM #
+REM ###################################################
+
 REM to use the python build tool do:
-REM python ..\scripts\buildtools\build.py --deps ".\dependencies"
+rem python %BUILDTOOLS%\Beeld.py --config ".\beeld.config"
 
 REM to use the php build tool do:
-REM php -f ..\scripts\buildtools\build.php -- --deps=".\dependencies"
+rem php -f %BUILDTOOLS%\Beeld.php --  --config=".\beeld.config"
 
 REM to use the node build tool do:
-node ..\scripts\buildtools\build.js --deps ".\dependencies"
+node %BUILDTOOLS%\Beeld.js  --config ".\beeld.config"
