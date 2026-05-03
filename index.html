@@ -8,12 +8,12 @@
 <meta property="og:image" content="https://foo123.github.io/thumbs/billiard.jpg">
 <meta property="og:url" content="https://foo123.github.io/examples/billiard.js/">
 <meta name="twitter:card" content="summary">
-<link rel="icon" type="image/png" href="./favicon-96x96.png?v=1.0.1" sizes="96x96" />
-<link rel="icon" type="image/svg+xml" href="./favicon.svg?v=1.0.1" />
-<link rel="shortcut icon" href="./favicon.ico?v=1.0.1" />
-<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=1.0.1" />
+<link rel="icon" type="image/png" href="./favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+<link rel="shortcut icon" href="./favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
 <meta name="apple-mobile-web-app-title" content="Billiard" />
-<link rel="manifest" href="./manifest.json?v=1.0.1" />
+<link rel="manifest" href="./manifest.json" />
 <style type="text/css">
 body {
     position: relative;
@@ -74,7 +74,7 @@ body {
     position: relative;
     display: block;
     box-sizing: border-box;
-    width: 700px;
+    width: 1024px;
     max-width: 100%;
     padding: 0;
     border: 0;
@@ -118,8 +118,9 @@ body {
     position: relative;
     display: inline-block;
     box-sizing: border-box;
+    width: 100%;
     max-width: 100%;
-    min-width: 340px;
+    max-height: auto;
     height: auto;
     overflow: hidden;
     font-size: 0;
@@ -243,13 +244,16 @@ var billiard, canvas = document.getElementById('canvas'), types = document.getEl
 
 function responsive_canvas(canvas)
 {
-    var scale = Math.min(1, canvas.parentNode.offsetWidth/canvas.width);
+    var scale = (canvas.parentNode.offsetWidth - 100)/canvas.width, maxHeight = scale*canvas.height;
     canvas.style.transform = 'scale('+String(scale)+')';
-    canvas.parentNode.style.maxHeight = String(Math.ceil(scale*canvas.height))+'px';
+    canvas.parentNode.style.height = String(Math.ceil(maxHeight))+'px';
+    canvas.parentNode.style.maxHeight = String(Math.ceil(maxHeight))+'px';
+    canvas.style.marginLeft = String(Math.max(0, Math.round((canvas.parentNode.offsetWidth - scale*canvas.width)/2)))+'px';
+    canvas.style.marginTop = '0px';
     return canvas;
 }
 
-billiard = new window.BILLIARD.Game(
+billiard = new BILLIARD.Game(
     responsive_canvas(canvas), 1,
     './assets/billiardtable1.png',
     './assets/billiardtable2.png',
