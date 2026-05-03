@@ -4,7 +4,7 @@ Billiard.js
 **A billiard game in pure JavaScript** for Desktop and Mobile
 
 
-[![Billiard.js](/images/billiard.jpg)](http://foo123.github.io/examples/billiard.js/)
+[![Billiard.js](/assets/billiard.jpg)](http://foo123.github.io/examples/billiard.js/)
 
 ### Live Example
 
