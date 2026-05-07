@@ -1,3 +1,3 @@
 // BILLIARD
-var BILLIARD = {VERSION: "2.0.0"};
+var BILLIARD = {VERSION: "1.0.0"};
 /*window.BILLIARD = BILLIARD;*/
