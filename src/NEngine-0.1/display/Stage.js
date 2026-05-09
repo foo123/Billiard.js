@@ -71,6 +71,11 @@
   **/
   Stage.prototype.autoClear = true;
 
+  /**
+  * Any external scaling applied to canvas
+  * @type Number
+  **/
+  Stage.prototype.scaling = 1;
   // Stage.prototype.buttonMode = null;
   // Stage.prototype.dropTarget = null;
   // Stage.prototype.hitArea = null;
@@ -124,8 +129,8 @@
     var self = this;
     this.touches = Array.prototype.map.call(e.touches, function(touch) {
         return {
-            x: touch.pageX-self.canvas.globalOffsetLeft,
-            y: touch.pageY-self.canvas.globalOffsetTop
+            x: (touch.pageX-self.canvas.globalOffsetLeft)/self.scaling,
+            y: (touch.pageY-self.canvas.globalOffsetTop)/self.scaling
         };
     });
     if (this.touches.length)
@@ -149,9 +154,9 @@
           this._children[i].mouseX = this._children[i].touches[0].x;
           this._children[i].mouseY = this._children[i].touches[0].y;
       }
-      if(!this._children[i].mouseEnabled) { continue; }
-      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
-      if(inBounds && this._children[i].onTouchMove && this._children[i].onTouchMove instanceof Function) { this._children[i].onTouchMove(e); }
+      if(!this._children[i].mouseEnabled || !this._children[i].onTouchMove || !(this._children[i].onTouchMove instanceof Function)) { continue; }
+      var inBounds = 0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length;
+      if(inBounds) { this._children[i].onTouchMove(e); }
     }
   }
 
@@ -161,13 +166,14 @@
   **/
   Stage.prototype._handleOnTouchEnd = function(e) {
     if (!this.canvas) { this.touches = null; this.mouseX = this.mouseY = null; return; }
-    var self = this;
-    this.touches = Array.prototype.map.call(e.touches, function(touch) {
+    var self = this, touches;
+    touches = Array.prototype.map.call(e.touches, function(touch) {
         return {
-            x: touch.pageX-self.canvas.globalOffsetLeft,
-            y: touch.pageY-self.canvas.globalOffsetTop
+            x: (touch.pageX-self.canvas.globalOffsetLeft)/self.scaling,
+            y: (touch.pageY-self.canvas.globalOffsetTop)/self.scaling
         };
     });
+    if (touches.length) this.touches = touches;
     if (this.touches.length)
     {
         this.mouseX = this.touches[0].x;
@@ -186,9 +192,9 @@
           this._children[i].mouseX = this._children[i].touches[0].x;
           this._children[i].mouseY = this._children[i].touches[0].y;
       }
-      if(!this._children[i].mouseEnabled) { continue; }
-      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
-      if(inBounds && this._children[i].onTouchEnd && this._children[i].onTouchEnd instanceof Function) { this._children[i].onTouchEnd(e); }
+      if(!this._children[i].mouseEnabled || !this._children[i].onTouchEnd || !(this._children[i].onTouchEnd instanceof Function)) { continue; }
+      var inBounds = 0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length;
+      if(inBounds) { this._children[i].onTouchEnd(e); }
     }
   }
 
@@ -201,8 +207,8 @@
     var self = this;
     this.touches = Array.prototype.map.call(e.touches, function(touch) {
         return {
-            x: touch.pageX-self.canvas.globalOffsetLeft,
-            y: touch.pageY-self.canvas.globalOffsetTop
+            x: (touch.pageX-self.canvas.globalOffsetLeft)/self.scaling,
+            y: (touch.pageY-self.canvas.globalOffsetTop)/self.scaling
         };
     });
     if (this.touches.length)
@@ -223,9 +229,9 @@
           this._children[i].mouseX = this._children[i].touches[0].x;
           this._children[i].mouseY = this._children[i].touches[0].y;
       }
-      if(!this._children[i].mouseEnabled) { continue; }
-      var inBounds = this._children[i].skipBounds || (0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length);
-      if(inBounds && this._children[i].onTouchStart && this._children[i].onTouchStart instanceof Function) { this._children[i].onTouchStart(e); }
+      if(!this._children[i].mouseEnabled || !this._children[i].onTouchStart || !(this._children[i].onTouchStart instanceof Function)) { continue; }
+      var inBounds = 0 < this._children[i].touches.filter(function(touch) {return self._children[i].inBounds(touch.x, touch.y);}).length;
+      if(inBounds) { this._children[i].onTouchStart(e); }
     }
   }
 
@@ -235,15 +241,15 @@
   **/
   Stage.prototype._handleOnMouseMove = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
-    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    this.mouseX = (e.pageX-this.canvas.globalOffsetLeft)/this.scaling;
+    this.mouseY = (e.pageY-this.canvas.globalOffsetTop)/this.scaling;
     var inBounds = (this.mouseX >= 0 && this.mouseY >= 0 && this.mouseX < this.canvas.width && this.mouseY < this.canvas.height);
     if (!inBounds) return;
 
     if (this.onMouseMove) { this.onMouseMove(e); }
     for (var i=0;i<this._children.length;i++) {
       this._children[i].mouseX = this.mouseX-this._children[i].x;
-      this._children[i].mouseY = this.mouseY -this._children[i].y;
+      this._children[i].mouseY = this.mouseY-this._children[i].y;
       if(!this._children[i].mouseEnabled) { continue; }
       var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
       if(inBounds && this._children[i].onMouseMove && this._children[i].onMouseMove instanceof Function) { this._children[i].onMouseMove(e); }
@@ -267,15 +273,15 @@
   **/
   Stage.prototype._handleOnMouseUp = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
-    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    this.mouseX = (e.pageX-this.canvas.globalOffsetLeft)/this.scaling;
+    this.mouseY = (e.pageY-this.canvas.globalOffsetTop)/this.scaling;
     if (this.onMouseUp) { this.onMouseUp(e); }
     for (var i=0;i<this._children.length;i++) {
       this._children[i].mouseX = this.mouseX-this._children[i].x;
-      this._children[i].mouseY = this.mouseY -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
+      this._children[i].mouseY = this.mouseY-this._children[i].y;
+      if(!this._children[i].mouseEnabled || !this._children[i].onMouseUp || !(this._children[i].onMouseUp instanceof Function)) { continue; }
       var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
-      if(inBounds && this._children[i].onMouseUp && this._children[i].onMouseUp instanceof Function) { this._children[i].onMouseUp(e); }
+      if(inBounds) { this._children[i].onMouseUp(e); }
     }
   }
 
@@ -285,15 +291,15 @@
   **/
   Stage.prototype._handleOnMouseDown = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
-    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    this.mouseX = (e.pageX-this.canvas.globalOffsetLeft)/this.scaling;
+    this.mouseY = (e.pageY-this.canvas.globalOffsetTop)/this.scaling;
     if (this.onMouseDown) { this.onMouseDown(e); }
     for (var i=0;i<this._children.length;i++) {
       this._children[i].mouseX = this.mouseX-this._children[i].x;
-      this._children[i].mouseY = this.mouseY -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
+      this._children[i].mouseY = this.mouseY-this._children[i].y;
+      if(!this._children[i].mouseEnabled || !this._children[i].onMouseDown || !(this._children[i].onMouseDown instanceof Function)) { continue; }
       var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
-      if(inBounds && this._children[i].onMouseDown && this._children[i].onMouseDown instanceof Function) { this._children[i].onMouseDown(e); }
+      if(inBounds) { this._children[i].onMouseDown(e); }
     }
   }
 
@@ -303,8 +309,8 @@
   **/
   Stage.prototype._handleOnMouseOver = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
-    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    this.mouseX = (e.pageX-this.canvas.globalOffsetLeft)/this.scaling;
+    this.mouseY = (e.pageY-this.canvas.globalOffsetTop)/this.scaling;
     if (this.onMouseOver) { this.onMouseOver(e); }
     /* for the main Stage/Sprite only
     for (var i=0;i<this._children.length;i++) {
@@ -323,8 +329,8 @@
   **/
   Stage.prototype._handleOnMouseOut = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
-    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    this.mouseX = (e.pageX-this.canvas.globalOffsetLeft)/this.scaling;
+    this.mouseY = (e.pageY-this.canvas.globalOffsetTop)/this.scaling;
     if (this.onMouseOut) { this.onMouseOut(e); }
     /* for the main Stage/Sprite only
     for (var i=0;i<this._children.length;i++) {
@@ -343,18 +349,18 @@
   **/
   Stage.prototype._handleOnClick = function(e) {
     if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.globalOffsetLeft;
-    this.mouseY = e.pageY-this.canvas.globalOffsetTop;
+    this.mouseX = (e.pageX-this.canvas.globalOffsetLeft)/this.scaling;
+    this.mouseY = (e.pageY-this.canvas.globalOffsetTop)/this.scaling;
     if (this.onClick) { this.onClick(e); }
     for (var i=0;i<this._children.length;i++) {
       this._children[i].mouseX = this.mouseX-this._children[i].x;
-      this._children[i].mouseY = this.mouseY -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
+      this._children[i].mouseY = this.mouseY-this._children[i].y;
+      if(!this._children[i].mouseEnabled || !this._children[i].onClick || !(this._children[i].onClick instanceof Function)) { continue; }
       /* hitTest not yet completed
       NEngine.utils.log(this._children[i].hitTest(this.mouseX, this.mouseY));
       */
       var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
-      if(inBounds && this._children[i].onClick && this._children[i].onClick instanceof Function) { this._children[i].onClick(e); }
+      if(inBounds) { this._children[i].onClick(e); }
     }
   }
 

@@ -35,7 +35,7 @@ BILLIARD.Ball = function Ball(ball, type) {
         var ctx = self.cacheCanvas.getContext('2d');
         ctx.drawImage(self.image, 0, 0);
     };
-    self.line_limit_x = 538 + self.r;
+    self.line_limit_x = BILLIARD.Ball.offX + 538 + self.r;
     self.updateProccessTime(1);
     self.image.src = ball;
 };
@@ -199,8 +199,6 @@ BILLIARD.Ball.prototype.updateProccessTime = function(t) {
     self.vy = BILLIARD.correctFloatingPointError(self.direction.vy * self.proccess_time);
 };
 
-BILLIARD.Ball.w = {x1:29, y1:35, x2:585-29, y2:365-39};
-//BILLIARD.Ball.w = {x1:135, y1:102, x2:665, y2:397};
 BILLIARD.Ball.isPositionOverlapped = function() {return null;};
 BILLIARD.Ball.simulateElasticCollision = function(ball1, ball2) {
     var _loc_3 = null,

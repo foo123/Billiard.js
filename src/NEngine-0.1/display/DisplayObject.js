@@ -541,7 +541,6 @@
     var inBounds = (globalX >= this.x && globalY >= this.y && globalX < (this.x + this.width) && globalY < (this.y + this.height));
     return inBounds;
   }
-  DisplayObject.prototype.skipBounds = false;
 
   /**
   * Exposing the DisplayObject to the window global object.

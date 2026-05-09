@@ -1,5 +1,6 @@
 (function(BILLIARD) {
 "use strict";
+
 BILLIARD.Game = function Game(canvas, type, americantable, frenchtable, white, black, yel, red, taco) {
     var self = this;
     self.fps = 12; // 12 FPS
@@ -7,6 +8,8 @@ BILLIARD.Game = function Game(canvas, type, americantable, frenchtable, white, b
     NEngine.Stage.call(self, canvas);
 
     self.canvas = canvas;
+    self.offX = 100;
+    self.offY = 100;
     self.width = 585;
     self.height = 365;
     self.scaling = 1;
@@ -34,14 +37,18 @@ BILLIARD.Game = function Game(canvas, type, americantable, frenchtable, white, b
     self.taco = null;
     self.diff = null;
     self.tri = null;
-    self.americantable = new NEngine.Bitmap(americantable, 0, 0);
-    self.frenchtable = new NEngine.Bitmap(frenchtable, 0, 0);
+    self.americantable = new NEngine.Bitmap(americantable, self.offX, self.offY);
+    self.frenchtable = new NEngine.Bitmap(frenchtable, self.offX, self.offY);
     self.taco = new BILLIARD.Taco(taco);
     self.white = white;
     self.black = black;
     self.red = red;
     self.yellow = yel;
 
+    BILLIARD.Ball.w = {x1:self.offX+29, y1:self.offY+35, x2:self.offX+585-29, y2:self.offY+365-39};
+    //BILLIARD.Ball.w = {x1:135, y1:102, x2:665, y2:397};
+    BILLIARD.Ball.offX = self.offX;
+    BILLIARD.Ball.offY = self.offY;
     BILLIARD.Ball.isPositionOverlapped = function(x, y, ball) {
         if (null == ball) ball = null;
         self.tri = new BILLIARD.TriangleData();
@@ -71,11 +78,12 @@ BILLIARD.Game = function Game(canvas, type, americantable, frenchtable, white, b
 };
 BILLIARD.Game.inheritsFrom(NEngine.Stage);
 
-BILLIARD.Game.prototype.scaling = 1;
-BILLIARD.Game.prototype.lines = null;
+BILLIARD.Game.prototype.offX = 0;
+BILLIARD.Game.prototype.offY = 0;
 BILLIARD.Game.prototype.diff = null;
 BILLIARD.Game.prototype.tri = null;
 BILLIARD.Game.prototype.taco = null;
+BILLIARD.Game.prototype.lines = null;
 BILLIARD.Game.prototype.c0_fake = null;
 BILLIARD.Game.prototype.c0 = null;
 BILLIARD.Game.prototype.c1 = null;
@@ -171,46 +179,46 @@ BILLIARD.Game.prototype.init = function(type) {
     }
 
     // position balls on table
-    self.c0.x = 578-107;
-    self.c0.y = 164-66;
+    self.c0.x = self.offX + 578-107;
+    self.c0.y = self.offY + 164-66;
     self.c0.direction.p0.update(self.c0.x, self.c0.y);
     self.addChild(self.c0);
     self.addBall(self.c0);
 
     if (self.type === 1) // american pool
     {
-        self.c1.x = 311;
-        self.c1.y = 248;
-        self.c2.x = 287;
-        self.c2.y = 262;
-        self.c3.x = 239;
-        self.c3.y = 289;
-        self.c4.x = 215;
-        self.c4.y = 248;
-        self.c5.x = 239;
-        self.c5.y = 234;
-        self.c6.x = 263;
-        self.c6.y = 221;
-        self.c7.x = 215;
-        self.c7.y = 194;
+        self.c1.x = self.offX + 311;
+        self.c1.y = self.offY + 248;
+        self.c2.x = self.offX + 287;
+        self.c2.y = self.offY + 262;
+        self.c3.x = self.offX + 239;
+        self.c3.y = self.offY + 289;
+        self.c4.x = self.offX + 215;
+        self.c4.y = self.offY + 248;
+        self.c5.x = self.offX + 239;
+        self.c5.y = self.offY + 234;
+        self.c6.x = self.offX + 263;
+        self.c6.y = self.offY + 221;
+        self.c7.x = self.offX + 215;
+        self.c7.y = self.offY + 194;
 
-        self.c8.x = 263;
-        self.c8.y = 248;
+        self.c8.x = self.offX + 263;
+        self.c8.y = self.offY + 248;
 
-        self.c9.x = 287;
-        self.c9.y = 234;
-        self.c10.x = 215;
-        self.c10.y = 221;
-        self.c11.x = 239;
-        self.c11.y = 207;
-        self.c12.x = 263;
-        self.c12.y = 276;
-        self.c13.x = 239;
-        self.c13.y = 262;
-        self.c14.x = 215;
-        self.c14.y = 276;
-        self.c15.x = 215;
-        self.c15.y = 303;
+        self.c9.x = self.offX + 287;
+        self.c9.y = self.offY + 234;
+        self.c10.x = self.offX + 215;
+        self.c10.y = self.offY + 221;
+        self.c11.x = self.offX + 239;
+        self.c11.y = self.offY + 207;
+        self.c12.x = self.offX + 263;
+        self.c12.y = self.offY + 276;
+        self.c13.x = self.offX + 239;
+        self.c13.y = self.offY + 262;
+        self.c14.x = self.offX + 215;
+        self.c14.y = self.offY + 276;
+        self.c15.x = self.offX + 215;
+        self.c15.y = self.offY + 303;
         for (var i=1; i<16; ++i)
         {
             self['c'+i].x -= 107;
@@ -222,18 +230,18 @@ BILLIARD.Game.prototype.init = function(type) {
     }
     else // french billiard
     {
-        self.c1.x = 200;
-        self.c1.y = self.height/2;
+        self.c1.x = self.offX + 200;
+        self.c1.y = self.offY + self.height/2;
         self.c1.direction.p0.update(self.c1.x, self.c1.y);
         self.addChild(self.c1);
         self.addBall(self.c1);
-        self.c2.x = 200;
-        self.c2.y = 50;
+        self.c2.x = self.offX + 200;
+        self.c2.y = self.offY + 50;
         self.c2.direction.p0.update(self.c2.x, self.c2.y);
         self.addChild(self.c2);
         self.addBall(self.c2);
-        self.c3.x = 200;
-        self.c3.y = self.height-50;
+        self.c3.x = self.offX + 200;
+        self.c3.y = self.offY + self.height-50;
         self.c3.direction.p0.update(self.c3.x, self.c3.y);
         self.addChild(self.c3);
         self.addBall(self.c3);
@@ -459,6 +467,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
         else
         {
             self.taco.alpha = Math.max(0, self.taco.alpha-0.05);
+            if (self.taco.alpha <= 0) self.taco.visible = false;
         }
     }
     self.stagetick();

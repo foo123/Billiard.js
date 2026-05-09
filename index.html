@@ -135,8 +135,8 @@ body {
     border: 0;
     padding: 0;
     margin: 0;
-    width: 700px;
-    height: 500px;
+    width: 785px;
+    height: 565px;
     transform-origin: 0 0;
     transform: scale(1);
 }
@@ -222,7 +222,7 @@ body {
 <button id="newgame" class="button">New Game</button>
 </div>
 
-<div id="responsive-canvas"><canvas id="canvas" width=700 height=500></canvas></div>
+<div id="responsive-canvas"><canvas id="canvas" width=785 height=565></canvas></div>
 
 <ol id="instructions" style="color:#aaa">
 <li>Rotate stick with mouse or touch to direct hit.</li>
@@ -247,13 +247,11 @@ var billiard, canvas = document.getElementById('canvas'),
 function responsive_canvas(canvas)
 {
     var width = canvas.parentNode.offsetWidth, height;
-    scale = (width - (width < 400 ? 20 : 40))/canvas.width;
+    scale = width/canvas.width;
     height = Math.ceil(scale*canvas.height);
     canvas.style.transform = 'scale('+String(scale)+')';
     canvas.parentNode.style.height = String(height)+'px';
     canvas.parentNode.style.maxHeight = String(height)+'px';
-    canvas.style.marginLeft = String(Math.max(0, Math.round((width - scale*canvas.width)/2)))+'px';
-    canvas.style.marginTop = '0px';
     return canvas;
 }
 
@@ -268,13 +266,14 @@ billiard = new BILLIARD.Game(
     './assets/taco.png'
 );
 billiard.scaling = scale;
+canvas.focus();
 
 document.getElementById('newgame').addEventListener('click', function() {
     billiard.init(parseInt(types.options[types.selectedIndex].value));
+    canvas.focus();
 }, false);
 window.addEventListener('resize', function() {
     responsive_canvas(canvas);
-    billiard.__canvas_adjust();
     billiard.scaling = scale;
 });
 })(window);
