@@ -91,8 +91,8 @@ BILLIARD.Ball.prototype.allowDrag = function(allow) {
 BILLIARD.Ball.prototype.affectSpeed = function(factor) {
     var self = this;
     if (null == factor) factor = 0.975;
-    self.direction.vx = BILLIARD.Ball.correctFloatingPointError(self.direction.vx * factor);
-    self.direction.vy = BILLIARD.Ball.correctFloatingPointError(self.direction.vy * factor);
+    self.direction.vx = BILLIARD.correctFloatingPointError(self.direction.vx * factor);
+    self.direction.vy = BILLIARD.correctFloatingPointError(self.direction.vy * factor);
     if (Math.abs(self.direction.vx) <= 0.1 && Math.abs(self.direction.vy) < 0.1)
     {
         self.direction.vx = 0;
@@ -100,7 +100,7 @@ BILLIARD.Ball.prototype.affectSpeed = function(factor) {
     }
     self.direction.refresh();
 };
-BILLIARD.Ball.prototype.inHole = function() {
+BILLIARD.Ball.prototype.inPocket = function() {
     var self = this;
     if (self.type !== 1) return false;
     var _loc_1 = false;
@@ -194,9 +194,9 @@ BILLIARD.Ball.prototype.startDragging = function(event) {
 };
 BILLIARD.Ball.prototype.updateProccessTime = function(t) {
     var self = this;
-    self.proccess_time = BILLIARD.Ball.correctFloatingPointError(t);
-    self.vx = BILLIARD.Ball.correctFloatingPointError(self.direction.vx * self.proccess_time);
-    self.vy = BILLIARD.Ball.correctFloatingPointError(self.direction.vy * self.proccess_time);
+    self.proccess_time = BILLIARD.correctFloatingPointError(t);
+    self.vx = BILLIARD.correctFloatingPointError(self.direction.vx * self.proccess_time);
+    self.vy = BILLIARD.correctFloatingPointError(self.direction.vy * self.proccess_time);
 };
 
 BILLIARD.Ball.w = {x1:29, y1:35, x2:585-29, y2:365-39};
@@ -222,17 +222,17 @@ BILLIARD.Ball.simulateElasticCollision = function(ball1, ball2) {
     _loc_4 = BILLIARD.TriangleData.getHypotenuse(_loc_3.x, _loc_3.y);
     _loc_5 = new BILLIARD.SimplePoint(_loc_3.x / _loc_4, _loc_3.y / _loc_4);
     _loc_6 = new BILLIARD.SimplePoint(-_loc_5.y, _loc_5.x);
-    _loc_7 = BILLIARD.Ball.correctFloatingPointError(_loc_5.x * ball1.direction.vx + _loc_5.y * ball1.direction.vy);
-    _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_6.x * ball1.direction.vx + _loc_6.y * ball1.direction.vy);
-    _loc_9 = BILLIARD.Ball.correctFloatingPointError(_loc_5.x * ball2.direction.vx + _loc_5.y * ball2.direction.vy);
-    _loc_10 = BILLIARD.Ball.correctFloatingPointError(_loc_6.x * ball2.direction.vx + _loc_6.y * ball2.direction.vy);
-    _loc_11 = BILLIARD.Ball.correctFloatingPointError((_loc_7 * (ball1.m - ball2.m) + 2 * ball2.m * _loc_9) / (ball1.m + ball2.m));
-    _loc_12 = BILLIARD.Ball.correctFloatingPointError((_loc_9 * (ball2.m - ball1.m) + 2 * ball1.m * _loc_7) / (ball1.m + ball2.m));
+    _loc_7 = BILLIARD.correctFloatingPointError(_loc_5.x * ball1.direction.vx + _loc_5.y * ball1.direction.vy);
+    _loc_8 = BILLIARD.correctFloatingPointError(_loc_6.x * ball1.direction.vx + _loc_6.y * ball1.direction.vy);
+    _loc_9 = BILLIARD.correctFloatingPointError(_loc_5.x * ball2.direction.vx + _loc_5.y * ball2.direction.vy);
+    _loc_10 = BILLIARD.correctFloatingPointError(_loc_6.x * ball2.direction.vx + _loc_6.y * ball2.direction.vy);
+    _loc_11 = BILLIARD.correctFloatingPointError((_loc_7 * (ball1.m - ball2.m) + 2 * ball2.m * _loc_9) / (ball1.m + ball2.m));
+    _loc_12 = BILLIARD.correctFloatingPointError((_loc_9 * (ball2.m - ball1.m) + 2 * ball1.m * _loc_7) / (ball1.m + ball2.m));
     _loc_13 = new BILLIARD.SimplePoint(_loc_5.x * _loc_11, _loc_5.y * _loc_11);
     _loc_14 = new BILLIARD.SimplePoint(_loc_6.x * _loc_8, _loc_6.y * _loc_8);
     _loc_15 = new BILLIARD.SimplePoint(_loc_5.x * _loc_12, _loc_5.y * _loc_12);
     _loc_16 = new BILLIARD.SimplePoint(_loc_6.x * _loc_10, _loc_6.y * _loc_10);
-    return new BILLIARD.CollisionResult(BILLIARD.Ball.correctFloatingPointError(_loc_13.x + _loc_14.x), BILLIARD.Ball.correctFloatingPointError(_loc_13.y + _loc_14.y), BILLIARD.Ball.correctFloatingPointError(_loc_15.x + _loc_16.x), BILLIARD.Ball.correctFloatingPointError(_loc_15.y + _loc_16.y));
+    return new BILLIARD.CollisionResult(BILLIARD.correctFloatingPointError(_loc_13.x + _loc_14.x), BILLIARD.correctFloatingPointError(_loc_13.y + _loc_14.y), BILLIARD.correctFloatingPointError(_loc_15.x + _loc_16.x), BILLIARD.correctFloatingPointError(_loc_15.y + _loc_16.y));
 };
 BILLIARD.Ball.findTimeUntilCollide = function(ball1, ball2) {
     var _loc_3 = NaN,
@@ -243,13 +243,13 @@ BILLIARD.Ball.findTimeUntilCollide = function(ball1, ball2) {
         _loc_8 = NaN
     ;
     _loc_3 = -1;
-    _loc_4 = BILLIARD.Ball.correctFloatingPointError(Math.pow(ball2.vx - ball1.vx, 2) + Math.pow(ball2.vy - ball1.vy, 2));
-    _loc_5 = BILLIARD.Ball.correctFloatingPointError(2 * ((ball2.direction.p0.x - ball1.direction.p0.x) * (ball2.vx - ball1.vx) + (ball2.direction.p0.y - ball1.direction.p0.y) * (ball2.vy - ball1.vy)));
-    _loc_6 = BILLIARD.Ball.correctFloatingPointError(Math.pow(ball2.direction.p0.x - ball1.direction.p0.x, 2) + Math.pow(ball2.direction.p0.y - ball1.direction.p0.y, 2) - Math.pow(ball1.r + ball2.r, 2));
-    _loc_7 = BILLIARD.Ball.correctFloatingPointError(Math.pow(_loc_5, 2) - 4 * _loc_4 * _loc_6);
+    _loc_4 = BILLIARD.correctFloatingPointError(Math.pow(ball2.vx - ball1.vx, 2) + Math.pow(ball2.vy - ball1.vy, 2));
+    _loc_5 = BILLIARD.correctFloatingPointError(2 * ((ball2.direction.p0.x - ball1.direction.p0.x) * (ball2.vx - ball1.vx) + (ball2.direction.p0.y - ball1.direction.p0.y) * (ball2.vy - ball1.vy)));
+    _loc_6 = BILLIARD.correctFloatingPointError(Math.pow(ball2.direction.p0.x - ball1.direction.p0.x, 2) + Math.pow(ball2.direction.p0.y - ball1.direction.p0.y, 2) - Math.pow(ball1.r + ball2.r, 2));
+    _loc_7 = BILLIARD.correctFloatingPointError(Math.pow(_loc_5, 2) - 4 * _loc_4 * _loc_6);
     if (_loc_4 !== 0)
     {
-        _loc_8 = BILLIARD.Ball.correctFloatingPointError((-_loc_5 - Math.sqrt(_loc_7)) / (2 * _loc_4));
+        _loc_8 = BILLIARD.correctFloatingPointError((-_loc_5 - Math.sqrt(_loc_7)) / (2 * _loc_4));
         if (_loc_8 >= 0)
         {
             _loc_3 = _loc_8;
@@ -260,11 +260,6 @@ BILLIARD.Ball.findTimeUntilCollide = function(ball1, ball2) {
 BILLIARD.Ball.stillOnTable = function(x, y,r) {
     var w = BILLIARD.Ball.w;
     return x - r >= w.x1 && x + r <= w.x2 && y - r >= w.y1 && y + r <= w.y2;
-};
-BILLIARD.Ball.correctFloatingPointError = function(val, precision) {
-    if (null == precision) precision = 10;
-    var _loc_3 = Math.pow(10, precision);
-    return Math.round(_loc_3 * val) / _loc_3;
 };
 BILLIARD.Ball.doElasticCollision = function(ball1, ball2) {
     var _loc_3 = null,
@@ -286,21 +281,21 @@ BILLIARD.Ball.doElasticCollision = function(ball1, ball2) {
     _loc_4 = BILLIARD.TriangleData.getHypotenuse(_loc_3.x, _loc_3.y);
     _loc_5 = new BILLIARD.SimplePoint(_loc_3.x / _loc_4, _loc_3.y / _loc_4);
     _loc_6 = new BILLIARD.SimplePoint(-_loc_5.y, _loc_5.x);
-    _loc_7 = BILLIARD.Ball.correctFloatingPointError(_loc_5.x * ball1.vx + _loc_5.y * ball1.vy);
-    _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_6.x * ball1.vx + _loc_6.y * ball1.vy);
-    _loc_9 = BILLIARD.Ball.correctFloatingPointError(_loc_5.x * ball2.vx + _loc_5.y * ball2.vy);
-    _loc_10 = BILLIARD.Ball.correctFloatingPointError(_loc_6.x * ball2.vx + _loc_6.y * ball2.vy);
-    _loc_11 = BILLIARD.Ball.correctFloatingPointError((_loc_7 * (ball1.m - ball2.m) + 2 * ball2.m * _loc_9) / (ball1.m + ball2.m));
-    _loc_12 = BILLIARD.Ball.correctFloatingPointError((_loc_9 * (ball2.m - ball1.m) + 2 * ball1.m * _loc_7) / (ball1.m + ball2.m));
+    _loc_7 = BILLIARD.correctFloatingPointError(_loc_5.x * ball1.vx + _loc_5.y * ball1.vy);
+    _loc_8 = BILLIARD.correctFloatingPointError(_loc_6.x * ball1.vx + _loc_6.y * ball1.vy);
+    _loc_9 = BILLIARD.correctFloatingPointError(_loc_5.x * ball2.vx + _loc_5.y * ball2.vy);
+    _loc_10 = BILLIARD.correctFloatingPointError(_loc_6.x * ball2.vx + _loc_6.y * ball2.vy);
+    _loc_11 = BILLIARD.correctFloatingPointError((_loc_7 * (ball1.m - ball2.m) + 2 * ball2.m * _loc_9) / (ball1.m + ball2.m));
+    _loc_12 = BILLIARD.correctFloatingPointError((_loc_9 * (ball2.m - ball1.m) + 2 * ball1.m * _loc_7) / (ball1.m + ball2.m));
     _loc_13 = new BILLIARD.SimplePoint(_loc_5.x * _loc_11, _loc_5.y * _loc_11);
     _loc_14 = new BILLIARD.SimplePoint(_loc_6.x * _loc_8, _loc_6.y * _loc_8);
     _loc_15 = new BILLIARD.SimplePoint(_loc_5.x * _loc_12, _loc_5.y * _loc_12);
     _loc_16 = new BILLIARD.SimplePoint(_loc_6.x * _loc_10, _loc_6.y * _loc_10);
-    ball1.direction.vx = BILLIARD.Ball.correctFloatingPointError(_loc_13.x + _loc_14.x);
-    ball1.direction.vy = BILLIARD.Ball.correctFloatingPointError(_loc_13.y + _loc_14.y);
+    ball1.direction.vx = BILLIARD.correctFloatingPointError(_loc_13.x + _loc_14.x);
+    ball1.direction.vy = BILLIARD.correctFloatingPointError(_loc_13.y + _loc_14.y);
     ball1.collision = true;
-    ball2.direction.vx = BILLIARD.Ball.correctFloatingPointError(_loc_15.x + _loc_16.x);
-    ball2.direction.vy = BILLIARD.Ball.correctFloatingPointError(_loc_15.y + _loc_16.y);
+    ball2.direction.vx = BILLIARD.correctFloatingPointError(_loc_15.x + _loc_16.x);
+    ball2.direction.vy = BILLIARD.correctFloatingPointError(_loc_15.y + _loc_16.y);
     ball2.collision = true;
 };
 BILLIARD.Ball.doElasticCollisionWithWall = function(ball, wall) {
@@ -348,7 +343,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
     _loc_4 = 0;
     if (param1.direction.vx < 0)
     {
-        _loc_4 = BILLIARD.Ball.correctFloatingPointError((param1.r - param1.direction.p0.x + w.x1) / param1.vx);
+        _loc_4 = BILLIARD.correctFloatingPointError((param1.r - param1.direction.p0.x + w.x1) / param1.vx);
         if (_loc_4 >= 0)
         {
             _loc_2.y = 1;
@@ -358,7 +353,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
     }
     if (param1.direction.vy < 0)
     {
-        _loc_4 = BILLIARD.Ball.correctFloatingPointError((param1.r - param1.direction.p0.y + w.y1) / param1.vy);
+        _loc_4 = BILLIARD.correctFloatingPointError((param1.r - param1.direction.p0.y + w.y1) / param1.vy);
         if (_loc_4 >= 0)
         {
             if (!_loc_3 || _loc_4 < _loc_2.x)
@@ -371,7 +366,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
     }
     if (param1.direction.vx > 0)
     {
-        _loc_4 = BILLIARD.Ball.correctFloatingPointError((w.x2 - param1.r - param1.direction.p0.x) / param1.vx);
+        _loc_4 = BILLIARD.correctFloatingPointError((w.x2 - param1.r - param1.direction.p0.x) / param1.vx);
         if (_loc_4 >= 0)
         {
             if (!_loc_3 || _loc_4 < _loc_2.x)
@@ -384,7 +379,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
     }
     if (param1.direction.vy > 0)
     {
-        _loc_4 = BILLIARD.Ball.correctFloatingPointError((w.y2 - param1.r - param1.direction.p0.y) / param1.vy);
+        _loc_4 = BILLIARD.correctFloatingPointError((w.y2 - param1.r - param1.direction.p0.y) / param1.vy);
         if (_loc_4 >= 0)
         {
             if (!_loc_3 || _loc_4 < _loc_2.x)

@@ -74,7 +74,7 @@ body {
     position: relative;
     display: block;
     box-sizing: border-box;
-    width: 1024px;
+    width: 1120px;
     max-width: 100%;
     padding: 0;
     border: 0;
@@ -224,7 +224,7 @@ body {
 
 <div id="responsive-canvas"><canvas id="canvas" width=700 height=500></canvas></div>
 
-<ol id="instructions">
+<ol id="instructions" style="color:#aaa">
 <li>Rotate stick with mouse or touch to direct hit.</li>
 <li>Press 'q' key or wait until target ball becomes bold.</li>
 <li>Move stick to give strike force.</li>
@@ -240,14 +240,17 @@ body {
 //<![CDATA[
 (function(window) {
 "use strict";
-var billiard, canvas = document.getElementById('canvas'), types = document.getElementById('type');
+var billiard, canvas = document.getElementById('canvas'),
+    types = document.getElementById('type'),
+    scale = 1;
 
 function responsive_canvas(canvas)
 {
-    var scale = (canvas.parentNode.offsetWidth - 100)/canvas.width, maxHeight = scale*canvas.height;
+    scale = (canvas.parentNode.offsetWidth - 40)/canvas.width;
+    var height = Math.ceil(scale*canvas.height);
     canvas.style.transform = 'scale('+String(scale)+')';
-    canvas.parentNode.style.height = String(Math.ceil(maxHeight))+'px';
-    canvas.parentNode.style.maxHeight = String(Math.ceil(maxHeight))+'px';
+    canvas.parentNode.style.height = String(height)+'px';
+    canvas.parentNode.style.maxHeight = String(height)+'px';
     canvas.style.marginLeft = String(Math.max(0, Math.round((canvas.parentNode.offsetWidth - scale*canvas.width)/2)))+'px';
     canvas.style.marginTop = '0px';
     return canvas;
@@ -263,12 +266,15 @@ billiard = new BILLIARD.Game(
     './assets/red.png',
     './assets/taco.png'
 );
+billiard.scaled = scale;
 
 document.getElementById('newgame').addEventListener('click', function() {
     billiard.init(parseInt(types.options[types.selectedIndex].value));
 }, false);
 window.addEventListener('resize', function() {
     responsive_canvas(canvas);
+    billiard.__canvas_adjust();
+    billiard.scaled = scale;
 });
 })(window);
 //]]>

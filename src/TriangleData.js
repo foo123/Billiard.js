@@ -24,8 +24,8 @@ BILLIARD.TriangleData.prototype = {
         if (null == param1) param1 = false;
         if (param1)
         {
-            self.vx = BILLIARD.Ball.correctFloatingPointError(self.p1.x - self.p0.x);
-            self.vy = BILLIARD.Ball.correctFloatingPointError(self.p1.y - self.p0.y);
+            self.vx = BILLIARD.correctFloatingPointError(self.p1.x - self.p0.x);
+            self.vy = BILLIARD.correctFloatingPointError(self.p1.y - self.p0.y);
         }
         else
         {
@@ -34,8 +34,8 @@ BILLIARD.TriangleData.prototype = {
         self.len = BILLIARD.TriangleData.getHypotenuse(self.vx, self.vy);
         if (self.len > 0)
         {
-            self.dx = BILLIARD.Ball.correctFloatingPointError(self.vx / self.len);
-            self.dy = BILLIARD.Ball.correctFloatingPointError(self.vy / self.len);
+            self.dx = BILLIARD.correctFloatingPointError(self.vx / self.len);
+            self.dy = BILLIARD.correctFloatingPointError(self.vy / self.len);
         }
         else
         {
@@ -45,6 +45,6 @@ BILLIARD.TriangleData.prototype = {
     }
 };
 BILLIARD.TriangleData.getHypotenuse = function(side1, side2) {
-    return BILLIARD.Ball.correctFloatingPointError(Math.hypot(side1, side2));
+    return BILLIARD.correctFloatingPointError(Math.hypot(side1, side2));
 };
 })(BILLIARD);

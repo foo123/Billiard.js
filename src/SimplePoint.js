@@ -14,8 +14,8 @@ BILLIARD.SimplePoint.prototype = {
     y: 0,
     update: function(x, y) {
         var self = this;
-        self.x = BILLIARD.Ball.correctFloatingPointError(x);
-        self.y = BILLIARD.Ball.correctFloatingPointError(y);
+        self.x = BILLIARD.correctFloatingPointError(x);
+        self.y = BILLIARD.correctFloatingPointError(y);
         return self;
     }
 };

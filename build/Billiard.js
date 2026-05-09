@@ -1,7 +1,13 @@
 // BILLIARD
 var BILLIARD = {VERSION: "1.0.0"};
-/*window.BILLIARD = BILLIARD;*/
 (function(BILLIARD) {
+"use strict";
+BILLIARD.correctFloatingPointError = function(val, precision) {
+    if (null == precision) precision = 10;
+    var _loc_3 = Math.pow(10, precision);
+    return Math.round(_loc_3 * val) / _loc_3;
+};
+})(BILLIARD);(function(BILLIARD) {
 "use strict";
 BILLIARD.SimplePoint = function(x, y) {
     var self = this;
@@ -17,8 +23,8 @@ BILLIARD.SimplePoint.prototype = {
     y: 0,
     update: function(x, y) {
         var self = this;
-        self.x = BILLIARD.Ball.correctFloatingPointError(x);
-        self.y = BILLIARD.Ball.correctFloatingPointError(y);
+        self.x = BILLIARD.correctFloatingPointError(x);
+        self.y = BILLIARD.correctFloatingPointError(y);
         return self;
     }
 };
@@ -64,8 +70,8 @@ BILLIARD.TriangleData.prototype = {
         if (null == param1) param1 = false;
         if (param1)
         {
-            self.vx = BILLIARD.Ball.correctFloatingPointError(self.p1.x - self.p0.x);
-            self.vy = BILLIARD.Ball.correctFloatingPointError(self.p1.y - self.p0.y);
+            self.vx = BILLIARD.correctFloatingPointError(self.p1.x - self.p0.x);
+            self.vy = BILLIARD.correctFloatingPointError(self.p1.y - self.p0.y);
         }
         else
         {
@@ -74,8 +80,8 @@ BILLIARD.TriangleData.prototype = {
         self.len = BILLIARD.TriangleData.getHypotenuse(self.vx, self.vy);
         if (self.len > 0)
         {
-            self.dx = BILLIARD.Ball.correctFloatingPointError(self.vx / self.len);
-            self.dy = BILLIARD.Ball.correctFloatingPointError(self.vy / self.len);
+            self.dx = BILLIARD.correctFloatingPointError(self.vx / self.len);
+            self.dy = BILLIARD.correctFloatingPointError(self.vy / self.len);
         }
         else
         {
@@ -85,7 +91,7 @@ BILLIARD.TriangleData.prototype = {
     }
 };
 BILLIARD.TriangleData.getHypotenuse = function(side1, side2) {
-    return BILLIARD.Ball.correctFloatingPointError(Math.hypot(side1, side2));
+    return BILLIARD.correctFloatingPointError(Math.hypot(side1, side2));
 };
 })(BILLIARD);(function(BILLIARD) {
 "use strict";
@@ -180,8 +186,8 @@ BILLIARD.Ball.prototype.allowDrag = function(allow) {
 BILLIARD.Ball.prototype.affectSpeed = function(factor) {
     var self = this;
     if (null == factor) factor = 0.975;
-    self.direction.vx = BILLIARD.Ball.correctFloatingPointError(self.direction.vx * factor);
-    self.direction.vy = BILLIARD.Ball.correctFloatingPointError(self.direction.vy * factor);
+    self.direction.vx = BILLIARD.correctFloatingPointError(self.direction.vx * factor);
+    self.direction.vy = BILLIARD.correctFloatingPointError(self.direction.vy * factor);
     if (Math.abs(self.direction.vx) <= 0.1 && Math.abs(self.direction.vy) < 0.1)
     {
         self.direction.vx = 0;
@@ -189,7 +195,7 @@ BILLIARD.Ball.prototype.affectSpeed = function(factor) {
     }
     self.direction.refresh();
 };
-BILLIARD.Ball.prototype.inHole = function() {
+BILLIARD.Ball.prototype.inPocket = function() {
     var self = this;
     if (self.type !== 1) return false;
     var _loc_1 = false;
@@ -283,9 +289,9 @@ BILLIARD.Ball.prototype.startDragging = function(event) {
 };
 BILLIARD.Ball.prototype.updateProccessTime = function(t) {
     var self = this;
-    self.proccess_time = BILLIARD.Ball.correctFloatingPointError(t);
-    self.vx = BILLIARD.Ball.correctFloatingPointError(self.direction.vx * self.proccess_time);
-    self.vy = BILLIARD.Ball.correctFloatingPointError(self.direction.vy * self.proccess_time);
+    self.proccess_time = BILLIARD.correctFloatingPointError(t);
+    self.vx = BILLIARD.correctFloatingPointError(self.direction.vx * self.proccess_time);
+    self.vy = BILLIARD.correctFloatingPointError(self.direction.vy * self.proccess_time);
 };
 
 BILLIARD.Ball.w = {x1:29, y1:35, x2:585-29, y2:365-39};
@@ -311,17 +317,17 @@ BILLIARD.Ball.simulateElasticCollision = function(ball1, ball2) {
     _loc_4 = BILLIARD.TriangleData.getHypotenuse(_loc_3.x, _loc_3.y);
     _loc_5 = new BILLIARD.SimplePoint(_loc_3.x / _loc_4, _loc_3.y / _loc_4);
     _loc_6 = new BILLIARD.SimplePoint(-_loc_5.y, _loc_5.x);
-    _loc_7 = BILLIARD.Ball.correctFloatingPointError(_loc_5.x * ball1.direction.vx + _loc_5.y * ball1.direction.vy);
-    _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_6.x * ball1.direction.vx + _loc_6.y * ball1.direction.vy);
-    _loc_9 = BILLIARD.Ball.correctFloatingPointError(_loc_5.x * ball2.direction.vx + _loc_5.y * ball2.direction.vy);
-    _loc_10 = BILLIARD.Ball.correctFloatingPointError(_loc_6.x * ball2.direction.vx + _loc_6.y * ball2.direction.vy);
-    _loc_11 = BILLIARD.Ball.correctFloatingPointError((_loc_7 * (ball1.m - ball2.m) + 2 * ball2.m * _loc_9) / (ball1.m + ball2.m));
-    _loc_12 = BILLIARD.Ball.correctFloatingPointError((_loc_9 * (ball2.m - ball1.m) + 2 * ball1.m * _loc_7) / (ball1.m + ball2.m));
+    _loc_7 = BILLIARD.correctFloatingPointError(_loc_5.x * ball1.direction.vx + _loc_5.y * ball1.direction.vy);
+    _loc_8 = BILLIARD.correctFloatingPointError(_loc_6.x * ball1.direction.vx + _loc_6.y * ball1.direction.vy);
+    _loc_9 = BILLIARD.correctFloatingPointError(_loc_5.x * ball2.direction.vx + _loc_5.y * ball2.direction.vy);
+    _loc_10 = BILLIARD.correctFloatingPointError(_loc_6.x * ball2.direction.vx + _loc_6.y * ball2.direction.vy);
+    _loc_11 = BILLIARD.correctFloatingPointError((_loc_7 * (ball1.m - ball2.m) + 2 * ball2.m * _loc_9) / (ball1.m + ball2.m));
+    _loc_12 = BILLIARD.correctFloatingPointError((_loc_9 * (ball2.m - ball1.m) + 2 * ball1.m * _loc_7) / (ball1.m + ball2.m));
     _loc_13 = new BILLIARD.SimplePoint(_loc_5.x * _loc_11, _loc_5.y * _loc_11);
     _loc_14 = new BILLIARD.SimplePoint(_loc_6.x * _loc_8, _loc_6.y * _loc_8);
     _loc_15 = new BILLIARD.SimplePoint(_loc_5.x * _loc_12, _loc_5.y * _loc_12);
     _loc_16 = new BILLIARD.SimplePoint(_loc_6.x * _loc_10, _loc_6.y * _loc_10);
-    return new BILLIARD.CollisionResult(BILLIARD.Ball.correctFloatingPointError(_loc_13.x + _loc_14.x), BILLIARD.Ball.correctFloatingPointError(_loc_13.y + _loc_14.y), BILLIARD.Ball.correctFloatingPointError(_loc_15.x + _loc_16.x), BILLIARD.Ball.correctFloatingPointError(_loc_15.y + _loc_16.y));
+    return new BILLIARD.CollisionResult(BILLIARD.correctFloatingPointError(_loc_13.x + _loc_14.x), BILLIARD.correctFloatingPointError(_loc_13.y + _loc_14.y), BILLIARD.correctFloatingPointError(_loc_15.x + _loc_16.x), BILLIARD.correctFloatingPointError(_loc_15.y + _loc_16.y));
 };
 BILLIARD.Ball.findTimeUntilCollide = function(ball1, ball2) {
     var _loc_3 = NaN,
@@ -332,13 +338,13 @@ BILLIARD.Ball.findTimeUntilCollide = function(ball1, ball2) {
         _loc_8 = NaN
     ;
     _loc_3 = -1;
-    _loc_4 = BILLIARD.Ball.correctFloatingPointError(Math.pow(ball2.vx - ball1.vx, 2) + Math.pow(ball2.vy - ball1.vy, 2));
-    _loc_5 = BILLIARD.Ball.correctFloatingPointError(2 * ((ball2.direction.p0.x - ball1.direction.p0.x) * (ball2.vx - ball1.vx) + (ball2.direction.p0.y - ball1.direction.p0.y) * (ball2.vy - ball1.vy)));
-    _loc_6 = BILLIARD.Ball.correctFloatingPointError(Math.pow(ball2.direction.p0.x - ball1.direction.p0.x, 2) + Math.pow(ball2.direction.p0.y - ball1.direction.p0.y, 2) - Math.pow(ball1.r + ball2.r, 2));
-    _loc_7 = BILLIARD.Ball.correctFloatingPointError(Math.pow(_loc_5, 2) - 4 * _loc_4 * _loc_6);
+    _loc_4 = BILLIARD.correctFloatingPointError(Math.pow(ball2.vx - ball1.vx, 2) + Math.pow(ball2.vy - ball1.vy, 2));
+    _loc_5 = BILLIARD.correctFloatingPointError(2 * ((ball2.direction.p0.x - ball1.direction.p0.x) * (ball2.vx - ball1.vx) + (ball2.direction.p0.y - ball1.direction.p0.y) * (ball2.vy - ball1.vy)));
+    _loc_6 = BILLIARD.correctFloatingPointError(Math.pow(ball2.direction.p0.x - ball1.direction.p0.x, 2) + Math.pow(ball2.direction.p0.y - ball1.direction.p0.y, 2) - Math.pow(ball1.r + ball2.r, 2));
+    _loc_7 = BILLIARD.correctFloatingPointError(Math.pow(_loc_5, 2) - 4 * _loc_4 * _loc_6);
     if (_loc_4 !== 0)
     {
-        _loc_8 = BILLIARD.Ball.correctFloatingPointError((-_loc_5 - Math.sqrt(_loc_7)) / (2 * _loc_4));
+        _loc_8 = BILLIARD.correctFloatingPointError((-_loc_5 - Math.sqrt(_loc_7)) / (2 * _loc_4));
         if (_loc_8 >= 0)
         {
             _loc_3 = _loc_8;
@@ -349,11 +355,6 @@ BILLIARD.Ball.findTimeUntilCollide = function(ball1, ball2) {
 BILLIARD.Ball.stillOnTable = function(x, y,r) {
     var w = BILLIARD.Ball.w;
     return x - r >= w.x1 && x + r <= w.x2 && y - r >= w.y1 && y + r <= w.y2;
-};
-BILLIARD.Ball.correctFloatingPointError = function(val, precision) {
-    if (null == precision) precision = 10;
-    var _loc_3 = Math.pow(10, precision);
-    return Math.round(_loc_3 * val) / _loc_3;
 };
 BILLIARD.Ball.doElasticCollision = function(ball1, ball2) {
     var _loc_3 = null,
@@ -375,21 +376,21 @@ BILLIARD.Ball.doElasticCollision = function(ball1, ball2) {
     _loc_4 = BILLIARD.TriangleData.getHypotenuse(_loc_3.x, _loc_3.y);
     _loc_5 = new BILLIARD.SimplePoint(_loc_3.x / _loc_4, _loc_3.y / _loc_4);
     _loc_6 = new BILLIARD.SimplePoint(-_loc_5.y, _loc_5.x);
-    _loc_7 = BILLIARD.Ball.correctFloatingPointError(_loc_5.x * ball1.vx + _loc_5.y * ball1.vy);
-    _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_6.x * ball1.vx + _loc_6.y * ball1.vy);
-    _loc_9 = BILLIARD.Ball.correctFloatingPointError(_loc_5.x * ball2.vx + _loc_5.y * ball2.vy);
-    _loc_10 = BILLIARD.Ball.correctFloatingPointError(_loc_6.x * ball2.vx + _loc_6.y * ball2.vy);
-    _loc_11 = BILLIARD.Ball.correctFloatingPointError((_loc_7 * (ball1.m - ball2.m) + 2 * ball2.m * _loc_9) / (ball1.m + ball2.m));
-    _loc_12 = BILLIARD.Ball.correctFloatingPointError((_loc_9 * (ball2.m - ball1.m) + 2 * ball1.m * _loc_7) / (ball1.m + ball2.m));
+    _loc_7 = BILLIARD.correctFloatingPointError(_loc_5.x * ball1.vx + _loc_5.y * ball1.vy);
+    _loc_8 = BILLIARD.correctFloatingPointError(_loc_6.x * ball1.vx + _loc_6.y * ball1.vy);
+    _loc_9 = BILLIARD.correctFloatingPointError(_loc_5.x * ball2.vx + _loc_5.y * ball2.vy);
+    _loc_10 = BILLIARD.correctFloatingPointError(_loc_6.x * ball2.vx + _loc_6.y * ball2.vy);
+    _loc_11 = BILLIARD.correctFloatingPointError((_loc_7 * (ball1.m - ball2.m) + 2 * ball2.m * _loc_9) / (ball1.m + ball2.m));
+    _loc_12 = BILLIARD.correctFloatingPointError((_loc_9 * (ball2.m - ball1.m) + 2 * ball1.m * _loc_7) / (ball1.m + ball2.m));
     _loc_13 = new BILLIARD.SimplePoint(_loc_5.x * _loc_11, _loc_5.y * _loc_11);
     _loc_14 = new BILLIARD.SimplePoint(_loc_6.x * _loc_8, _loc_6.y * _loc_8);
     _loc_15 = new BILLIARD.SimplePoint(_loc_5.x * _loc_12, _loc_5.y * _loc_12);
     _loc_16 = new BILLIARD.SimplePoint(_loc_6.x * _loc_10, _loc_6.y * _loc_10);
-    ball1.direction.vx = BILLIARD.Ball.correctFloatingPointError(_loc_13.x + _loc_14.x);
-    ball1.direction.vy = BILLIARD.Ball.correctFloatingPointError(_loc_13.y + _loc_14.y);
+    ball1.direction.vx = BILLIARD.correctFloatingPointError(_loc_13.x + _loc_14.x);
+    ball1.direction.vy = BILLIARD.correctFloatingPointError(_loc_13.y + _loc_14.y);
     ball1.collision = true;
-    ball2.direction.vx = BILLIARD.Ball.correctFloatingPointError(_loc_15.x + _loc_16.x);
-    ball2.direction.vy = BILLIARD.Ball.correctFloatingPointError(_loc_15.y + _loc_16.y);
+    ball2.direction.vx = BILLIARD.correctFloatingPointError(_loc_15.x + _loc_16.x);
+    ball2.direction.vy = BILLIARD.correctFloatingPointError(_loc_15.y + _loc_16.y);
     ball2.collision = true;
 };
 BILLIARD.Ball.doElasticCollisionWithWall = function(ball, wall) {
@@ -437,7 +438,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
     _loc_4 = 0;
     if (param1.direction.vx < 0)
     {
-        _loc_4 = BILLIARD.Ball.correctFloatingPointError((param1.r - param1.direction.p0.x + w.x1) / param1.vx);
+        _loc_4 = BILLIARD.correctFloatingPointError((param1.r - param1.direction.p0.x + w.x1) / param1.vx);
         if (_loc_4 >= 0)
         {
             _loc_2.y = 1;
@@ -447,7 +448,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
     }
     if (param1.direction.vy < 0)
     {
-        _loc_4 = BILLIARD.Ball.correctFloatingPointError((param1.r - param1.direction.p0.y + w.y1) / param1.vy);
+        _loc_4 = BILLIARD.correctFloatingPointError((param1.r - param1.direction.p0.y + w.y1) / param1.vy);
         if (_loc_4 >= 0)
         {
             if (!_loc_3 || _loc_4 < _loc_2.x)
@@ -460,7 +461,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
     }
     if (param1.direction.vx > 0)
     {
-        _loc_4 = BILLIARD.Ball.correctFloatingPointError((w.x2 - param1.r - param1.direction.p0.x) / param1.vx);
+        _loc_4 = BILLIARD.correctFloatingPointError((w.x2 - param1.r - param1.direction.p0.x) / param1.vx);
         if (_loc_4 >= 0)
         {
             if (!_loc_3 || _loc_4 < _loc_2.x)
@@ -473,7 +474,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
     }
     if (param1.direction.vy > 0)
     {
-        _loc_4 = BILLIARD.Ball.correctFloatingPointError((w.y2 - param1.r - param1.direction.p0.y) / param1.vy);
+        _loc_4 = BILLIARD.correctFloatingPointError((w.y2 - param1.r - param1.direction.p0.y) / param1.vy);
         if (_loc_4 >= 0)
         {
             if (!_loc_3 || _loc_4 < _loc_2.x)
@@ -545,6 +546,7 @@ BILLIARD.Taco.prototype.init = function(whiteBall) {
     var self = this;
     self.moving = true;
     self.holding = false;
+    self.locked = false;
     self.alpha = 0;
     self.hits = 0;
     self.whiteBall = whiteBall;
@@ -552,7 +554,7 @@ BILLIARD.Taco.prototype.init = function(whiteBall) {
 BILLIARD.Taco.prototype.putOnBorder = function(off) {
     if (null == off) off = 0;
     var self = this,
-        a = self.rotation+Math.PI*0.5,
+        a = self.rotation+Math.PI/2,
         c = Math.cos(a),
         s = Math.sin(a),
         r = self.whiteBall.r + 5 + off;
@@ -567,14 +569,11 @@ BILLIARD.Taco.prototype.updateState = function() {
         _loc_2 = NaN;
     if (self.moving)
     {
-        //self.rotation=-Math.PI/2;
-        //self.putOnBorder();
-        //return;
         if (self.holding)
         {
             _loc_1 = new BILLIARD.TriangleData();
             _loc_1.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            _loc_1.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            _loc_1.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
             _loc_1.refresh(true);
             _loc_2 = _loc_1.len - self.init_mouse.len;
             if (_loc_1.len <= self.whiteBall.r || _loc_2 <= 0)
@@ -591,16 +590,9 @@ BILLIARD.Taco.prototype.updateState = function() {
         else
         {
             self.vector_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            self.vector_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            self.vector_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
             self.vector_mouse.refresh(true);
-            if (self.vector_mouse.dx < 0)
-            {
-                self.rotation = Math.PI/2 + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
-            }
-            else
-            {
-                self.rotation = 3*Math.PI/2 + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
-            }
+            self.rotation = (self.vector_mouse.dx < 0 ? (Math.PI/2) : (3*Math.PI/2)) + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
             self.putOnBorder();
         }
     }
@@ -611,9 +603,10 @@ BILLIARD.Taco.prototype.onPress = function(event) {
     {
         if (event.touches)
         {
-            var start_mouse = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            var start_mouse = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
             setTimeout(function update() {
-                var curr_mouse = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY),
+                if (self.locked) return;
+                var curr_mouse = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled),
                     dist = BILLIARD.TriangleData.getHypotenuse(curr_mouse.x-start_mouse.x, curr_mouse.y-start_mouse.y);
                 if (dist < 1)
                 {
@@ -633,7 +626,7 @@ BILLIARD.Taco.prototype.onPress = function(event) {
         else if (event.keyCode === 81) //q key pressed
         {
             self.init_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            self.init_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            self.init_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
             self.init_mouse.refresh(true);
             self.holding = true;
             self.locked = true;
@@ -658,7 +651,7 @@ BILLIARD.Taco.prototype.onRelease = function(event) {
         self.holding = false;
         self.locked = false;
         self.putOnBorder();
-        if (_loc_2.len > 0 && self.whiteBall.direction.vx === 0 && self.whiteBall.direction.vy === 0)
+        if (_loc_2.len > 0 && Math.abs(self.whiteBall.direction.vx) < 0.1 && Math.abs(self.whiteBall.direction.vy) < 0.1)
         {
             self.last_power_factor = _loc_2.len / self.maxRadius;
             _loc_5 = self.last_power_factor * self.maxPower;
@@ -677,7 +670,7 @@ BILLIARD.Taco.prototype.getDirection = function() {
 };
 })(BILLIARD);(function(BILLIARD) {
 "use strict";
-BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel, red, taco) {
+BILLIARD.Game = function Game(container, type, americantable, frenchtable, ball, black, yel, red, taco) {
     var self = this;
     self.fps = 12; // 12 FPS
     NEngine.env.interval = 1000/self.fps;
@@ -686,6 +679,7 @@ BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel,
     self.canvas = container;
     self.width = 585;
     self.height = 365;
+    self.scaled = 1;
 
     self.c0_fake = null;
     self.c0 = null;
@@ -710,8 +704,8 @@ BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel,
     self.taco = null;
     self.diff = null;
     self.tri = null;
-    self.americantable = new NEngine.Bitmap(table1, 0, 0);
-    self.frenchtable = new NEngine.Bitmap(table2, 0, 0);
+    self.americantable = new NEngine.Bitmap(americantable, 0, 0);
+    self.frenchtable = new NEngine.Bitmap(frenchtable, 0, 0);
     self.taco = new BILLIARD.Taco(taco);
     self.white = ball;
     self.black = black;
@@ -730,7 +724,7 @@ BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel,
             {
                 self.tri.p1 = self.balls[i].direction.p0;
                 self.tri.refresh(true);
-                self.diff = BILLIARD.Ball.correctFloatingPointError(self.tri.len - self.balls[i].r * 2);
+                self.diff = BILLIARD.correctFloatingPointError(self.tri.len - self.balls[i].r * 2);
                 if (self.diff < 0)
                 {
                     console.error("ERROR!! ball[" + ball.name + "] is overlapping with [" + self.balls[i].name + "] by " + self.diff + " pixels.");
@@ -747,6 +741,7 @@ BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel,
 };
 BILLIARD.Game.inheritsFrom(NEngine.Stage);
 
+BILLIARD.Game.prototype.scaled = 1;
 BILLIARD.Game.prototype.lines = null;
 BILLIARD.Game.prototype.diff = null;
 BILLIARD.Game.prototype.tri = null;
@@ -980,7 +975,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                 }
                 ++_loc_2;
             }
-            self.balls.sort(self.sortByTargetCollisionTime);
+            self.balls.sort(sortByTargetCollisionTime);
             _loc_11 = 1;
             _loc_12 = false;
             _loc_2 = 0;
@@ -1026,7 +1021,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                         _loc_16.collision_target_time = Infinity;
                         if (!_loc_12)
                         {
-                            _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
+                            _loc_8 = BILLIARD.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
                             _loc_12 = true;
                         }
                     }
@@ -1034,7 +1029,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                     {
                         _loc_11 = _loc_15.collision_target_time;
                         _loc_15.move(_loc_15.direction.p0.x + _loc_15.vx * 0.9999 * _loc_11, _loc_15.direction.p0.y + _loc_15.vy * 0.9999 * _loc_11);
-                        if (!_loc_15.inHole())
+                        if (!_loc_15.inPocket())
                         {
                             _loc_3 = true;
                             BILLIARD.Ball.doElasticCollisionWithWall(_loc_15, _loc_15.collision_wall_detail);
@@ -1065,7 +1060,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                         }
                         if (!_loc_12)
                         {
-                            _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
+                            _loc_8 = BILLIARD.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
                             _loc_12 = true;
                         }
                     }
@@ -1079,7 +1074,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                         _loc_15.collision_target_time = Infinity;
                         if (!_loc_12)
                         {
-                            _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
+                            _loc_8 = BILLIARD.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
                             _loc_12 = true;
                         }
                     }
@@ -1131,22 +1126,11 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
         {
             self.drawLines();
             self.taco.updateState();
-            if (self.taco.alpha < 1)
-            {
-                self.taco.alpha += 0.05;
-            }
-            else
-            {
-                self.taco.alpha = 1;
-            }
-        }
-        else if (self.taco.alpha > 0)
-        {
-            self.taco.alpha -= 0.05;
+            self.taco.alpha = Math.min(1, self.taco.alpha+0.05);
         }
         else
         {
-            self.taco.alpha = 0;
+            self.taco.alpha = Math.max(0, self.taco.alpha-0.05);
         }
     }
     self.stagetick();
@@ -1267,26 +1251,28 @@ BILLIARD.Game.prototype.drawLines = function() {
         }
     }
 };
-BILLIARD.Game.prototype.sortByTargetCollisionTime = function(param1, param2) {
-    if (param1.collision_target_time > param2.collision_target_time)
+function sortByTargetCollisionTime(a, b)
+{
+    if (a.collision_target_time > b.collision_target_time)
     {
         return 1;
     }
-    if (param1.collision_target_time < param2.collision_target_time)
+    if (a.collision_target_time < b.collision_target_time)
     {
         return -1;
     }
     return 0;
-};
-BILLIARD.Game.prototype.sortByTime = function(param1, param2) {
-    if (param1.last_collision_time > param2.last_collision_time)
+}
+function sortByTime(a, b)
+{
+    if (a.last_collision_time > b.last_collision_time)
     {
         return 1;
     }
-    if (param1.last_collision_time < param2.last_collision_time)
+    if (a.last_collision_time < b.last_collision_time)
     {
         return -1;
     }
     return 0;
-};
+}
 })(BILLIARD);

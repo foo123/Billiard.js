@@ -1,6 +1,6 @@
 (function(BILLIARD) {
 "use strict";
-BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel, red, taco) {
+BILLIARD.Game = function Game(container, type, americantable, frenchtable, ball, black, yel, red, taco) {
     var self = this;
     self.fps = 12; // 12 FPS
     NEngine.env.interval = 1000/self.fps;
@@ -9,6 +9,7 @@ BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel,
     self.canvas = container;
     self.width = 585;
     self.height = 365;
+    self.scaled = 1;
 
     self.c0_fake = null;
     self.c0 = null;
@@ -33,8 +34,8 @@ BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel,
     self.taco = null;
     self.diff = null;
     self.tri = null;
-    self.americantable = new NEngine.Bitmap(table1, 0, 0);
-    self.frenchtable = new NEngine.Bitmap(table2, 0, 0);
+    self.americantable = new NEngine.Bitmap(americantable, 0, 0);
+    self.frenchtable = new NEngine.Bitmap(frenchtable, 0, 0);
     self.taco = new BILLIARD.Taco(taco);
     self.white = ball;
     self.black = black;
@@ -53,7 +54,7 @@ BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel,
             {
                 self.tri.p1 = self.balls[i].direction.p0;
                 self.tri.refresh(true);
-                self.diff = BILLIARD.Ball.correctFloatingPointError(self.tri.len - self.balls[i].r * 2);
+                self.diff = BILLIARD.correctFloatingPointError(self.tri.len - self.balls[i].r * 2);
                 if (self.diff < 0)
                 {
                     console.error("ERROR!! ball[" + ball.name + "] is overlapping with [" + self.balls[i].name + "] by " + self.diff + " pixels.");
@@ -70,6 +71,7 @@ BILLIARD.Game = function Game(container, type, table1, table2, ball, black, yel,
 };
 BILLIARD.Game.inheritsFrom(NEngine.Stage);
 
+BILLIARD.Game.prototype.scaled = 1;
 BILLIARD.Game.prototype.lines = null;
 BILLIARD.Game.prototype.diff = null;
 BILLIARD.Game.prototype.tri = null;
@@ -303,7 +305,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                 }
                 ++_loc_2;
             }
-            self.balls.sort(self.sortByTargetCollisionTime);
+            self.balls.sort(sortByTargetCollisionTime);
             _loc_11 = 1;
             _loc_12 = false;
             _loc_2 = 0;
@@ -349,7 +351,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                         _loc_16.collision_target_time = Infinity;
                         if (!_loc_12)
                         {
-                            _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
+                            _loc_8 = BILLIARD.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
                             _loc_12 = true;
                         }
                     }
@@ -357,7 +359,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                     {
                         _loc_11 = _loc_15.collision_target_time;
                         _loc_15.move(_loc_15.direction.p0.x + _loc_15.vx * 0.9999 * _loc_11, _loc_15.direction.p0.y + _loc_15.vy * 0.9999 * _loc_11);
-                        if (!_loc_15.inHole())
+                        if (!_loc_15.inPocket())
                         {
                             _loc_3 = true;
                             BILLIARD.Ball.doElasticCollisionWithWall(_loc_15, _loc_15.collision_wall_detail);
@@ -388,7 +390,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                         }
                         if (!_loc_12)
                         {
-                            _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
+                            _loc_8 = BILLIARD.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
                             _loc_12 = true;
                         }
                     }
@@ -402,7 +404,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                         _loc_15.collision_target_time = Infinity;
                         if (!_loc_12)
                         {
-                            _loc_8 = BILLIARD.Ball.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
+                            _loc_8 = BILLIARD.correctFloatingPointError(_loc_8 - _loc_8 * _loc_11);
                             _loc_12 = true;
                         }
                     }
@@ -454,22 +456,11 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
         {
             self.drawLines();
             self.taco.updateState();
-            if (self.taco.alpha < 1)
-            {
-                self.taco.alpha += 0.05;
-            }
-            else
-            {
-                self.taco.alpha = 1;
-            }
-        }
-        else if (self.taco.alpha > 0)
-        {
-            self.taco.alpha -= 0.05;
+            self.taco.alpha = Math.min(1, self.taco.alpha+0.05);
         }
         else
         {
-            self.taco.alpha = 0;
+            self.taco.alpha = Math.max(0, self.taco.alpha-0.05);
         }
     }
     self.stagetick();
@@ -590,26 +581,28 @@ BILLIARD.Game.prototype.drawLines = function() {
         }
     }
 };
-BILLIARD.Game.prototype.sortByTargetCollisionTime = function(param1, param2) {
-    if (param1.collision_target_time > param2.collision_target_time)
+function sortByTargetCollisionTime(a, b)
+{
+    if (a.collision_target_time > b.collision_target_time)
     {
         return 1;
     }
-    if (param1.collision_target_time < param2.collision_target_time)
+    if (a.collision_target_time < b.collision_target_time)
     {
         return -1;
     }
     return 0;
-};
-BILLIARD.Game.prototype.sortByTime = function(param1, param2) {
-    if (param1.last_collision_time > param2.last_collision_time)
+}
+function sortByTime(a, b)
+{
+    if (a.last_collision_time > b.last_collision_time)
     {
         return 1;
     }
-    if (param1.last_collision_time < param2.last_collision_time)
+    if (a.last_collision_time < b.last_collision_time)
     {
         return -1;
     }
     return 0;
-};
+}
 })(BILLIARD);

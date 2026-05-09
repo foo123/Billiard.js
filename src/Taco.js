@@ -57,6 +57,7 @@ BILLIARD.Taco.prototype.init = function(whiteBall) {
     var self = this;
     self.moving = true;
     self.holding = false;
+    self.locked = false;
     self.alpha = 0;
     self.hits = 0;
     self.whiteBall = whiteBall;
@@ -64,7 +65,7 @@ BILLIARD.Taco.prototype.init = function(whiteBall) {
 BILLIARD.Taco.prototype.putOnBorder = function(off) {
     if (null == off) off = 0;
     var self = this,
-        a = self.rotation+Math.PI*0.5,
+        a = self.rotation+Math.PI/2,
         c = Math.cos(a),
         s = Math.sin(a),
         r = self.whiteBall.r + 5 + off;
@@ -79,14 +80,11 @@ BILLIARD.Taco.prototype.updateState = function() {
         _loc_2 = NaN;
     if (self.moving)
     {
-        //self.rotation=-Math.PI/2;
-        //self.putOnBorder();
-        //return;
         if (self.holding)
         {
             _loc_1 = new BILLIARD.TriangleData();
             _loc_1.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            _loc_1.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            _loc_1.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
             _loc_1.refresh(true);
             _loc_2 = _loc_1.len - self.init_mouse.len;
             if (_loc_1.len <= self.whiteBall.r || _loc_2 <= 0)
@@ -103,16 +101,9 @@ BILLIARD.Taco.prototype.updateState = function() {
         else
         {
             self.vector_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            self.vector_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            self.vector_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
             self.vector_mouse.refresh(true);
-            if (self.vector_mouse.dx < 0)
-            {
-                self.rotation = Math.PI/2 + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
-            }
-            else
-            {
-                self.rotation = 3*Math.PI/2 + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
-            }
+            self.rotation = (self.vector_mouse.dx < 0 ? (Math.PI/2) : (3*Math.PI/2)) + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
             self.putOnBorder();
         }
     }
@@ -123,9 +114,10 @@ BILLIARD.Taco.prototype.onPress = function(event) {
     {
         if (event.touches)
         {
-            var start_mouse = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            var start_mouse = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
             setTimeout(function update() {
-                var curr_mouse = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY),
+                if (self.locked) return;
+                var curr_mouse = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled),
                     dist = BILLIARD.TriangleData.getHypotenuse(curr_mouse.x-start_mouse.x, curr_mouse.y-start_mouse.y);
                 if (dist < 1)
                 {
@@ -145,7 +137,7 @@ BILLIARD.Taco.prototype.onPress = function(event) {
         else if (event.keyCode === 81) //q key pressed
         {
             self.init_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            self.init_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
+            self.init_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
             self.init_mouse.refresh(true);
             self.holding = true;
             self.locked = true;
@@ -170,7 +162,7 @@ BILLIARD.Taco.prototype.onRelease = function(event) {
         self.holding = false;
         self.locked = false;
         self.putOnBorder();
-        if (_loc_2.len > 0 && self.whiteBall.direction.vx === 0 && self.whiteBall.direction.vy === 0)
+        if (_loc_2.len > 0 && Math.abs(self.whiteBall.direction.vx) < 0.1 && Math.abs(self.whiteBall.direction.vy) < 0.1)
         {
             self.last_power_factor = _loc_2.len / self.maxRadius;
             _loc_5 = self.last_power_factor * self.maxPower;

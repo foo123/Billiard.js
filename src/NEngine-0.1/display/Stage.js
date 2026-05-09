@@ -76,6 +76,17 @@
   // Stage.prototype.hitArea = null;
   // Stage.prototype.soundTransform = null;
 
+  Stage.prototype.__canvas_adjust = function() {
+    // find canvas global offset
+    this.canvas.globalOffsetLeft=this.canvas.offsetLeft;
+    this.canvas.globalOffsetTop=this.canvas.offsetTop;
+    var obj=this.canvas;
+    while (obj=obj.offsetParent)
+    {
+        this.canvas.globalOffsetLeft+=obj.offsetLeft;
+        this.canvas.globalOffsetTop+=obj.offsetTop;
+    }
+  };
   /**
   * Init the Stage, in NEngine, we do not use the "capturing" for event handling.
   * reference - http://blog.neraliu.com/2009/09/20/javascript-dom-events-specification/
@@ -87,14 +98,7 @@
     this.graphics = new NEngine.Graphics(this.canvas);
 
     // find canvas global offset
-    this.canvas.globalOffsetLeft=this.canvas.offsetLeft;
-    this.canvas.globalOffsetTop=this.canvas.offsetTop;
-    var obj=this.canvas;
-    while (obj=obj.offsetParent)
-    {
-        this.canvas.globalOffsetLeft+=obj.offsetLeft;
-        this.canvas.globalOffsetTop+=obj.offsetTop;
-    }
+    this.__canvas_adjust();
     var s = this;
     NEngine.addEvent(window, 'touchmove', function(e) { s._handleOnTouchMove(e); }, {passive:false, capture:false});
     NEngine.addEvent(window, 'touchend', function(e) { s._handleOnTouchEnd(e); }, {passive:false, capture:false});
