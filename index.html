@@ -246,12 +246,13 @@ var billiard, canvas = document.getElementById('canvas'),
 
 function responsive_canvas(canvas)
 {
-    scale = (canvas.parentNode.offsetWidth - 40)/canvas.width;
-    var height = Math.ceil(scale*canvas.height);
+    var width = canvas.parentNode.offsetWidth, height;
+    scale = (width - (width < 400 ? 20 : 40))/canvas.width;
+    height = Math.ceil(scale*canvas.height);
     canvas.style.transform = 'scale('+String(scale)+')';
     canvas.parentNode.style.height = String(height)+'px';
     canvas.parentNode.style.maxHeight = String(height)+'px';
-    canvas.style.marginLeft = String(Math.max(0, Math.round((canvas.parentNode.offsetWidth - scale*canvas.width)/2)))+'px';
+    canvas.style.marginLeft = String(Math.max(0, Math.round((width - scale*canvas.width)/2)))+'px';
     canvas.style.marginTop = '0px';
     return canvas;
 }
@@ -266,7 +267,7 @@ billiard = new BILLIARD.Game(
     './assets/red.png',
     './assets/taco.png'
 );
-billiard.scaled = scale;
+billiard.scaling = scale;
 
 document.getElementById('newgame').addEventListener('click', function() {
     billiard.init(parseInt(types.options[types.selectedIndex].value));
@@ -274,7 +275,7 @@ document.getElementById('newgame').addEventListener('click', function() {
 window.addEventListener('resize', function() {
     responsive_canvas(canvas);
     billiard.__canvas_adjust();
-    billiard.scaled = scale;
+    billiard.scaling = scale;
 });
 })(window);
 //]]>

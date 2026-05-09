@@ -1,15 +1,15 @@
 (function(BILLIARD) {
 "use strict";
-BILLIARD.Game = function Game(container, type, americantable, frenchtable, ball, black, yel, red, taco) {
+BILLIARD.Game = function Game(canvas, type, americantable, frenchtable, white, black, yel, red, taco) {
     var self = this;
     self.fps = 12; // 12 FPS
     NEngine.env.interval = 1000/self.fps;
-    NEngine.Stage.call(self, container);
+    NEngine.Stage.call(self, canvas);
 
-    self.canvas = container;
+    self.canvas = canvas;
     self.width = 585;
     self.height = 365;
-    self.scaled = 1;
+    self.scaling = 1;
 
     self.c0_fake = null;
     self.c0 = null;
@@ -37,7 +37,7 @@ BILLIARD.Game = function Game(container, type, americantable, frenchtable, ball,
     self.americantable = new NEngine.Bitmap(americantable, 0, 0);
     self.frenchtable = new NEngine.Bitmap(frenchtable, 0, 0);
     self.taco = new BILLIARD.Taco(taco);
-    self.white = ball;
+    self.white = white;
     self.black = black;
     self.red = red;
     self.yellow = yel;
@@ -71,7 +71,7 @@ BILLIARD.Game = function Game(container, type, americantable, frenchtable, ball,
 };
 BILLIARD.Game.inheritsFrom(NEngine.Stage);
 
-BILLIARD.Game.prototype.scaled = 1;
+BILLIARD.Game.prototype.scaling = 1;
 BILLIARD.Game.prototype.lines = null;
 BILLIARD.Game.prototype.diff = null;
 BILLIARD.Game.prototype.tri = null;
@@ -285,7 +285,6 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
             _loc_2 = 0;
             while (_loc_2 < self.balls.length)
             {
-
                 self.balls[_loc_2].collision = false;
                 self.balls[_loc_2].target = null;
                 self.balls[_loc_2].collision_wall_detail = null;
@@ -372,7 +371,6 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                             _loc_17 = 0;
                             while (_loc_17 < self.balls.length)
                             {
-
                                 if (self.balls[_loc_17] == _loc_15)
                                 {
                                     _loc_15.status = 1;
@@ -418,7 +416,6 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
         _loc_2 = 0;
         while (_loc_2 < self.balls_removed.length)
         {
-
             if (self.balls_removed[_loc_2].alpha <= 0)
             {
                 self.balls_removed[_loc_2].visible = false;
@@ -427,7 +424,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
             }
             else
             {
-                self.balls_removed[_loc_2].alpha -= 0.1;
+                self.balls_removed[_loc_2].alpha = Math.max(0, self.balls_removed[_loc_2].alpha-0.1);
             }
             ++_loc_2;
         }
@@ -436,11 +433,11 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
     {
         if (!self.taco.moving && !_loc_3)
         {
-            if (self.c0.status == 0 && !self.c0.dragging)
+            if ((self.c0.status === 0) && !self.c0.dragging)
             {
                 //snd_turn.play();
             }
-            else if (self.c0.status == 1)
+            else if (self.c0.status === 1)
             {
                 self.c0.putBehindLine();
                 self.c0.visible = true;
@@ -449,12 +446,13 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                 self.balls.push(self.c0);
             }
         }
-        self.taco.moving = !_loc_3 && self.c0.status == 0 && !self.c0.dragging;
+        self.taco.moving = !_loc_3 && (self.c0.status === 0) && !self.c0.dragging;
         //self.lines.cacheCanvas.getContext('2d').clearRect(0, 0, self.lines.width, self.lines.height);
         self.c0_fake.visible = false;
         if (self.taco.moving)
         {
             self.drawLines();
+            self.taco.visible = true;
             self.taco.updateState();
             self.taco.alpha = Math.min(1, self.taco.alpha+0.05);
         }

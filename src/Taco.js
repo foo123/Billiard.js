@@ -6,6 +6,7 @@ BILLIARD.Taco = function Taco(taco) {
     self.moving = false;
     self.holding = false;
     self.locked = false;
+    self.visible = false;
     self.hits = 0;
     self.first_hit = null;
     self.whiteBall = null;
@@ -20,7 +21,7 @@ BILLIARD.Taco = function Taco(taco) {
     self.onKeyUp = function(e) {self.onRelease(e)};
     self.onTouchStart = function(e) {self.onPress(e);};
     self.onTouchEnd = function(e) {self.onRelease(e);};
-    self.onTouchMove = function(e) {if (e.preventDefault) e.preventDefault();};
+    self.onTouchMove = function(e) {if (self.moving && e.preventDefault) e.preventDefault();};
     self.cacheCanvas = document.createElement('canvas');
     self.image = new Image();
     self.image.onload = function() {
@@ -58,6 +59,7 @@ BILLIARD.Taco.prototype.init = function(whiteBall) {
     self.moving = true;
     self.holding = false;
     self.locked = false;
+    self.visible = true;
     self.alpha = 0;
     self.hits = 0;
     self.whiteBall = whiteBall;
@@ -84,7 +86,7 @@ BILLIARD.Taco.prototype.updateState = function() {
         {
             _loc_1 = new BILLIARD.TriangleData();
             _loc_1.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            _loc_1.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
+            _loc_1.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaling, self.parent.mouseY/self.parent.scaling);
             _loc_1.refresh(true);
             _loc_2 = _loc_1.len - self.init_mouse.len;
             if (_loc_1.len <= self.whiteBall.r || _loc_2 <= 0)
@@ -101,7 +103,7 @@ BILLIARD.Taco.prototype.updateState = function() {
         else
         {
             self.vector_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            self.vector_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
+            self.vector_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaling, self.parent.mouseY/self.parent.scaling);
             self.vector_mouse.refresh(true);
             self.rotation = (self.vector_mouse.dx < 0 ? (Math.PI/2) : (3*Math.PI/2)) + Math.atan(self.vector_mouse.vy / self.vector_mouse.vx);
             self.putOnBorder();
@@ -110,14 +112,15 @@ BILLIARD.Taco.prototype.updateState = function() {
 };
 BILLIARD.Taco.prototype.onPress = function(event) {
     var self = this;
-    if (!self.locked)
+    if (self.moving && !self.locked)
     {
         if (event.touches)
         {
-            var start_mouse = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
+            var start_mouse = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaling, self.parent.mouseY/self.parent.scaling);
+            if (start_mouse.x < -5 || start_mouse.x > self.parent.width+5 || start_mouse.y < -5 || start_mouse.y > self.parent.height+5) return;
             setTimeout(function update() {
-                if (self.locked) return;
-                var curr_mouse = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled),
+                if (self.locked || !self.moving) return;
+                var curr_mouse = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaling, self.parent.mouseY/self.parent.scaling),
                     dist = BILLIARD.TriangleData.getHypotenuse(curr_mouse.x-start_mouse.x, curr_mouse.y-start_mouse.y);
                 if (dist < 1)
                 {
@@ -137,7 +140,7 @@ BILLIARD.Taco.prototype.onPress = function(event) {
         else if (event.keyCode === 81) //q key pressed
         {
             self.init_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
-            self.init_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaled, self.parent.mouseY/self.parent.scaled);
+            self.init_mouse.p1 = new BILLIARD.SimplePoint(self.parent.mouseX/self.parent.scaling, self.parent.mouseY/self.parent.scaling);
             self.init_mouse.refresh(true);
             self.holding = true;
             self.locked = true;
@@ -161,6 +164,7 @@ BILLIARD.Taco.prototype.onRelease = function(event) {
         self.moving = false;
         self.holding = false;
         self.locked = false;
+        self.visible = false;
         self.putOnBorder();
         if (_loc_2.len > 0 && Math.abs(self.whiteBall.direction.vx) < 0.1 && Math.abs(self.whiteBall.direction.vy) < 0.1)
         {
