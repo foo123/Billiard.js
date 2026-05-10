@@ -89,11 +89,11 @@
 
   /**
   * Return the string CSS of Color object.
-  * @method Color.toRGB()
+  * @method Color.toCSS()
   **/
-  Color.prototype.toCSS = function() {
+  /*Color.prototype.toCSS = function() {
     return "#" + dechex(this.r) + dechex(this.g) + dechex(this.b);
-  }
+  }*/
 
   /**
   * Exposing the Color to the NEngine global object.

@@ -32,9 +32,7 @@ BILLIARD.Taco = function Taco(taco) {
         self.height = self.image.height;
         self.regX = self.image.width/2;
         self.regY = 0;
-        var ctx = self.cacheCanvas.getContext('2d');
-        ctx.drawImage(self.image, 0, 0);
-
+        self.cacheCanvas.getContext('2d').drawImage(self.image, 0, 0);
     };
     self.image.src = taco;
 };
@@ -55,8 +53,6 @@ BILLIARD.Taco.prototype.maxRadius = 100;
 BILLIARD.Taco.prototype.image = null;
 BILLIARD.Taco.prototype.inBounds = function(x, y) {
     return true;
-    /*var game = this.parent;
-    return x >= -10 && x <= game.width+10 && y >= -10 && y <= game.height+10;*/
 };
 BILLIARD.Taco.prototype.draw = function(ctx, ignoreCache) {
     this.__draw(ctx,ignoreCache);
@@ -133,7 +129,7 @@ BILLIARD.Taco.prototype.onPress = function(event) {
         {
             if (self.reallymoving) return;
             var start_mouse = new BILLIARD.SimplePoint(self.parent.mouseX, self.parent.mouseY);
-            if (start_mouse.x < self.parent.offX-5 || start_mouse.x > self.parent.offX+self.parent.width+5 || start_mouse.y < self.parent.offY-5 || start_mouse.y > self.parent.offY+self.parent.height+5) return;
+            if (start_mouse.x < self.parent.mrgX-5 || start_mouse.x > self.parent.width-(self.parent.mrgX-5) || start_mouse.y < self.parent.mrgY-5 || start_mouse.y > self.parent.height-(self.parent.mrgY-5)) return;
             self.reallymoving = true;
             setTimeout(function update() {
                 if (self.locked || !self.reallymoving || !self.moving) return;

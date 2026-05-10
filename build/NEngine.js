@@ -1,6 +1,6 @@
 /**
 * NEngine.js by Nera Liu. Feb 5, 2011
-* Modified by Nikos M., 2026
+* Modified by Nikos M., May, 2026
 *
 * Visit blog.neraliu.com/nengine for documentation, updates and more free code.
 *
@@ -29,7 +29,7 @@
 * OTHER DEALINGS IN THE SOFTWARE.
 **//**
 * NEngine.js by Nera Liu. Feb 5, 2011
-* Modified by Nikos M., 2026
+* Modified by Nikos M., May, 2026
 *
 * Visit blog.neraliu.com/nengine for documentation, updates and more free code.
 *
@@ -71,7 +71,7 @@ var NEngine = {
     * @property version.name
     * @type String
     **/
-    name    : 'alpha 0.1',
+    name    : 'alpha 0.1r2026',
     /**
     * The version number of the NEngine.
     * @property version.number
@@ -120,11 +120,18 @@ NEngine.env = {
 NEngine.env.BROWSER = 'browser';
 
 /**
-* The constant for mobile device.
-* @property env.MOBILE
+* The constant for nodejs.
+* @property env.NODE
 * @type String
 **/
-NEngine.env.MOBILE = 'mobile';
+NEngine.env.NODE = 'node';
+
+/**
+* The constant for web browser.
+* @property env.BROWSER
+* @type String
+**/
+NEngine.env.BROWSER = 'browser';
 
 /**
 * The constant for console.
@@ -176,6 +183,7 @@ NEngine.utils.log = function() {
   if (NEngine.env.debug) {
     switch (NEngine.env.type) {
     case NEngine.env.BROWSER:
+    case NEngine.env.NODE:
       try {
         if (typeof(console) !== 'undefined' && console && console.log) {
                     console.log.apply(NEngine, arguments);
@@ -489,69 +497,6 @@ Function.prototype.inheritsFrom = function(parentClassOrObject) {
   * Exposing the Clock to the NEngine global object.
   **/
   NEngine.Clock = Clock;
-
-}(NEngine));
-/**
-* Angle.js by Nera Liu. Feb 5, 2011
-* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
-*
-*
-* Copyright (c) 2011 Nera Liu
-* 
-* Permission is hereby granted, free of charge, to any person
-* obtaining a copy of this software and associated documentation
-* files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use,
-* copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following
-* conditions:
-* 
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-* OTHER DEALINGS IN THE SOFTWARE.
-**/
-
-/**
-* Convert angle to/from degree to/from radian.
-**/
-
-(function(NEngine) {
-
-  /**
-  * Angle's constructor.
-  **/
-  function Angle() {
-  }
-
-  /**
-  * Convert degree to radian.
-  * @method Angle.degree2radian(degree)
-  **/
-  Angle.prototype.degree2radian = function(degree) {
-    return ((Math.PI/180)*degree);
-  }
-
-  /**
-  * Convert radian to degree.
-  * @method Angle.radian2degree(raidan)
-  **/
-  Angle.prototype.radian2degree = function(radian) {
-    return (radian/(Math.PI/180));
-  }
-
-  /**
-  * Exposing the Angle to the NEngine global object.
-  **/
-  NEngine.Angle = Angle;
 
 }(NEngine));
 /**
@@ -1783,300 +1728,6 @@ dy - y displacement
 
 }(NEngine));
 /**
-* Sprite.js by Nera Liu. Feb 5, 2011
-* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
-*
-*
-* Copyright (c) 2011 Nera Liu
-*
-* Permission is hereby granted, free of charge, to any person
-* obtaining a copy of this software and associated documentation
-* files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use,
-* copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following
-* conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-* OTHER DEALINGS IN THE SOFTWARE.
-**/
-
-/**
-* The Sprite class is a basic display list building block: a display list node that can display graphics and can also contain children. The Sprite class represents the main drawing area without timeline.
-**/
-
-(function(NEngine) {
-
-  /**
-  * Sprite's constructor.
-  **/
-  function Sprite(canvas) {
-    if (canvas)
-    {
-        this.__displayobject_init("Sprite");
-        this.__displayobjectcont_init();
-        this.__stage_init(canvas);
-        if (NEngine.Clock)
-        {
-            NEngine.Clock.setInterval(NEngine.env.interval);
-            NEngine.Clock.addListeners(this);
-            NEngine.Clock.start();
-        }
-    }
-  }
-
-  Sprite.inheritsFrom(NEngine.DisplayObjectContainer);
-
-  /**
-  * The canvas element of html object.
-  * @type html object
-  **/
-  Sprite.prototype.canvas = null;
-
-  /**
-  * The NEngine.Graphics for drawing.
-  * @type NEngine.Graphics
-  **/
-  Sprite.prototype.graphics = null;
-
-  /**
-  * Clear the canvas automatically?
-  * @type Boolean
-  **/
-  Sprite.prototype.autoClear = true;
-
-  /**
-  * A Boolean value that indicates whether the pointing hand (hand cursor) appears when the mouse rolls over a sprite in which the buttonMode property is set to true.
-  * @type Boolean
-  **/
-  Sprite.prototype.useHandCursor = true;
-
-  // Sprite.prototype.buttonMode = null;
-  // Sprite.prototype.dropTarget = null;
-  // Sprite.prototype.hitArea = null;
-  // Sprite.prototype.soundTransform = null;
-
-  /**
-  * Init the Sprite, in NEngine, we do not use the "capturing" for event handling.
-  * reference - http://blog.neraliu.com/2009/09/20/javascript-dom-events-specification/
-  * @method Sprite.__stage_init()
-  **/
-  Sprite.prototype.__stage_init = function(canvas) {
-    this.stage = this;
-    this.canvas = canvas;
-    this.graphics = new NEngine.Graphics(this.canvas);
-
-    var s = this;
-    NEngine.addEvent(window, 'mousemove', function(e) { s._handleOnMouseMove(e); }, {passive:false, capture:false});
-    NEngine.addEvent(window, 'mouseup', function(e) { s._handleOnMouseUp(e); }, {passive:false, capture:false});
-    NEngine.addEvent(window, 'mousedown', function(e) { s._handleOnMouseDown(e); }, {passive:false, capture:false});
-    NEngine.addEvent(window, 'mouseover', function(e) { s._handleOnMouseOver(e); }, {passive:false, capture:false});
-    NEngine.addEvent(window, 'mouseout', function(e) { s._handleOnMouseOut(e); }, {passive:false, capture:false});
-    NEngine.addEvent(window, 'click', function(e) { s._handleOnClick(e); }, {passive:false, capture:false});
-    NEngine.addEvent(window, 'keydown', function(e) { s._handleOnKeyDown(e); }, {passive:false, capture:false});
-    NEngine.addEvent(window, 'keyup', function(e) { s._handleOnKeyUp(e); }, {passive:false, capture:false});
-    NEngine.addEvent(window, 'keypress', function(e) { s._handleOnKeyPress(e); }, {passive:false, capture:false});
-    this.draw();
-  }
-
-  /**
-  * The handler of mousemove event in the Sprite.
-  * @method Sprite._handleOnMouseMove(e)
-  **/
-  Sprite.prototype._handleOnMouseMove = function(e) {
-    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.offsetLeft;
-    this.mouseY = e.pageY-this.canvas.offsetTop;
-    var inBounds = (this.mouseX >= 0 && this.mouseY >= 0 && this.mouseX < this.canvas.width && this.mouseY < this.canvas.height);
-    if (!inBounds) return;
-
-    if (this.onMouseMove) { this.onMouseMove(e); }
-    for (var i=0;i<this._children.length;i++) {
-      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
-      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
-      if(this._children[i].onMouseMove && this._children[i].onMouseMove instanceof Function) { this._children[i].onMouseMove(e); }
-    }
-  }
-
-  /**
-  * The handler of mouseup event in the Sprite.
-  * @method Sprite._handleOnMouseUp(e)
-  **/
-  Sprite.prototype._handleOnMouseUp = function(e) {
-    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.offsetLeft;
-    this.mouseY = e.pageY-this.canvas.offsetTop;
-    if (this.onMouseUp) { this.onMouseUp(e); }
-    for (var i=0;i<this._children.length;i++) {
-      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
-      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
-      if(this._children[i].onMouseUp && this._children[i].onMouseUp instanceof Function) { this._children[i].onMouseUp(e); }
-    }
-  }
-
-  /**
-  * The handler of mousedown event in the Sprite.
-  * @method Sprite._handleOnMouseDown(e)
-  **/
-  Sprite.prototype._handleOnMouseDown = function(e) {
-    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.offsetLeft;
-    this.mouseY = e.pageY-this.canvas.offsetTop;
-    if (this.onMouseDown) { this.onMouseDown(e); }
-    for (var i=0;i<this._children.length;i++) {
-      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
-      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
-      if(this._children[i].onMouseDown && this._children[i].onMouseDown instanceof Function) { this._children[i].onMouseDown(e); }
-    }
-  }
-
-  /**
-  * The handler of mouseover event in the Sprite.
-  * @method Sprite._handleOnMouseOver(e)
-  **/
-  Sprite.prototype._handleOnMouseOver = function(e) {
-    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.offsetLeft;
-    this.mouseY = e.pageY-this.canvas.offsetTop;
-    if (this.onMouseOver) { this.onMouseOver(e); }
-    for (var i=0;i<this._children.length;i++) {
-      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
-      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
-      if(this._children[i].onMouseOver && this._children[i].onMouseOver instanceof Function) { this._children[i].onMouseOver(e); }
-    }
-  }
-
-  /**
-  * The handler of mouseout event in the Sprite.
-  * @method Sprite._handleOnMouseOut(e)
-  **/
-  Sprite.prototype._handleOnMouseOut = function(e) {
-    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.offsetLeft;
-    this.mouseY = e.pageY-this.canvas.offsetTop;
-    if (this.onMouseOut) { this.onMouseOut(e); }
-    for (var i=0;i<this._children.length;i++) {
-      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
-      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
-      if(this._children[i].onMouseOut && this._children[i].onMouseOut instanceof Function) { this._children[i].onMouseOut(e); }
-    }
-  }
-
-  /**
-  * The handler of click event in the Sprite.
-  * @method Sprite._handleOnClick(e)
-  **/
-  Sprite.prototype._handleOnClick = function(e) {
-    if (!this.canvas) { this.mouseX = this.mouseY = null; return; }
-    this.mouseX = e.pageX-this.canvas.offsetLeft;
-    this.mouseY = e.pageY-this.canvas.offsetTop;
-    if (this.onClick) { this.onClick(e); }
-    for (var i=0;i<this._children.length;i++) {
-      this._children[i].mouseX = e.pageX-this.canvas.offsetLeft-this._children[i].x;
-      this._children[i].mouseY = e.pageY-this.canvas.offsetTop -this._children[i].y;
-      if(!this._children[i].mouseEnabled) { continue; }
-      var inBounds = this._children[i].inBounds(this.mouseX, this.mouseY);
-      if(inBounds && this._children[i].onClick && this._children[i].onClick instanceof Function) { this._children[i].onClick(e); }
-    }
-  }
-
-  /**
-  * The handler of keydown event in the Sprite.
-  * @method Sprite._handleOnKeyDown(e)
-  **/
-  Sprite.prototype._handleOnKeyDown = function(e) {
-    if (!this.canvas) { return; }
-    if (this.onKeyDown) { this.onKeyDown(e); }
-    for (var i=0;i<this._children.length;i++) {
-      if(this._children[i].onKeyDown && this._children[i].onKeyDown instanceof Function) { this._children[i].onKeyDown(e); }
-    }
-  }
-
-  /**
-  * The handler of keyup event in the Sprite.
-  * @method Sprite._handleOnKeyUp(e)
-  **/
-  Sprite.prototype._handleOnKeyUp = function(e) {
-    if (!this.canvas) { return; }
-    if (this.onKeyUp) { this.onKeyUp(e); }
-    for (var i=0;i<this._children.length;i++) {
-      if(this._children[i].onKeyUp && this._children[i].onKeyUp instanceof Function) { this._children[i].onKeyUp(e); }
-    }
-  }
-
-  /**
-  * The handler of keypress event in the Sprite.
-  * @method Sprite._handleOnKeyUp(e)
-  **/
-  Sprite.prototype._handleOnKeyPress = function(e) {
-    if (!this.canvas) { return; }
-    if (this.onKeyPress) { this.onKeyPress(e); }
-    for (var i=0;i<this._children.length;i++) {
-      if(this._children[i].onKeyPress && this._children[i].onKeyPress instanceof Function) { this._children[i].onKeyPress(e); }
-    }
-  }
-
-  /**
-  * The clock handler.
-  * @method Sprite.tick()
-  **/
-  Sprite.prototype.tick = function() {
-    this.draw();
-  }
-
-  /**
-  * Clear the canvas.
-  * @method Sprite.clear()
-  **/
-  Sprite.prototype.clear = function() {
-    if (this.canvas == null) { return; }
-    this.canvas.getContext("2d").clearRect(0,0,this.canvas.width,this.canvas.height);
-  }
-
-  /**
-  * Draw the canvas.
-  * @method Sprite.draw()
-  **/
-  Sprite.prototype.draw = function() {
-    if (this.canvas == null) { return; }
-    if (this.autoClear) { this.clear(); }
-   // if (this.useHandCursor) { this.canvas.style.setProperty('cursor','pointer'); }
-    if (this.animate) { this.animate(); }
-    for (var i=0;i<this._children.length;i++) {
-      this._children[i].draw(this.graphics.ctx);
-    }
-  }
-
-  /**
-  * Return the string of Sprite object.
-  * @method Sprite.toString()
-  **/
-  Sprite.prototype.toString = function() {
-    return this.name + "(id:" + this.id + ")";
-  }
-
-  /**
-  * Exposing the Sprite to the NEngine global object.
-  **/
-  NEngine.Sprite = Sprite;
-
-}(NEngine));
-/**
 * Stage.js by Nera Liu. Feb 5, 2011
 * Visit blog.neraliu.com/nengine for documentation, updates and more free code.
 *
@@ -2114,12 +1765,12 @@ dy - y displacement
   /**
   * Stage's constructor.
   **/
-  function Stage(canvas) {
+  function Stage(canvas, responsive) {
     if (canvas)
     {
         this.__displayobject_init("Stage");
         this.__displayobjectcont_init();
-        this.__stage_init(canvas);
+        this.__stage_init(canvas, responsive);
         if (NEngine.Clock)
         {
             NEngine.Clock.setInterval(NEngine.env.interval);
@@ -2150,24 +1801,39 @@ dy - y displacement
   Stage.prototype.autoClear = true;
 
   /**
+  * Responsive scaling
+  * @type Boolean
+  **/
+  Stage.prototype.responsive = true;
+
+  /**
   * Any external scaling applied to canvas
   * @type Number
   **/
   Stage.prototype.scaling = 1;
+
   // Stage.prototype.buttonMode = null;
   // Stage.prototype.dropTarget = null;
   // Stage.prototype.hitArea = null;
   // Stage.prototype.soundTransform = null;
 
   Stage.prototype.__canvas_adjust = function() {
-    // find canvas global offset
-    this.canvas.globalOffsetLeft=this.canvas.offsetLeft;
-    this.canvas.globalOffsetTop=this.canvas.offsetTop;
-    var obj=this.canvas;
-    while (obj=obj.offsetParent)
+    var self = this, obj = self.canvas;
+    if (obj)
     {
-        this.canvas.globalOffsetLeft+=obj.offsetLeft;
-        this.canvas.globalOffsetTop+=obj.offsetTop;
+        self.scaling = self.responsive ? self.canvas.offsetWidth/self.canvas.width : 1;
+        // find canvas global offset
+        self.canvas.globalOffsetLeft = obj.offsetLeft;
+        self.canvas.globalOffsetTop = obj.offsetTop;
+        while (obj=obj.offsetParent)
+        {
+            self.canvas.globalOffsetLeft += obj.offsetLeft;
+            self.canvas.globalOffsetTop += obj.offsetTop;
+        }
+    }
+    else
+    {
+        self.scaling = 1;
     }
   };
   /**
@@ -2175,13 +1841,15 @@ dy - y displacement
   * reference - http://blog.neraliu.com/2009/09/20/javascript-dom-events-specification/
   * @method Stage.__stage_init()
   **/
-  Stage.prototype.__stage_init = function(canvas) {
+  Stage.prototype.__stage_init = function(canvas, responsive) {
     this.stage = this;
+    this.responsive = false !== responsive;
     this.canvas = canvas;
     this.graphics = new NEngine.Graphics(this.canvas);
-
-    // find canvas global offset
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
     this.__canvas_adjust();
+
     var s = this;
     NEngine.addEvent(window, 'touchmove', function(e) { s._handleOnTouchMove(e); }, {passive:false, capture:false});
     NEngine.addEvent(window, 'touchend', function(e) { s._handleOnTouchEnd(e); }, {passive:false, capture:false});
@@ -2195,6 +1863,7 @@ dy - y displacement
     NEngine.addEvent(window, 'keydown', function(e) { s._handleOnKeyDown(e); }, {passive:false, capture:false});
     NEngine.addEvent(window, 'keyup', function(e) { s._handleOnKeyUp(e); }, {passive:false, capture:false});
     NEngine.addEvent(window, 'keypress', function(e) { s._handleOnKeyPress(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'resize', function(e) { s.__canvas_adjust(); }, false);
     this.draw();
   }
 
@@ -2627,11 +2296,11 @@ dy - y displacement
 
   /**
   * Return the string CSS of Color object.
-  * @method Color.toRGB()
+  * @method Color.toCSS()
   **/
-  Color.prototype.toCSS = function() {
+  /*Color.prototype.toCSS = function() {
     return "#" + dechex(this.r) + dechex(this.g) + dechex(this.b);
-  }
+  }*/
 
   /**
   * Exposing the Color to the NEngine global object.
@@ -2966,202 +2635,5 @@ dy - y displacement
   * Exposing the Bitmap to the NEngine global object.
   **/
   NEngine.Bitmap = Bitmap;
-
-}(NEngine));
-/**
-* Rectangle.js by Nera Liu. Feb 5, 2011
-* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
-*
-*
-* Copyright (c) 2011 Nera Liu
-* 
-* Permission is hereby granted, free of charge, to any person
-* obtaining a copy of this software and associated documentation
-* files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use,
-* copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following
-* conditions:
-* 
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-* OTHER DEALINGS IN THE SOFTWARE.
-**/
-
-/**
-* Represents a Rectangle in x / y coordinates.
-**/
-
-(function(NEngine) {
-
-  /**
-  * Rectangle's constructor.
-  **/
-  function Rectangle(x, y, w, h, filled) {
-    this.__displayobject_init("Rectangle");
-    this.x = x;
-    this.y = y;
-    this.width = w;
-    this.height = h;
-    this.regX = w/2;
-    this.regY = h/2;
-    if (typeof filled == 'boolean') { this.filled = filled; }
-  }
-
-  Rectangle.inheritsFrom(NEngine.Shape);
-
-  /**
-  * Clone the Rectangle object.
-  * @method Rectangle.clone()
-  **/
-  Rectangle.prototype.clone = function() {
-    return new Rectangle(this.x, this.y, this.width, this.height, this.filled);
-  }
-
-  /**
-  * Return the string of Rectangle object.
-  * @method Rectangle.toString()
-  **/
-  Rectangle.prototype.toString = function() {
-    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",w:" + this.width + ",h:" + this.height + ")";
-  }
-
-  /**
-  * Draw the Rectangle on the canvas.
-  * @method Rectangle.draw(ctx, ignoreCache)
-  **/
-  Rectangle.prototype.draw = function(ctx, ignoreCache) {
-    if (this.__draw(ctx, ignoreCache)) { return true; }
-    this.applyStyle(ctx);
-    if (this.filled) {
-      ctx.fillRect(this.x, this.y, this.width, this.height);
-    } else {
-      ctx.strokeRect(this.x, this.y, this.width, this.height);
-    }
-    this.resetStyle(ctx);
-  }
-
-  /**
-  * Test whether the mouseX/Y is in bound of the Rectangle.
-  * @method Rectangle.inBounds(globalX, globalY)
-  **/
-  Rectangle.prototype.inBounds = function(globalX, globalY) {
-    var inBounds = (globalX >= this.x && globalY >= this.y && globalX < (this.x + this.width) && globalY < (this.y + this.height));
-    return inBounds;
-  }
-
-  /**
-  * Exposing the Rectangle to the NEngine global object.
-  **/
-  NEngine.Rectangle = Rectangle;
-
-}(NEngine));
-/**
-* Circle.js by Nera Liu. Feb 5, 2011
-* Visit blog.neraliu.com/nengine for documentation, updates and more free code.
-*
-*
-* Copyright (c) 2011 Nera Liu
-* 
-* Permission is hereby granted, free of charge, to any person
-* obtaining a copy of this software and associated documentation
-* files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use,
-* copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following
-* conditions:
-* 
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-* OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-* HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-* OTHER DEALINGS IN THE SOFTWARE.
-**/
-
-/**
-* Represents a Circle wth x / y coordinates as center.
-**/
-
-(function(NEngine) {
-
-  /**
-  * Circle's constructor.
-  **/
-  function Circle(x, y, r, filled) {
-    this.__displayobject_init("Circle");
-    this.x = x;
-    this.y = y;
-    this.radius = r;
-    this.regX = 0;
-    this.regY = 0;
-    if (typeof filled == 'boolean') { this.filled = filled; }
-  }
-
-  Circle.inheritsFrom(NEngine.Shape);
-
-  /**
-  * The radius of the Circle.
-  * @type Number 
-  **/
-  Circle.prototype.radius = 0;
-
-  /**
-  * Clone the Circle object.
-  * @method Circle.clone()
-  **/
-  Circle.prototype.clone = function() {
-    return new Circle(this.x, this.y, this.r, this.filled);
-  }
-
-  /**
-  * Return the string of Circle object.
-  * @method Circle.toString()
-  **/
-  Circle.prototype.toString = function() {
-    return this.name + "(id:" + this.id + ",x:" + this.x + ",y:" + this.y + ",r:" + this.radius + ")";
-  }
-
-  /**
-  * Draw the Circle on the canvas.
-  * @method Circle.draw(ctx, ignoreCache)
-  **/
-  Circle.prototype.draw = function(ctx, ignoreCache) {
-    if (this.__draw(ctx, ignoreCache)) { return true; }
-    this.applyStyle(ctx);
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, new NEngine.Angle().degree2radian(0), new NEngine.Angle().degree2radian(360), true);
-    if (this.filled) { ctx.fill(); } else { ctx.stroke(); }
-    this.resetStyle(ctx);
-  }
-
-  /**
-  * Test whether the mouseX/Y is in bound of the Circle.
-  * @method Circle.inBounds(globalX, globalY)
-  **/
-  Circle.prototype.inBounds = function(globalX, globalY) {
-    // throw "Exception: Circle.inBounds(globalX, globalY)";
-    return false;
-  }
-
-  /**
-  * Exposing the Circle to the NEngine global object.
-  **/
-  NEngine.Circle = Circle;
 
 }(NEngine));

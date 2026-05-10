@@ -1,6 +1,6 @@
 /**
 * NEngine.js by Nera Liu. Feb 5, 2011
-* Modified by Nikos M., 2026
+* Modified by Nikos M., May, 2026
 *
 * Visit blog.neraliu.com/nengine for documentation, updates and more free code.
 *
@@ -42,7 +42,7 @@ var NEngine = {
     * @property version.name
     * @type String
     **/
-    name    : 'alpha 0.1',
+    name    : 'alpha 0.1r2026',
     /**
     * The version number of the NEngine.
     * @property version.number
@@ -91,11 +91,18 @@ NEngine.env = {
 NEngine.env.BROWSER = 'browser';
 
 /**
-* The constant for mobile device.
-* @property env.MOBILE
+* The constant for nodejs.
+* @property env.NODE
 * @type String
 **/
-NEngine.env.MOBILE = 'mobile';
+NEngine.env.NODE = 'node';
+
+/**
+* The constant for web browser.
+* @property env.BROWSER
+* @type String
+**/
+NEngine.env.BROWSER = 'browser';
 
 /**
 * The constant for console.
@@ -147,6 +154,7 @@ NEngine.utils.log = function() {
   if (NEngine.env.debug) {
     switch (NEngine.env.type) {
     case NEngine.env.BROWSER:
+    case NEngine.env.NODE:
       try {
         if (typeof(console) !== 'undefined' && console && console.log) {
                     console.log.apply(NEngine, arguments);

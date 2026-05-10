@@ -36,12 +36,12 @@
   /**
   * Stage's constructor.
   **/
-  function Stage(canvas) {
+  function Stage(canvas, responsive) {
     if (canvas)
     {
         this.__displayobject_init("Stage");
         this.__displayobjectcont_init();
-        this.__stage_init(canvas);
+        this.__stage_init(canvas, responsive);
         if (NEngine.Clock)
         {
             NEngine.Clock.setInterval(NEngine.env.interval);
@@ -72,24 +72,39 @@
   Stage.prototype.autoClear = true;
 
   /**
+  * Responsive scaling
+  * @type Boolean
+  **/
+  Stage.prototype.responsive = true;
+
+  /**
   * Any external scaling applied to canvas
   * @type Number
   **/
   Stage.prototype.scaling = 1;
+
   // Stage.prototype.buttonMode = null;
   // Stage.prototype.dropTarget = null;
   // Stage.prototype.hitArea = null;
   // Stage.prototype.soundTransform = null;
 
   Stage.prototype.__canvas_adjust = function() {
-    // find canvas global offset
-    this.canvas.globalOffsetLeft=this.canvas.offsetLeft;
-    this.canvas.globalOffsetTop=this.canvas.offsetTop;
-    var obj=this.canvas;
-    while (obj=obj.offsetParent)
+    var self = this, obj = self.canvas;
+    if (obj)
     {
-        this.canvas.globalOffsetLeft+=obj.offsetLeft;
-        this.canvas.globalOffsetTop+=obj.offsetTop;
+        self.scaling = self.responsive ? self.canvas.offsetWidth/self.canvas.width : 1;
+        // find canvas global offset
+        self.canvas.globalOffsetLeft = obj.offsetLeft;
+        self.canvas.globalOffsetTop = obj.offsetTop;
+        while (obj=obj.offsetParent)
+        {
+            self.canvas.globalOffsetLeft += obj.offsetLeft;
+            self.canvas.globalOffsetTop += obj.offsetTop;
+        }
+    }
+    else
+    {
+        self.scaling = 1;
     }
   };
   /**
@@ -97,13 +112,15 @@
   * reference - http://blog.neraliu.com/2009/09/20/javascript-dom-events-specification/
   * @method Stage.__stage_init()
   **/
-  Stage.prototype.__stage_init = function(canvas) {
+  Stage.prototype.__stage_init = function(canvas, responsive) {
     this.stage = this;
+    this.responsive = false !== responsive;
     this.canvas = canvas;
     this.graphics = new NEngine.Graphics(this.canvas);
-
-    // find canvas global offset
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
     this.__canvas_adjust();
+
     var s = this;
     NEngine.addEvent(window, 'touchmove', function(e) { s._handleOnTouchMove(e); }, {passive:false, capture:false});
     NEngine.addEvent(window, 'touchend', function(e) { s._handleOnTouchEnd(e); }, {passive:false, capture:false});
@@ -117,6 +134,7 @@
     NEngine.addEvent(window, 'keydown', function(e) { s._handleOnKeyDown(e); }, {passive:false, capture:false});
     NEngine.addEvent(window, 'keyup', function(e) { s._handleOnKeyUp(e); }, {passive:false, capture:false});
     NEngine.addEvent(window, 'keypress', function(e) { s._handleOnKeyPress(e); }, {passive:false, capture:false});
+    NEngine.addEvent(window, 'resize', function(e) { s.__canvas_adjust(); }, false);
     this.draw();
   }
 

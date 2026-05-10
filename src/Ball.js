@@ -31,11 +31,10 @@ BILLIARD.Ball = function Ball(ball, type) {
         self.regX = self.image.width/2;
         self.regY = self.image.height/2;
         self.r = self.image.width/2-1;
+        self.cacheCanvas.getContext('2d').drawImage(self.image, 0, 0);
         //self.line_limit_x = 538 + self.r;
-        var ctx = self.cacheCanvas.getContext('2d');
-        ctx.drawImage(self.image, 0, 0);
     };
-    self.line_limit_x = BILLIARD.Ball.offX + 538 + self.r;
+    self.line_limit_x = BILLIARD.Ball.mrgX + 538 + self.r;
     self.updateProccessTime(1);
     self.image.src = ball;
 };

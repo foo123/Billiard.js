@@ -119,10 +119,6 @@ body {
     display: inline-block;
     box-sizing: border-box;
     width: 100%;
-    max-width: 100%;
-    max-height: auto;
-    height: auto;
-    overflow: hidden;
     font-size: 0;
     border: 0;
     padding: 0;
@@ -135,10 +131,8 @@ body {
     border: 0;
     padding: 0;
     margin: 0;
-    width: 785px;
-    height: 565px;
-    transform-origin: 0 0;
-    transform: scale(1);
+    width: 100%;
+    height: auto;
 }
 #instructions {
     position: relative;
@@ -222,7 +216,7 @@ body {
 <button id="newgame" class="button">New Game</button>
 </div>
 
-<div id="responsive-canvas"><canvas id="canvas" width=785 height=565></canvas></div>
+<div id="responsive-canvas"><canvas id="canvas"></canvas></div>
 
 <ol id="instructions" style="color:#aaa">
 <li>Rotate stick with mouse or touch to direct hit.</li>
@@ -241,41 +235,24 @@ body {
 (function(window) {
 "use strict";
 var billiard, canvas = document.getElementById('canvas'),
-    types = document.getElementById('type'),
-    scale = 1;
-
-function responsive_canvas(canvas)
-{
-    var width = canvas.parentNode.offsetWidth, height;
-    scale = width/canvas.width;
-    height = Math.ceil(scale*canvas.height);
-    canvas.style.transform = 'scale('+String(scale)+')';
-    canvas.parentNode.style.height = String(height)+'px';
-    canvas.parentNode.style.maxHeight = String(height)+'px';
-    return canvas;
-}
+    types = document.getElementById('type');
 
 billiard = new BILLIARD.Game(
-    responsive_canvas(canvas), 1,
-    './assets/billiardtable1.png',
-    './assets/billiardtable2.png',
+    canvas, 1,
+    './assets/tablepockets.png',
+    './assets/tablenopockets.png',
     './assets/white.png',
     './assets/black.png',
     './assets/yellow.png',
     './assets/red.png',
     './assets/taco.png'
 );
-billiard.scaling = scale;
 canvas.focus();
 
 document.getElementById('newgame').addEventListener('click', function() {
     billiard.init(parseInt(types.options[types.selectedIndex].value));
     canvas.focus();
 }, false);
-window.addEventListener('resize', function() {
-    responsive_canvas(canvas);
-    billiard.scaling = scale;
-});
 })(window);
 //]]>
 </script>
