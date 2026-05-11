@@ -1,6 +1,6 @@
 (function(BILLIARD) {
 "use strict";
-BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets, white, black, yel, red, taco) {
+BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets/*, white, black, yel, red*/, taco) {
     var self = this, mrg = 100, width = mrg + 585 + mrg, height = mrg + 365 + mrg;
 
     self.mrgX = mrg;
@@ -34,10 +34,10 @@ BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets, white,
     self.c15 = null;
     self.taco = null;
 
-    self.white = white;
-    self.black = black;
-    self.red = red;
-    self.yellow = yel;
+    self.white = 'white';//white;
+    self.black = 'black';//black;
+    self.red = 'red';//red;
+    self.yellow = 'yellow';//yel;
     self.tablepockets = new NEngine.Bitmap(tablepockets, self.mrgX, self.mrgY);
     self.tablenopockets = new NEngine.Bitmap(tablenopockets, self.mrgX, self.mrgY);
     self.taco = new BILLIARD.Taco(taco);

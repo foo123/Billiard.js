@@ -89,7 +89,7 @@ body {
     border: 0;
     padding: 0;
     margin: 0 auto;
-    margin-bottom: 20px;
+    margin-bottom: 2px;
 }
 #type {
     position: relative;
@@ -109,28 +109,19 @@ body {
     box-sizing: border-box;
     vertical-align: middle;
     width: 120px;
-    height: 38px;
-    line-height: 38px;
+    height: 45px;
+    line-height: 45px;
     cursor: pointer;
     margin: 0;
-}
-#responsive-canvas {
-    position: relative;
-    display: inline-block;
-    box-sizing: border-box;
-    width: 100%;
-    font-size: 0;
-    border: 0;
-    padding: 0;
-    margin: 0 auto;
 }
 #canvas {
     position: relative;
     display: block;
     box-sizing: border-box;
+    font-size: 0;
     border: 0;
     padding: 0;
-    margin: 0;
+    margin: 0 auto;
     width: 100%;
     height: auto;
 }
@@ -138,8 +129,10 @@ body {
     position: relative;
     display: block;
     box-sizing: border-box;
+    margin: 2px auto;
     width: 100%;
-    font-size: 13px;
+    font-size: 14px;
+    color: #aaa;
 }
 #forkongithub {
     display: inline-block;
@@ -216,9 +209,9 @@ body {
 <button id="newgame" class="button">New Game</button>
 </div>
 
-<div id="responsive-canvas"><canvas id="canvas"></canvas></div>
+<canvas id="canvas"></canvas>
 
-<ol id="instructions" style="color:#aaa">
+<ol id="instructions">
 <li>Rotate stick with mouse or touch to direct hit.</li>
 <li>Press 'q' key or wait until target ball becomes bold.</li>
 <li>Move stick to give strike force.</li>
@@ -241,10 +234,10 @@ billiard = new BILLIARD.Game(
     canvas, 1,
     './assets/tablepockets.png',
     './assets/tablenopockets.png',
-    './assets/white.png',
+    /*'./assets/white.png',
     './assets/black.png',
     './assets/yellow.png',
-    './assets/red.png',
+    './assets/red.png',*/
     './assets/taco.png'
 );
 canvas.focus();

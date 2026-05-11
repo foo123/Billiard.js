@@ -110,29 +110,64 @@ BILLIARD.Ball = function Ball(ball, type) {
     self.target = null;
     self.colour = null;
     self.type = type;
+    self.status = 0;
     self.m = 1;
     self.r = 1;
     self.vx = null;
     self.vy = null;
+    self.line_limit_x = BILLIARD.Ball.mrgX + 538 + self.r;
     self.direction = new BILLIARD.TriangleData();
     self.direction.p0.update(self.x, self.y);
-    self.status = 0;
+    self.updateProccessTime(1);
+    self.width = 24;
+    self.height = 24;
+    self.regX = 12;
+    self.regY = 12;
+    self.r = 12;
     self.cacheCanvas = document.createElement('canvas');
-    self.image = new Image();
+    self.cacheCanvas.width = self.width;
+    self.cacheCanvas.height = self.height;
+    var color = ball.toLowerCase(),
+        ctx = self.cacheCanvas.getContext('2d'),
+        fillStyle = ctx.createRadialGradient(9, 9, 4, 9, 9, 15);
+    if (-1 < color.indexOf('red'))
+    {
+        fillStyle.addColorStop(0, "#f50404");
+        fillStyle.addColorStop(1, "#973333");
+    }
+    else if (-1 < color.indexOf('yellow'))
+    {
+        fillStyle.addColorStop(0, "#edf00b");
+        fillStyle.addColorStop(1, "#9b9c29");
+    }
+    else if (-1 < color.indexOf('black'))
+    {
+        fillStyle.addColorStop(0, "#4b4b4b");
+        fillStyle.addColorStop(1, "#0e0e0e");
+    }
+    else //if (-1 < ball.indexOf('white'))
+    {
+        fillStyle.addColorStop(0, "#f7f7f7");
+        fillStyle.addColorStop(1, "#9c9c9c");
+    }
+    ctx.fillStyle = fillStyle;
+    ctx.beginPath();
+    ctx.arc(12, 12, 12, 0, 2*Math.PI);
+    ctx.closePath();
+    ctx.fill();
+    /*self.image = new Image();
     self.image.onload = function() {
         self.cacheCanvas.width = self.image.width;
         self.cacheCanvas.height = self.image.height;
         self.width = self.image.width;
         self.height = self.image.height;
-        self.regX = self.image.width/2;
-        self.regY = self.image.height/2;
-        self.r = self.image.width/2-1;
+        self.regX = self.width/2;
+        self.regY = self.height/2;
+        self.r = self.width/2-1;
         self.cacheCanvas.getContext('2d').drawImage(self.image, 0, 0);
         //self.line_limit_x = 538 + self.r;
     };
-    self.line_limit_x = BILLIARD.Ball.mrgX + 538 + self.r;
-    self.updateProccessTime(1);
-    self.image.src = ball;
+    self.image.src = ball;*/
 };
 BILLIARD.Ball.inheritsFrom(NEngine.DisplayObject);
 
@@ -682,7 +717,7 @@ BILLIARD.Taco.prototype.getDirection = function() {
 };
 })(BILLIARD);(function(BILLIARD) {
 "use strict";
-BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets, white, black, yel, red, taco) {
+BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets/*, white, black, yel, red*/, taco) {
     var self = this, mrg = 100, width = mrg + 585 + mrg, height = mrg + 365 + mrg;
 
     self.mrgX = mrg;
@@ -716,10 +751,10 @@ BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets, white,
     self.c15 = null;
     self.taco = null;
 
-    self.white = white;
-    self.black = black;
-    self.red = red;
-    self.yellow = yel;
+    self.white = 'white';//white;
+    self.black = 'black';//black;
+    self.red = 'red';//red;
+    self.yellow = 'yellow';//yel;
     self.tablepockets = new NEngine.Bitmap(tablepockets, self.mrgX, self.mrgY);
     self.tablenopockets = new NEngine.Bitmap(tablenopockets, self.mrgX, self.mrgY);
     self.taco = new BILLIARD.Taco(taco);
