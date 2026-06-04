@@ -76,6 +76,7 @@ body {
     box-sizing: border-box;
     width: 1120px;
     max-width: 100%;
+    /*overflow: auto;*/
     padding: 0;
     border: 0;
     margin: 40px auto;
@@ -114,16 +115,15 @@ body {
     cursor: pointer;
     margin: 0;
 }
-#canvas {
+#scene {
     position: relative;
     display: block;
     box-sizing: border-box;
-    font-size: 0;
     border: 0;
     padding: 0;
     margin: 0 auto;
     width: 100%;
-    height: auto;
+    transform: translate3d(0,0,0);
 }
 #instructions {
     position: relative;
@@ -209,7 +209,10 @@ body {
 <button id="newgame" class="button">New Game</button>
 </div>
 
-<canvas id="canvas"></canvas>
+<!-- works with html/css, svg, or canvas rendering -->
+<!--<div id="scene"></div>-->
+<!--<svg id="scene" xmlns="http://www.w3.org/2000/svg"></svg>-->
+<canvas id="scene"></canvas>
 
 <ol id="instructions">
 <li>Rotate stick with mouse or touch to direct hit.</li>
@@ -221,31 +224,49 @@ body {
 
 <div style="margin:10px auto; text-align:center; z-index:10;"><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DP8WED9XW9TAE" style="color:#f90b13;font-size:14px;">donate</a></div>
 
-<script src="./build/NEngine.js"></script>
+<script src="./build/Scene.js"></script>
+<script src="./build/Tween.js"></script>
 <script src="./build/Billiard.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 (function(window) {
 "use strict";
-var billiard, canvas = document.getElementById('canvas'),
-    types = document.getElementById('type');
 
-billiard = new BILLIARD.Game(
-    canvas, 1,
-    './assets/tablepockets.png',
-    './assets/tablenopockets.png',
-    /*'./assets/white.png',
-    './assets/black.png',
-    './assets/yellow.png',
-    './assets/red.png',*/
-    './assets/taco.png'
-);
-canvas.focus();
+function load_img(uri)
+{
+    var img = new Image();
+    img.src = uri;
+    return img;
+}
+function game_init(assets)
+{
+    if (Object.keys(assets).filter(function(asset) {return !assets[asset].complete;}).length)
+    {
+        // wait to load assets
+        return setTimeout(function() {game_init(assets);}, 100);
+    }
 
-document.getElementById('newgame').addEventListener('click', function() {
-    billiard.init(parseInt(types.options[types.selectedIndex].value));
-    canvas.focus();
-}, false);
+    var billiard,
+        scene = document.getElementById('scene'),
+        types = document.getElementById('type');
+
+    BILLIARD.Tween = Tween;
+
+    billiard = new BILLIARD.Game(scene, assets, 100, 100, 1);
+    scene.focus();
+
+    document.getElementById('newgame').addEventListener('click', function() {
+        billiard.init(parseInt(types.options[types.selectedIndex].value));
+        scene.focus();
+    }, false);
+}
+
+game_init({
+    tablepockets: load_img('./assets/tablepockets.png'),
+    tablenopockets: load_img('./assets/tablenopockets.png'),
+    taco: load_img('./assets/taco.png')
+});
+
 })(window);
 //]]>
 </script>

@@ -1,9 +1,57 @@
 (function(BILLIARD) {
 "use strict";
-BILLIARD.Ball = function Ball(ball, type) {
+var cnt = 0;
+BILLIARD.Ball = function Ball(ball, size, mrgX, mrgY, type, isSVG) {
     var self = this;
     if (null == type) type = 2;
-    NEngine.DisplayObject.call(self);
+    var color = ball.toLowerCase(),
+        content,
+        ctx,
+        fillStyle,
+        colorStop = {
+            red: ["#f50404", "#973333"],
+            yellow: ["#edf00b", "#9b9c29"],
+            black: ["#4b4b4b", "#0e0e0e"],
+            white: ["#f7f7f7", "#9c9c9c"]
+        };
+
+    if (-1 < color.indexOf('red')) color = 'red';
+    else if (-1 < color.indexOf('yellow')) color = 'yellow';
+    else if (-1 < color.indexOf('black')) color = 'black';
+    else color = 'white';
+
+    ++cnt;
+
+    if (isSVG)
+    {
+        content = '<g><defs><radialGradient id="--r-grad-'+String(cnt)+'" fx="'+(100*(9/24)*(size/24)).toFixed(2)+'%" fy="'+(100*(9/24)*(size/24)).toFixed(2)+'%" fr="'+(100*(4/24)*(size/24)).toFixed(2)+'%" cx="'+(100*(9/24)*(size/24)).toFixed(2)+'%" cy="'+(100*(9/24)*(size/24)).toFixed(2)+'%" r="'+(100*(15/24)*(size/24)).toFixed(2)+'%"><stop offset="0%" stop-color="'+colorStop[color][0]+'" /><stop offset="100%" stop-color="'+colorStop[color][1]+'" /></radialGradient></defs><circle cx="'+(size/2).toFixed(2)+'" cy="'+(size/2).toFixed(2)+'" r="'+(size/2).toFixed(2)+'" fill="url(\'#--r-grad-'+String(cnt)+'\')" /></g>';
+    }
+    else
+    {
+        content = document.createElement('canvas');
+        content.width = size;
+        content.height = size;
+        ctx = content.getContext('2d');
+        fillStyle = ctx.createRadialGradient(9*size/24, 9*size/24, 4*size/24, 9*size/24, 9*size/24, 15*size/24);
+        fillStyle.addColorStop(0, colorStop[color][0]);
+        fillStyle.addColorStop(1, colorStop[color][1]);
+        ctx.fillStyle = fillStyle;
+        ctx.beginPath();
+        ctx.arc(size/2, size/2, size/2, 0, 2*Math.PI);
+        ctx.closePath();
+        ctx.fill();
+    }
+    Scene.DisplayObject2D.call(self, content, isSVG ? 'svg' : 'html');
+    self.pointerEvents = false;
+    self.useTransform = true;
+    self.width = size;
+    self.height = size;
+    self.x0 = size/2;
+    self.y0 = size/2;
+    self.r = size/2 - 1;
+    self.m = 1;
+    self.type = type;
+    self.status = 0;
     self.proccess_time = null;
     self.collision_target_time = null;
     self.collision = false;
@@ -13,67 +61,14 @@ BILLIARD.Ball = function Ball(ball, type) {
     self.dragging = false;
     self.target = null;
     self.colour = null;
-    self.type = type;
-    self.status = 0;
-    self.m = 1;
-    self.r = 1;
     self.vx = null;
     self.vy = null;
-    self.line_limit_x = BILLIARD.Ball.mrgX + 538 + self.r;
+    self.line_limit_x = mrgX + 538*size/24 + 1/*self.r*/;
     self.direction = new BILLIARD.TriangleData();
     self.direction.p0.update(self.x, self.y);
     self.updateProccessTime(1);
-    self.width = 24;
-    self.height = 24;
-    self.regX = 12;
-    self.regY = 12;
-    self.r = 11;
-    self.cacheCanvas = document.createElement('canvas');
-    self.cacheCanvas.width = self.width;
-    self.cacheCanvas.height = self.height;
-    var color = ball.toLowerCase(),
-        ctx = self.cacheCanvas.getContext('2d'),
-        fillStyle = ctx.createRadialGradient(9, 9, 4, 9, 9, 15);
-    if (-1 < color.indexOf('red'))
-    {
-        fillStyle.addColorStop(0, "#f50404");
-        fillStyle.addColorStop(1, "#973333");
-    }
-    else if (-1 < color.indexOf('yellow'))
-    {
-        fillStyle.addColorStop(0, "#edf00b");
-        fillStyle.addColorStop(1, "#9b9c29");
-    }
-    else if (-1 < color.indexOf('black'))
-    {
-        fillStyle.addColorStop(0, "#4b4b4b");
-        fillStyle.addColorStop(1, "#0e0e0e");
-    }
-    else //if (-1 < ball.indexOf('white'))
-    {
-        fillStyle.addColorStop(0, "#f7f7f7");
-        fillStyle.addColorStop(1, "#9c9c9c");
-    }
-    ctx.fillStyle = fillStyle;
-    ctx.beginPath();
-    ctx.arc(12, 12, 12, 0, 2*Math.PI);
-    ctx.closePath();
-    ctx.fill();
-    /*self.image = new Image();
-    self.image.onload = function() {
-        self.cacheCanvas.width = self.image.width;
-        self.cacheCanvas.height = self.image.height;
-        self.width = self.image.width;
-        self.height = self.image.height;
-        self.regX = self.width/2;
-        self.regY = self.height/2;
-        self.r = self.width/2-1;
-        self.cacheCanvas.getContext('2d').drawImage(self.image, 0, 0);
-        //self.line_limit_x = 538 + self.r;
-    };
-    self.image.src = ball;*/
 };
-BILLIARD.Ball.inheritsFrom(NEngine.DisplayObject);
+BILLIARD.Ball.inheritsFrom(Scene.DisplayObject2D);
 
 BILLIARD.Ball.prototype.proccess_time = null;
 BILLIARD.Ball.prototype.collision_target_time = null;
@@ -89,45 +84,18 @@ BILLIARD.Ball.prototype.status = null;
 BILLIARD.Ball.prototype.type = null;
 BILLIARD.Ball.prototype.m = 1;
 BILLIARD.Ball.prototype.r = 1;
+BILLIARD.Ball.prototype.w = null;
 BILLIARD.Ball.prototype.vx = null;
 BILLIARD.Ball.prototype.vy = null;
-BILLIARD.Ball.prototype.draw = function(ctx, ignoreCache) {
-    this.__draw(ctx, ignoreCache);
-};
 BILLIARD.Ball.prototype.allowDrag = function(allow) {
-    var self = this;
-    self.dragging = false;
-    self.onMouseDown = null;
-    self.mouseEnabled = false;
-    self.useHandCursor = false;
-    /*
-    if (allow)
-    {
-        self.dragging = true;
-        //self.onMouseDown=function() {self.startDragging()};
-        self.mouseEnabled = true;
-        self.useHandCursor = true;
-    }
-    else
-    {
-        self.dragging = false;
-        //self.stopDrag();
-        self.onMouseDown = null;
-        self.mouseEnabled = false;
-        self.useHandCursor = false;
-        self.move(self.x, self.y);
-        if (BILLIARD.Ball.isPositionOverlapped(self.x, self.y, self) != null)
-        {
-            self.putBehindLine();
-        }
-    }*/
+    this.dragging = false;
 };
 BILLIARD.Ball.prototype.affectSpeed = function(factor) {
-    var self = this;
     if (null == factor) factor = 0.975;
+    var self = this;
     self.direction.vx = BILLIARD.correctFloatingPointError(self.direction.vx * factor);
     self.direction.vy = BILLIARD.correctFloatingPointError(self.direction.vy * factor);
-    if (Math.abs(self.direction.vx) <= 0.1 && Math.abs(self.direction.vy) < 0.1)
+    if (Math.abs(self.direction.vx) < 0.05 && Math.abs(self.direction.vy) < 0.05)
     {
         self.direction.vx = 0;
         self.direction.vy = 0;
@@ -289,7 +257,7 @@ BILLIARD.Ball.findTimeUntilCollide = function(ball1, ball2) {
     }
     return _loc_3;
 };
-BILLIARD.Ball.stillOnTable = function(x, y,r) {
+BILLIARD.Ball.stillOnTable = function(x, y, r) {
     var w = BILLIARD.Ball.w;
     return x - r >= w.x1 && x + r <= w.x2 && y - r >= w.y1 && y + r <= w.y2;
 };

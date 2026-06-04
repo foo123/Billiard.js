@@ -1,17 +1,13 @@
 (function(BILLIARD) {
 "use strict";
-BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets/*, white, black, yel, red*/, taco) {
-    var self = this, mrg = 100, width = mrg + 585 + mrg, height = mrg + 365 + mrg;
+BILLIARD.Game = function Game(container, assets, mrgX, mrgY, type) {
+    if (null == type) type = 1;
+    mrgY = mrgY || 0;
+    mrgX = mrgX || 0;
+    var self = this;
 
-    self.mrgX = mrg;
-    self.mrgY = mrg;
-    canvas.width = width;
-    canvas.height = height;
-
-    self.fps = 12; // 12 FPS
-    NEngine.env.interval = 1000/self.fps;
-    NEngine.Stage.call(self, canvas, true);
-
+    self.mrgX = mrgX;
+    self.mrgY = mrgY;
     self.diff = null;
     self.tri = null;
     self.lines = null;
@@ -38,17 +34,32 @@ BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets/*, whit
     self.black = 'black';//black;
     self.red = 'red';//red;
     self.yellow = 'yellow';//yel;
-    self.tablepockets = new NEngine.Bitmap(tablepockets, self.mrgX, self.mrgY);
-    self.tablenopockets = new NEngine.Bitmap(tablenopockets, self.mrgX, self.mrgY);
-    self.taco = new BILLIARD.Taco(taco);
+
+    self.isSVG = 'SVG' === String(container.tagName || '').toUpperCase();
+
+    self.tablepockets = new Scene.DisplayObject2D(self.isSVG ? ('<image href="'+assets.tablepockets.src+'" width="'+assets.tablepockets.width+'" height="'+assets.tablepockets.height+'" />') : ('<img src="'+assets.tablepockets.src+'" style="width:'+assets.tablepockets.width+'px;height:'+assets.tablepockets.height+'px;" />'), self.isSVG ? 'svg' : 'html');
+    self.tablepockets.name = 'table-with-pockets';
+    self.tablepockets.width = assets.tablepockets.width;
+    self.tablepockets.height = assets.tablepockets.height;
+    self.tablepockets.x = self.mrgX;
+    self.tablepockets.y = self.mrgY;
+    self.tablepockets.pointerEvents = false;
+    self.tablepockets.useTransform = false;
+
+    self.tablenopockets = new Scene.DisplayObject2D(self.isSVG ? ('<image href="'+assets.tablenopockets.src+'" width="'+assets.tablenopockets.width+'" height="'+assets.tablenopockets.height+'" />') : ('<img src="'+assets.tablenopockets.src+'" style="width:'+assets.tablenopockets.width+'px;height:'+assets.tablenopockets.height+'px;" />'), self.isSVG ? 'svg' : 'html');
+    self.tablenopockets.name = 'table-without-pockets';
+    self.tablenopockets.width = assets.tablenopockets.width;
+    self.tablenopockets.height = assets.tablenopockets.height;
+    self.tablenopockets.x = self.mrgX;
+    self.tablenopockets.y = self.mrgY;
+    self.tablenopockets.pointerEvents = false;
+    self.tablenopockets.useTransform = false;
+
+    self.taco = new BILLIARD.Taco(assets.taco, self.isSVG);
 
     self.balls = [];
     self.balls_removed = [];
 
-    BILLIARD.Ball.w = {x1:self.mrgX+29, y1:self.mrgY+35, x2:self.mrgX+585-29, y2:self.mrgY+365-39};
-    //BILLIARD.Ball.w = {x1:135, y1:102, x2:665, y2:397};
-    BILLIARD.Ball.mrgX = self.mrgX;
-    BILLIARD.Ball.mrgY = self.mrgY;
     BILLIARD.Ball.isPositionOverlapped = function(x, y, ball) {
         if (null == ball) ball = null;
         self.tri = new BILLIARD.TriangleData();
@@ -73,13 +84,18 @@ BILLIARD.Game = function Game(canvas, type, tablepockets, tablenopockets/*, whit
         return null;
     };
 
-    self.stagetick = self.tick;
+    Scene.call(self, container, 2*self.mrgX + (type === 1 ? self.tablepockets : self.tablenopockets).width, 2*self.mrgY + (type === 1 ? self.tablepockets : self.tablenopockets).height);
+    //self.autoUpdate = false;
+    self.fps = 12; // 12 FPS
     self.init(type);
+    setInterval(function() {self.onEnterFrame();}, 1000 / self.fps);
 };
-BILLIARD.Game.inheritsFrom(NEngine.Stage);
+BILLIARD.Game.inheritsFrom(Scene);
 
+BILLIARD.Game.prototype.isSVG = false;
 BILLIARD.Game.prototype.mrgX = 0;
 BILLIARD.Game.prototype.mrgY = 0;
+BILLIARD.Game.prototype.fps = 12;
 BILLIARD.Game.prototype.diff = null;
 BILLIARD.Game.prototype.tri = null;
 BILLIARD.Game.prototype.lines = null;
@@ -109,48 +125,71 @@ BILLIARD.Game.prototype.yellow = null;
 BILLIARD.Game.prototype.tablenopockets = null;
 BILLIARD.Game.prototype.tablepockets = null;
 BILLIARD.Game.prototype.taco = null;
+BILLIARD.Game.prototype.makeBall = function(color, scaling) {
+    var self = this;
+    return new BILLIARD.Ball(color, Math.round(24*scaling), self.type, self.mrgX, self.mrgY, self.isSVG);
+};
 BILLIARD.Game.prototype.addBall = function(ball) {
-    this.addChild(ball);
-    this.balls.push(ball);
+    var self = this;
+    self.addChild(ball);
+    self.balls.push(ball);
     ball.updateDirection(ball.x, ball.y);
 };
 BILLIARD.Game.prototype.init = function(type) {
-    var self = this, index, name, ball;
+    var self = this, index, name, ball, scaling;
     self.type = type;
-    self.tick = self.stagetick;
 
-    while (self.numChildren > 0) self.removeChildAt(0);
+    self.empty();
 
     self.lines = null;
+    if (self.c0_fake) self.c0_fake.dispose();
     self.c0_fake = null;
+    if (self.c0) self.c0.dispose();
     self.c0 = null;
+    if (self.c1) self.c1.dispose();
     self.c1 = null;
+    if (self.c2) self.c2.dispose();
     self.c2 = null;
+    if (self.c3) self.c3.dispose();
     self.c3 = null;
+    if (self.c4) self.c4.dispose();
     self.c4 = null;
+    if (self.c5) self.c5.dispose();
     self.c5 = null;
+    if (self.c6) self.c6.dispose();
     self.c6 = null;
+    if (self.c7) self.c7.dispose();
     self.c7 = null;
+    if (self.c8) self.c8.dispose();
     self.c8 = null;
+    if (self.c9) self.c9.dispose();
     self.c9 = null;
+    if (self.c10) self.c10.dispose();
     self.c10 = null;
+    if (self.c11) self.c11.dispose();
     self.c11 = null;
+    if (self.c12) self.c12.dispose();
     self.c12 = null;
+    if (self.c13) self.c13.dispose();
     self.c13 = null;
+    if (self.c14) self.c14.dispose();
     self.c14 = null;
+    if (self.c15) self.c15.dispose();
     self.c15 = null;
     self.balls = [];
     self.balls_removed = [];
 
+    scaling = (self.type === 1 ? self.tablepockets : self.tablenopockets).width / 585;
+    BILLIARD.Ball.w = {x1:self.mrgX+scaling*29, y1:self.mrgY+scaling*35, x2:self.mrgX+scaling*(585-29), y2:self.mrgY+scaling*(365-39)};
     self.addChild(self.type === 1 ? self.tablepockets : self.tablenopockets);
 
-    self.c0_fake = new BILLIARD.Ball(self.white, self.type);
+    self.c0_fake = self.makeBall(self.white, scaling);
     self.c0_fake.name = 'c0_fake';
     self.c0_fake.colour = 0;
     self.c0_fake.alpha = 0.5;
     self.addChild(self.c0_fake);
 
-    self.c0 = new BILLIARD.Ball(self.white, self.type);
+    self.c0 = self.makeBall(self.white, scaling);
     self.c0.name = 'c0';
     self.c0.colour = 0;
 
@@ -161,17 +200,17 @@ BILLIARD.Game.prototype.init = function(type) {
             name = 'c' + String(index);
             if (index < 8)
             {
-                self[name] = new BILLIARD.Ball(self.yellow, self.type);
+                self[name] = self.makeBall(self.yellow, scaling);
                 self[name].colour = 2;
             }
             else if (index > 8)
             {
-                self[name] = new BILLIARD.Ball(self.red, self.type);
+                self[name] = self.makeBall(self.red, scaling);
                 self[name].colour = 3;
             }
             else//if (index === 8)
             {
-                self[name] = new BILLIARD.Ball(self.black, self.type);
+                self[name] = self.makeBall(self.black, scaling);
                 self[name].colour = 1;
             }
             self[name].name = name;
@@ -179,20 +218,20 @@ BILLIARD.Game.prototype.init = function(type) {
     }
     else // french billiard
     {
-        self.c1 = new BILLIARD.Ball(self.black, self.type);
+        self.c1 = self.makeBall(self.black, scaling);
         self.c1.name = 'c1';
         self.c1.colour = 1;
-        self.c2 = new BILLIARD.Ball(self.red, self.type);
+        self.c2 = self.makeBall(self.red, scaling);
         self.c2.name = 'c2';
         self.c2.colour = 3;
-        self.c3 = new BILLIARD.Ball(self.yellow, self.type);
+        self.c3 = self.makeBall(self.yellow, scaling);
         self.c3.name = 'c3';
         self.c3.colour = 2;
     }
 
     // position balls on table
-    self.c0.x = self.mrgX + 578-107;
-    self.c0.y = self.mrgY + 164-66;
+    self.c0.x = self.mrgX + scaling*(578-107);
+    self.c0.y = self.mrgY + scaling*(164-66);
     self.c0.direction.p0.update(self.c0.x, self.c0.y);
     self.addBall(self.c0);
 
@@ -234,35 +273,60 @@ BILLIARD.Game.prototype.init = function(type) {
         {
             name = 'c' + String(index);
             ball = self[name];
-            ball.x += self.mrgX-107;
-            ball.y += self.mrgY-66;
+            ball.x = self.mrgX + scaling*(ball.x - 107);
+            ball.y = self.mrgY + scaling*(ball.y - 66);
             ball.direction.p0.update(ball.x, ball.y);
             self.addBall(ball);
         }
     }
     else // french billiard
     {
-        self.c1.x = self.mrgX + 200;
+        self.c1.x = self.mrgX + scaling*200;
         self.c1.y = self.height/2;
         self.c1.direction.p0.update(self.c1.x, self.c1.y);
         self.addBall(self.c1);
-        self.c2.x = self.mrgX + 200;
-        self.c2.y = self.mrgY + 50;
+        self.c2.x = self.mrgX + scaling*200;
+        self.c2.y = self.mrgY + scaling*50;
         self.c2.direction.p0.update(self.c2.x, self.c2.y);
         self.addBall(self.c2);
-        self.c3.x = self.mrgX + 200;
-        self.c3.y = self.height-self.mrgY-50;
+        self.c3.x = self.mrgX + scaling*200;
+        self.c3.y = self.height-self.mrgY-scaling*50;
         self.c3.direction.p0.update(self.c3.x, self.c3.y);
         self.addBall(self.c3);
     }
 
     self.c0.putBehindLine();
-    self.taco.init(self.c0);
-    self.addChild(self.taco);
-    //self.addChild(self.lines);
-    self.tick = function() {self.onEnterFrame();};
+    self.taco.whiteBall = null;
+    if (BILLIARD.Tween)
+    {
+        var delay = 0;
+        self.balls.forEach(function(ball, i) {
+            if (ball.name === 'c0') return;
+            BILLIARD.Tween(ball, self.fps)
+            .animate('alpha', {from:0, to:1}, 400, delay)
+            .animate('x', BILLIARD.Tween.Path.bezier(self.mrgX, self.mrgX+3*(ball.x-self.mrgX)/5, ball.x), 600, delay, 'ease-out')
+            .animate('y', BILLIARD.Tween.Path.bezier(ball.y < self.height/2 ? self.mrgY : (self.height-self.mrgY), ball.y < self.height/2 ? 3*self.mrgY : (self.height-3*self.mrgY), ball.y), 600, delay, 'ease-out', {
+                onEnd: function(ball, tween) {
+                    tween.dispose();
+                    if (i+1 === self.balls.length)
+                    {
+                        self.taco.init(self.c0);
+                        self.addChild(self.taco);
+                    }
+                }
+            })
+            .initialize()
+            .start();
+            delay += 100;
+        });
+    }
+    else
+    {
+        self.taco.init(self.c0);
+        self.addChild(self.taco);
+    }
 };
-BILLIARD.Game.prototype.onEnterFrame = function(event) {
+BILLIARD.Game.prototype.onEnterFrame = function() {
     var self = this,
         _loc_2 = 0,
         _loc_3 = false,
@@ -332,7 +396,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                 if (_loc_15.direction.len > 0 && !_loc_15.collision)
                 {
                     _loc_16 = _loc_15.target;
-                    if (_loc_16 != null && _loc_16.target == _loc_15 && (_loc_11 == 1 || _loc_11 == _loc_15.collision_target_time))
+                    if (_loc_16 != null && _loc_16.target === _loc_15 && (_loc_11 === 1 || _loc_11 === _loc_15.collision_target_time))
                     {
                         _loc_3 = true;
                         if (_loc_6 === 0)
@@ -342,9 +406,9 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                             {
                                 _loc_7 = 1;
                             }
-                            if (self.taco.first_hit == null && (_loc_15.name == "c0" || _loc_16.name == "c0"))
+                            if (self.taco.first_hit == null && (_loc_15.name === "c0" || _loc_16.name === "c0"))
                             {
-                                self.taco.first_hit = _loc_15.name == "c0" ? (_loc_16) : (_loc_15);
+                                self.taco.first_hit = _loc_15.name === "c0" ? (_loc_16) : (_loc_15);
                             }
                         }
                         ++_loc_6;
@@ -372,7 +436,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                             _loc_12 = true;
                         }
                     }
-                    else if (_loc_15.collision_wall_detail != null && (_loc_11 == 1 || _loc_11 == _loc_15.collision_target_time))
+                    else if (_loc_15.collision_wall_detail != null && (_loc_11 === 1 || _loc_11 === _loc_15.collision_target_time))
                     {
                         _loc_11 = _loc_15.collision_target_time;
                         _loc_15.move(_loc_15.direction.p0.x + _loc_15.vx * 0.9999 * _loc_11, _loc_15.direction.p0.y + _loc_15.vy * 0.9999 * _loc_11);
@@ -395,7 +459,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
                                     self.balls_removed.push(_loc_15);
                                     self.balls.splice(_loc_17, 1);
                                     --_loc_2;
-                                    if (_loc_15.colour == 1 && (self.balls.length == 0 || self.balls.length > 1 || self.balls.length == 1 && self.balls[0].colour != 0))
+                                    if (_loc_15.colour === 1 && (self.balls.length === 0 || self.balls.length > 1 || self.balls.length === 1 && self.balls[0].colour !== 0))
                                     {
                                         self.c0.status = 2;
                                     }
@@ -480,7 +544,7 @@ BILLIARD.Game.prototype.onEnterFrame = function(event) {
             if (self.taco.alpha <= 0) self.taco.visible = false;
         }
     }
-    self.stagetick();
+    if (!self.autoUpdate) self.update();
 };
 BILLIARD.Game.prototype.getBallsInCollision = function(ball) {
     var self = this,
@@ -496,7 +560,7 @@ BILLIARD.Game.prototype.getBallsInCollision = function(ball) {
         {
             self.balls[_loc_3].last_collision_time = Infinity;
             _loc_4 = BILLIARD.Ball.findTimeUntilCollide(ball, self.balls[_loc_3]);
-            if (_loc_4 >= 0 && _loc_4 < 1 && (_loc_2.length == 0 || _loc_2[0].last_collision_time > _loc_4))
+            if (_loc_4 >= 0 && _loc_4 < 1 && (_loc_2.length === 0 || _loc_2[0].last_collision_time > _loc_4))
             {
                 self.balls[_loc_3].last_collision_time = _loc_4;
                 _loc_2[0] = self.balls[_loc_3];
