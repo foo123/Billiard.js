@@ -1010,7 +1010,8 @@ BILLIARD.Game.prototype.init = function(type) {
         var delay = 0;
         self.balls.forEach(function(ball, i) {
             if (ball.name === 'c0') return;
-            BILLIARD.Tween(ball, self.fps)
+            BILLIARD.Tween(ball)
+            .fps(self.fps)
             .animate('alpha', {from:0, to:1}, 400, delay)
             .animate('x', BILLIARD.Tween.Path.bezier(self.mrgX, self.mrgX+3*(ball.x-self.mrgX)/5, ball.x), 600, delay, 'ease-out')
             .animate('y', BILLIARD.Tween.Path.bezier(ball.y < self.height/2 ? self.mrgY : (self.height-self.mrgY), ball.y < self.height/2 ? 3*self.mrgY : (self.height-3*self.mrgY), ball.y), 600, delay, 'ease-out', {
@@ -1024,7 +1025,7 @@ BILLIARD.Game.prototype.init = function(type) {
                 }
             })
             .initialize()
-            .start();
+            .enqueue();
             delay += 100;
         });
     }
@@ -1252,6 +1253,7 @@ BILLIARD.Game.prototype.onEnterFrame = function() {
             if (self.taco.alpha <= 0) self.taco.visible = false;
         }
     }
+    if (BILLIARD.Tween) BILLIARD.Tween.tick();
     if (!self.autoUpdate) self.update();
 };
 BILLIARD.Game.prototype.getBallsInCollision = function(ball) {
