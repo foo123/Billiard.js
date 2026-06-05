@@ -250,7 +250,7 @@ function game_init(assets)
         scene = document.getElementById('scene'),
         types = document.getElementById('type');
 
-    BILLIARD.Tween = Tween;
+    BILLIARD.Tween = window.Tween;
 
     billiard = new BILLIARD.Game(scene, assets, 100, 100, 1);
     scene.focus();

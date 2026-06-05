@@ -6,6 +6,8 @@ Billiard.js
 
 [![Billiard.js](/assets/billiard.png)](http://foo123.github.io/examples/billiard.js/)
 
+22kB minified
+
 ### Live Example
 
 * [Billiard.js](http://foo123.github.io/examples/billiard.js/)
