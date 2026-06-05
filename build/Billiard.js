@@ -210,7 +210,7 @@ BILLIARD.Ball.prototype.affectSpeed = function(factor) {
     var self = this;
     self.direction.vx = BILLIARD.correctFloatingPointError(self.direction.vx * factor);
     self.direction.vy = BILLIARD.correctFloatingPointError(self.direction.vy * factor);
-    if (Math.abs(self.direction.vx) < 0.05 && Math.abs(self.direction.vy) < 0.05)
+    if (Math.abs(self.direction.vx) < 0.12 && Math.abs(self.direction.vy) < 0.12)
     {
         self.direction.vx = 0;
         self.direction.vy = 0;
@@ -645,9 +645,8 @@ BILLIARD.Taco.prototype.onPress = function(event) {
             self.reallymoving = true;
             setTimeout(function update() {
                 if (self.locked || !self.reallymoving || !self.moving) return;
-                var curr_mouse = new BILLIARD.SimplePoint(self.scene.pointer[0].x, self.scene.pointer[0].y),
-                    dist = BILLIARD.TriangleData.getHypotenuse(curr_mouse.x-start_mouse.x, curr_mouse.y-start_mouse.y);
-                if (dist < 1)
+                var curr_mouse = new BILLIARD.SimplePoint(self.scene.pointer[0].x, self.scene.pointer[0].y);
+                if (Math.abs(curr_mouse.x-start_mouse.x) < 1.5/self.scene.scaling && Math.abs(curr_mouse.y-start_mouse.y) < 1.5/self.scene.scaling)
                 {
                     self.init_mouse.p0 = new BILLIARD.SimplePoint(self.whiteBall.x, self.whiteBall.y);
                     self.init_mouse.p1 = new BILLIARD.SimplePoint(curr_mouse.x, curr_mouse.y);

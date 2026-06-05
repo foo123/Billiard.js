@@ -95,7 +95,7 @@ BILLIARD.Ball.prototype.affectSpeed = function(factor) {
     var self = this;
     self.direction.vx = BILLIARD.correctFloatingPointError(self.direction.vx * factor);
     self.direction.vy = BILLIARD.correctFloatingPointError(self.direction.vy * factor);
-    if (Math.abs(self.direction.vx) < 0.05 && Math.abs(self.direction.vy) < 0.05)
+    if (Math.abs(self.direction.vx) < 0.12 && Math.abs(self.direction.vy) < 0.12)
     {
         self.direction.vx = 0;
         self.direction.vy = 0;
