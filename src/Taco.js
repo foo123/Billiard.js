@@ -2,7 +2,7 @@
 "use strict";
 BILLIARD.Taco = function Taco(taco, isSVG) {
     var self = this;
-    Scene.DisplayObject2D.call(self, isSVG ? ('<image href="'+taco.src+'" width="'+taco.width+'" height="'+taco.height+'" />') : ('<img src="'+taco.src+'"  style="width:'+taco.width+'px;height:'+taco.height+'px;" />'), isSVG ? 'svg' : 'html');
+    SceneLite.DisplayObject2D.call(self, isSVG ? ('<image href="'+taco.src+'" width="'+taco.width+'" height="'+taco.height+'" />') : ('<img src="'+taco.src+'"  style="width:'+taco.width+'px;height:'+taco.height+'px;" />'), isSVG ? 'svg' : 'html');
     self.pointerEvents = false;
     self.useTransform = true;
     self.width = taco.width;
@@ -24,7 +24,7 @@ BILLIARD.Taco = function Taco(taco, isSVG) {
     self.init_mouse = new BILLIARD.TriangleData();
     self.vector_mouse = new BILLIARD.TriangleData();
 };
-BILLIARD.Taco.inheritsFrom(Scene.DisplayObject2D);
+BILLIARD.Taco.inheritsFrom(SceneLite.DisplayObject2D);
 
 BILLIARD.Taco.prototype.moving = false;
 BILLIARD.Taco.prototype.reallymoving = false;

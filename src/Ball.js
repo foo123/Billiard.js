@@ -41,7 +41,7 @@ BILLIARD.Ball = function Ball(ball, size, mrgX, mrgY, type, isSVG) {
         ctx.closePath();
         ctx.fill();
     }
-    Scene.DisplayObject2D.call(self, content, isSVG ? 'svg' : 'html');
+    SceneLite.DisplayObject2D.call(self, content, isSVG ? 'svg' : 'html');
     self.pointerEvents = false;
     self.useTransform = true;
     self.width = size;
@@ -68,7 +68,7 @@ BILLIARD.Ball = function Ball(ball, size, mrgX, mrgY, type, isSVG) {
     self.direction.p0.update(self.x, self.y);
     self.updateProccessTime(1);
 };
-BILLIARD.Ball.inheritsFrom(Scene.DisplayObject2D);
+BILLIARD.Ball.inheritsFrom(SceneLite.DisplayObject2D);
 
 BILLIARD.Ball.prototype.proccess_time = null;
 BILLIARD.Ball.prototype.collision_target_time = null;

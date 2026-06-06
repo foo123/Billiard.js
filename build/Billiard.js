@@ -156,7 +156,7 @@ BILLIARD.Ball = function Ball(ball, size, mrgX, mrgY, type, isSVG) {
         ctx.closePath();
         ctx.fill();
     }
-    Scene.DisplayObject2D.call(self, content, isSVG ? 'svg' : 'html');
+    SceneLite.DisplayObject2D.call(self, content, isSVG ? 'svg' : 'html');
     self.pointerEvents = false;
     self.useTransform = true;
     self.width = size;
@@ -183,7 +183,7 @@ BILLIARD.Ball = function Ball(ball, size, mrgX, mrgY, type, isSVG) {
     self.direction.p0.update(self.x, self.y);
     self.updateProccessTime(1);
 };
-BILLIARD.Ball.inheritsFrom(Scene.DisplayObject2D);
+BILLIARD.Ball.inheritsFrom(SceneLite.DisplayObject2D);
 
 BILLIARD.Ball.prototype.proccess_time = null;
 BILLIARD.Ball.prototype.collision_target_time = null;
@@ -511,7 +511,7 @@ BILLIARD.Ball.findTimeUntilCollideWithWall = function(param1) {
 "use strict";
 BILLIARD.Taco = function Taco(taco, isSVG) {
     var self = this;
-    Scene.DisplayObject2D.call(self, isSVG ? ('<image href="'+taco.src+'" width="'+taco.width+'" height="'+taco.height+'" />') : ('<img src="'+taco.src+'"  style="width:'+taco.width+'px;height:'+taco.height+'px;" />'), isSVG ? 'svg' : 'html');
+    SceneLite.DisplayObject2D.call(self, isSVG ? ('<image href="'+taco.src+'" width="'+taco.width+'" height="'+taco.height+'" />') : ('<img src="'+taco.src+'"  style="width:'+taco.width+'px;height:'+taco.height+'px;" />'), isSVG ? 'svg' : 'html');
     self.pointerEvents = false;
     self.useTransform = true;
     self.width = taco.width;
@@ -533,7 +533,7 @@ BILLIARD.Taco = function Taco(taco, isSVG) {
     self.init_mouse = new BILLIARD.TriangleData();
     self.vector_mouse = new BILLIARD.TriangleData();
 };
-BILLIARD.Taco.inheritsFrom(Scene.DisplayObject2D);
+BILLIARD.Taco.inheritsFrom(SceneLite.DisplayObject2D);
 
 BILLIARD.Taco.prototype.moving = false;
 BILLIARD.Taco.prototype.reallymoving = false;
@@ -744,7 +744,7 @@ BILLIARD.Game = function Game(container, assets, mrgX, mrgY, type) {
 
     self.isSVG = 'SVG' === String(container.tagName || '').toUpperCase();
 
-    self.tablepockets = new Scene.DisplayObject2D(self.isSVG ? ('<image href="'+assets.tablepockets.src+'" width="'+assets.tablepockets.width+'" height="'+assets.tablepockets.height+'" />') : ('<img src="'+assets.tablepockets.src+'" style="width:'+assets.tablepockets.width+'px;height:'+assets.tablepockets.height+'px;" />'), self.isSVG ? 'svg' : 'html');
+    self.tablepockets = new SceneLite.DisplayObject2D(self.isSVG ? ('<image href="'+assets.tablepockets.src+'" width="'+assets.tablepockets.width+'" height="'+assets.tablepockets.height+'" />') : ('<img src="'+assets.tablepockets.src+'" style="width:'+assets.tablepockets.width+'px;height:'+assets.tablepockets.height+'px;" />'), self.isSVG ? 'svg' : 'html');
     self.tablepockets.name = 'table-with-pockets';
     self.tablepockets.width = assets.tablepockets.width;
     self.tablepockets.height = assets.tablepockets.height;
@@ -753,7 +753,7 @@ BILLIARD.Game = function Game(container, assets, mrgX, mrgY, type) {
     self.tablepockets.pointerEvents = false;
     self.tablepockets.useTransform = false;
 
-    self.tablenopockets = new Scene.DisplayObject2D(self.isSVG ? ('<image href="'+assets.tablenopockets.src+'" width="'+assets.tablenopockets.width+'" height="'+assets.tablenopockets.height+'" />') : ('<img src="'+assets.tablenopockets.src+'" style="width:'+assets.tablenopockets.width+'px;height:'+assets.tablenopockets.height+'px;" />'), self.isSVG ? 'svg' : 'html');
+    self.tablenopockets = new SceneLite.DisplayObject2D(self.isSVG ? ('<image href="'+assets.tablenopockets.src+'" width="'+assets.tablenopockets.width+'" height="'+assets.tablenopockets.height+'" />') : ('<img src="'+assets.tablenopockets.src+'" style="width:'+assets.tablenopockets.width+'px;height:'+assets.tablenopockets.height+'px;" />'), self.isSVG ? 'svg' : 'html');
     self.tablenopockets.name = 'table-without-pockets';
     self.tablenopockets.width = assets.tablenopockets.width;
     self.tablenopockets.height = assets.tablenopockets.height;
@@ -791,13 +791,13 @@ BILLIARD.Game = function Game(container, assets, mrgX, mrgY, type) {
         return null;
     };
 
-    Scene.call(self, container, 2*self.mrgX + (type === 1 ? self.tablepockets : self.tablenopockets).width, 2*self.mrgY + (type === 1 ? self.tablepockets : self.tablenopockets).height);
+    SceneLite.call(self, container, 2*self.mrgX + (type === 1 ? self.tablepockets : self.tablenopockets).width, 2*self.mrgY + (type === 1 ? self.tablepockets : self.tablenopockets).height);
     //self.autoUpdate = false;
     self.fps = 12; // 12 FPS
     self.init(type);
     setInterval(function() {self.onEnterFrame();}, 1000 / self.fps);
 };
-BILLIARD.Game.inheritsFrom(Scene);
+BILLIARD.Game.inheritsFrom(SceneLite);
 
 BILLIARD.Game.prototype.isSVG = false;
 BILLIARD.Game.prototype.mrgX = 0;

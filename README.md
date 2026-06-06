@@ -16,7 +16,7 @@ Billiard.js
 
 This small project draws from various billiard games in Flash, especially [AS3 Billiard by Alejantro](http://www.yoambulante.com/en/labs/elastic_collision.php).
 
-[Scene.js](https://github.com/foo123/Scene.js) is used which provides a simple, performant and versatile **Scene Graph API** supporting HTML/CSS, SVG and Canvas rendering.
+[SceneLite.js](https://github.com/foo123/SceneLite.js) is used which provides a lite, performant and versatile **Scene Graph API** supporting HTML/CSS, SVG and Canvas rendering.
 
 ### Todo
 * add ability to perform *draws* , *follows* and *sides*, besides *normal* hits
